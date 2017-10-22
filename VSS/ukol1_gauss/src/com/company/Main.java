@@ -23,21 +23,20 @@ public class Main {
 
     public static void main(String[] args) {
 
-        double deviation = 0.5;
-        double mean = 2;
-        int histogramColumns = 100;
+        InputParser parser = new InputParser();
+        GaussianParameters parameters = parser.ParseInput(args);
+        int histogramColumns = 49;
         int maximalniPocetHvezdicek = 100;
         int numberCount = 1000000;
 
-        GaussianParameters parameters = new GaussianParameters(mean,deviation);
         GaussianDistribution distribution = new GaussianDistribution(parameters,numberCount,histogramColumns);
         TreeMap<Double,Integer> histogram = distribution.getHistogram();
         GaussianParameters realParameters = distribution.getRealGaussianParameters();
 
         System.out.println("E_teorie="+parameters.getMean());
-        System.out.println("D_teorie="+parameters.getDeviation());
+        System.out.println("D_teorie="+parameters.getOdchylka());
         System.out.println("E_vypocet="+realParameters.getMean());
-        System.out.println("D_vypocet="+Math.sqrt(realParameters.getDeviation()));
+        System.out.println("D_vypocet="+realParameters.getOdchylka());
 
         printHistogram(histogram);
 

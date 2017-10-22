@@ -50,25 +50,32 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
     /**
      * Counter vygenerovanych cisel v histogramu
      */
-    private double numbersCount;
+    private int numbersCount;
+
     /**
      *
      * @param parameters objekt s parametry normalniho rozdeleni (odchylka, stredni hodnota)
+     * @param numbersToGenerate pocet cisel, ktere se maji vygenerovat
+     * @param histogramColumns pocet sloupcu histogramu
      */
     public GaussianDistribution(GaussianParameters parameters, int numbersToGenerate, int histogramColumns)
     {
         this.parameters = parameters;
         this.numbersToGenerate = numbersToGenerate;
-        this.realParameters = new GaussianParameters(parameters.getMean(),parameters.getDeviation());
+        this.realParameters = new GaussianParameters(parameters.getMean(),parameters.getOdchylka(),0);
         this.histogramColumns = histogramColumns;
 
-        predictedMinValue = parameters.getMean() - this.parameters.getDeviation()*5;
-        predictedMaxValue = parameters.getMean() + this.parameters.getDeviation()*5;
+        predictedMinValue = parameters.getMean() - this.parameters.getOdchylka()*5;
+        predictedMaxValue = parameters.getMean() + this.parameters.getOdchylka()*5;
         rangeForOneColumn = (predictedMaxValue - predictedMinValue)/(histogramColumns-1);
         initHistogram();
         generateNumbersToHistogram();
     }
 
+    /**
+     * Metoda prepocita stredni hodnotu a odchylku
+     * @param addedNumber
+     */
     private void recalcDeviationAndMean(double addedNumber)
     {
         if(numbersCount>0)
@@ -77,12 +84,12 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
             double oldMean = this.realParameters.getMean();
             double newMean = ((numbersCount * oldMean)+addedNumber)/(numbersCount+1);
 
-            double oldDeviation = this.realParameters.getDeviation();
+            double oldDeviation = this.realParameters.getRozptyl();
             //(n * (var[n] + mean[n]^2) + value^2)/(n+1) - mean[n+1]^2
             double top = numbersCount*(oldDeviation + Math.pow(oldMean,2)) + Math.pow(addedNumber,2);
             double newVariation = top/(numbersCount+1) - Math.pow(newMean,2);
             this.realParameters.setMean(newMean);
-            this.realParameters.setDeviation(newVariation);
+            this.realParameters.setRozptyl(newVariation);
         }
 
     }
@@ -123,6 +130,9 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
           recalcDeviationAndMean(valueToAdd);
     }
 
+    /**
+     * Vytvori strukturu pro ulozeni histogramu
+     */
     private void initHistogram()
     {
         this.histogram = new TreeMap<Double,Integer>();
@@ -132,13 +142,17 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
         }
     }
 
+    /***
+     * Do histogramu vygeneruje cisla (tolik, kolik bylo predano v konstruktoru)
+     */
     private void generateNumbersToHistogram()
     {
-        for(int i = 0; i< this.numbersToGenerate;i++)
+        for(int i = numbersCount; i< this.numbersToGenerate;i = numbersCount)
         {
             addNewRandomToHistogram(generateNewNumber());
         }
     }
+
 
     @Override
     public double generateNewNumber() {
@@ -147,7 +161,7 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
         double randStdNormal = Math.sqrt(-2.0 * Math.log(u1)) *
                 Math.sin(2.0 * Math.PI * u2); //random normal(0,1)
         double randNormal =
-                this.parameters.getMean() + this.parameters.getDeviation() * randStdNormal;
+                this.parameters.getMean() + this.parameters.getOdchylka() * randStdNormal;
         return randNormal;
     }
 }

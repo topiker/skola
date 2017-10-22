@@ -8,14 +8,29 @@ import java.util.TreeMap;
  * Created by liska on 21.10.2017.
  */
 public class GaussHistogramPrinter {
+    /**
+     * Data k vytisknuti
+     */
     private TreeMap<Double,Integer> data;
+    /**
+     * Maximalni pocet hvezdicek pro nejvyssi sloupec
+     */
     private int maxStars;
+
+    /**
+     *
+     * @param data data pro vypis
+     * @param maxStars maximalni pocet hvezdicek pro nejvyssi sloupec
+     */
     public GaussHistogramPrinter(TreeMap<Double,Integer> data, int maxStars)
     {
         this.data = data;
         this.maxStars = maxStars;
     }
 
+    /**
+     * Vypise histogram do konzole
+     */
     public void printHistToConsole()
     {
         int maxHistValue = getMaxHistValue();
@@ -23,6 +38,10 @@ public class GaussHistogramPrinter {
         printHistogram(this.data,valuesNeededForStars);
     }
 
+    /**
+     * Ziska maximalni cetnost prvku v histogramu
+     * @return
+     */
     private int getMaxHistValue()
     {
         Map.Entry<Double,Integer> maxEntry = null;
@@ -43,6 +62,12 @@ public class GaussHistogramPrinter {
         }
     }
 
+    /**
+     * Prevede cislo na pocet hvezdicek
+     * @param number cislo k prevedeni
+     * @param valuesNeededForStars cislo reprezentujici jednu hvezdicku
+     * @return
+     */
     private String convertNumberToStars(int number, int valuesNeededForStars)
     {
         StringBuilder builder = new StringBuilder();

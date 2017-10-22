@@ -24,10 +24,15 @@ public class NumbersOperations
         double deviation = calculateDeviation(data, mean);
 
 
-        parameters = new GaussianParameters(mean,deviation);
+        parameters = new GaussianParameters(mean,deviation,data.size());
         return  parameters;
     }
 
+    /**
+     * Vypocita stredni hodnotu ze vstupnich dat
+     * @param data
+     * @return
+     */
     private static double calculateMean(List<Double> data)
     {
         double mean = 0 ;
@@ -42,6 +47,12 @@ public class NumbersOperations
         return mean;
     }
 
+    /**
+     * Vypocita odchylku pro vstupni data za vyuziti stredni hodnoty
+     * @param data
+     * @param mean
+     * @return
+     */
     private static double calculateDeviation(List<Double> data, double mean)
     {
         double deviation = 0;
@@ -60,11 +71,11 @@ public class NumbersOperations
      * @param histogramColumns
      * @return
      */
-    public static HashMap<Double,Integer> getHistogram(List<Double>data, int histogramColumns)
+    public static TreeMap<Double,Integer> getHistogram(List<Double>data, int histogramColumns)
     {
 
 
-        HashMap<Double,Integer> result = new HashMap<Double,Integer>();
+        TreeMap<Double,Integer> result = new TreeMap<Double,Integer>();
         if(data!=null && data.size()>0)
         {
             //Vezmu maximalni a minimalni vygenerovanou hodnotu.
