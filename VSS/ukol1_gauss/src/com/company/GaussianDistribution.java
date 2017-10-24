@@ -53,6 +53,16 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
     private int numbersCount;
 
     /**
+     * Flag, zde se nove cislo ma generovat, nebo pouzit predpocitane z predchoziho
+     */
+    private boolean generate;
+
+    /**
+     * Predpocitana hodnota z predchoziho random cisla (box miller)
+     */
+    private double z1;
+
+    /**
      *
      * @param parameters objekt s parametry normalniho rozdeleni (odchylka, stredni hodnota)
      * @param numbersToGenerate pocet cisel, ktere se maji vygenerovat
@@ -156,12 +166,16 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
 
     @Override
     public double generateNewNumber() {
+        generate = !generate;
+        if(!generate)
+        {
+            return z1 * this.parameters.getOdchylka() + this.parameters.getMean();
+        }
         double u1 = 1.0-Math.random(); //uniform(0,1] random doubles
         double u2 = 1.0-Math.random();
-        double randStdNormal = Math.sqrt(-2.0 * Math.log(u1)) *
-                Math.sin(2.0 * Math.PI * u2); //random normal(0,1)
-        double randNormal =
-                this.parameters.getMean() + this.parameters.getOdchylka() * randStdNormal;
-        return randNormal;
+        double z0;
+        z0 = Math.sqrt(-2.0 * Math.log(u1))*Math.cos(2*Math.PI*u2);
+        z1 = Math.sqrt(-2.0 * Math.log(u1))*Math.cos(2*Math.PI*u2);
+        return z0*this.parameters.getOdchylka() + this.parameters.getMean();
     }
 }
