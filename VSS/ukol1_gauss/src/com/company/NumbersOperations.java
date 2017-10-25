@@ -1,8 +1,9 @@
 package com.company;
 
-import sun.reflect.generics.tree.Tree;
-
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
+import java.util.TreeMap;
 
 /**
  * Trida pro praci s cisly

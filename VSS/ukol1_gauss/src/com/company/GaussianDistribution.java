@@ -1,8 +1,6 @@
 package com.company;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.util.*;
+import java.util.TreeMap;
 
 /**
  * Trida slouzi k vygenerovani seznamu nahodnych cisel podle normalniho rozdeleni
@@ -62,6 +60,7 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
      */
     private double z1;
 
+    private int notIn = 0;
     /**
      *
      * @param parameters objekt s parametry normalniho rozdeleni (odchylka, stredni hodnota)
@@ -75,8 +74,8 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
         this.realParameters = new GaussianParameters(parameters.getMean(),parameters.getOdchylka(),0);
         this.histogramColumns = histogramColumns;
 
-        predictedMinValue = parameters.getMean() - this.parameters.getOdchylka()*5;
-        predictedMaxValue = parameters.getMean() + this.parameters.getOdchylka()*5;
+        predictedMinValue = parameters.getMean() - this.parameters.getOdchylka()*3;
+        predictedMaxValue = parameters.getMean() + this.parameters.getOdchylka()*3;
         rangeForOneColumn = (predictedMaxValue - predictedMinValue)/(histogramColumns-1);
         initHistogram();
         generateNumbersToHistogram();
@@ -122,7 +121,6 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
         int currentCount = 0;
         if(valueToAdd < predictedMinValue || valueToAdd > predictedMaxValue)
         {
-            System.out.println("Vygenerovane cislo - " + valueToAdd + " - neni v rozmezi predpokladaneho histogramu");
             return;
         }
         for(int i = 0; i < histogramColumns;i++)
@@ -174,8 +172,10 @@ public class GaussianDistribution implements GaussianDistributor, RandomNumberGe
         double u1 = 1.0-Math.random(); //uniform(0,1] random doubles
         double u2 = 1.0-Math.random();
         double z0;
-        z0 = Math.sqrt(-2.0 * Math.log(u1))*Math.cos(2*Math.PI*u2);
-        z1 = Math.sqrt(-2.0 * Math.log(u1))*Math.cos(2*Math.PI*u2);
+        double twoPiU2 = 2*Math.PI*u2;
+        double R = -2.0 * Math.log(u1);
+        z0 = Math.sqrt(R)*Math.cos(twoPiU2);
+        z1 = Math.sqrt(R)*Math.sin(twoPiU2);
         return z0*this.parameters.getOdchylka() + this.parameters.getMean();
     }
 }

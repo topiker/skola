@@ -7,6 +7,7 @@
 \usepackage{xargs} 
 \usepackage{xcolor}
 \usepackage{pdfpages}
+\usepackage{cite}
 \usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
 \newcommandx{\xtodo}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
 
@@ -65,9 +66,99 @@
 \section{Zadání} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \setcounter{page}{1}
 Zadání je uvedeno na stránkách Courseware ZČU pro předmět KIV/VSS. Byl zpracován příklad 1.9. Generování náhodných čísel – Gaussovské rozdělení.\\\\
- \section{Řešení}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\section{Řešení}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+ \subsection{Generování pseudonáhodných čísel}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Cílem úlohy je vygenerovat pseudonáhodná čísla s Gaussovým rozdělením. \\
+Pro vygenerování pseudonáhodných čísel s Gaussovým rozdělením byla navržena metoda Box-Mullerovi transformace \cite{box1958note}.
+Tato metoda je navržena tak, že během jednoho běhu vrací dvě pseudonáhodná čísla (\( Z_0 \) a (\( Z_1 \)). 
+Vstupem metody jsou dvě náhodná čísla -- \( U_1 \) a \( U_2 \) -- s uniformním rozdělením uvnitř intervalu \( (0,1) \).
+Samotný výpočet výsledných pseudonáhodných čísel je pak následující:
+
+
+\begin{equation} 
+Z_0 = R\cos{(\theta)} \sqrt{-2\ln{U_1}}\cos{(2\pi U_2)}
+\end{equation}
+
+\begin{equation} 
+Z_1 = R\sin{(\theta)} \sqrt{-2\ln{U_1}}\sin{(2\pi U_2)}
+\end{equation}
+
+ \subsection{Výpočet statistik za běhu}
+
+Střední hodnotu Gaussova rozdělení je možné vypočítat jako:
+
+\begin{equation} 
+\overline{x} = \frac{1}{n}(\sum_{i=1}^{n}x_i)
+\end{equation}
+
+a směrodatnou odchylku jako:
+\begin{equation} 
+s = \sqrt{\frac{\sum_{i=1}^{N}(x_i - \bar{x})^2}{N - 1}}
+\end{equation}
+
+Pro realizaci těchto výpočtů je ale nutné si všechna vygenerovaná čísla ukládat.
+Pro přepočet střední hodnoty po vygenerování nového pseudonáhodného čísla je v tomto případě možno použít:
+
+\begin{equation} 
+\bar{x}_n = \frac{n\bar{x}_{n-1} + x_{new}}{n+1}
+\end{equation}
+
+kde \( n \) je počet vygenerovaných čísel, \( \bar{x}_{n-1} \) je stará střední hodnota a \( \bar{x}_{new} \)  je nově vygenerované číslo.
+
+Pro přepočet rozptylu je to pak:
+\begin{equation} 
+\sigma^{2}_{new} = \frac{n(\sigma^{2}_{old}+ \bar{x}^2) + x^{2}_{new}}{n+1} - \bar{x}^{2}_{new} 
+\end{equation}
+
+kde \( n \) je počet vygenerovaných čísel, \( \sigma^{2}_{old} \) je hodnota staré odychlky,  \( x_{new} \) je nově vygenerované číslo a \( \bar{x}^{2}_{new}  \) je střední hodnota získaná z předchozí rovnice.
+
+\section{Implementace}
+\subsection{Generování čísel}
+Program je implementován v jazyce Java. Pro generování pseudonáhodných čísel byla použita metoda \texttt{random()}, která je implementována v knihovný třídě \texttt{java.lang.Math}.
+\subsection{Histogram}
+Pro vizualizace generovaných hodnot je implementován histogram tvořený hvězdičkami. 
+Při tvorbě histogramu bylo potřeba nejprve navrhnout rozsah tak, aby do histogramu spadala většina vygenerovaných čísel .
+Pokud se vezme v úvahu vlastnost Gaussova rozdělení, tedy že s 99,1\% pravděpodobností nová hodnota spadne do intervalu od \( \mu -  3\sigma\) do \( \mu +  3\sigma\), je počet teoreticky ztracených čísel pro histogram přijatelný a z tohoto důvodu byl tento rozsah zvolen.
+
+Sloupec s největší četností bude reprezentován maximálně 30 hvězdičkami. Následně četnost největšího sloupce vydělí počtem hvězdiček, čímž získáme hodnotu, která reprezentuje jednu jedničku. Ostatní sloupce jsou pak reprezentovány tolika hvězdičkami, kolikrát se vypočítaná hodnota vejde do četnosti sloupce.
+\pagebreak
+\section{Výsledky}
+Ukázka výsledků pro spuštění programu s parametry: 1000000 1000 10\newline
+\newline
+\texttt
+{
+E\_teorie=1000.0\\
+D\_teorie=100.0\\
+E\_vypocet=1000.0369173235879\\
+D\_vypocet=98.70743444378536\\
+733,33:*\\
+766,67:**\\
+800,00:*****\\
+833,33:*********\\
+866,67:***************\\
+900,00:*********************\\
+933,33:**************************\\
+966,67:*****************************\\
+1000,00:*****************************\\
+1033,33:**************************\\
+1066,67:*********************\\
+1100,00:***************\\
+1133,33:**********\\
+1166,67:*****\\
+1200,00:**\\
+1233,33:*\\
+}
+
+
 
 \section{Závěr} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Zadání bylo splněno ve všech bodech. Z výsledků je vidět, že je teoretická hodnota blízská hodnotě ze simulace. Práce by šla rozšířit o možnost porovnání dalších metod a lepší vizualizaci.
 
+\bibliographystyle{IEEEtran}
+\bibliography{doc}
 \end{document}

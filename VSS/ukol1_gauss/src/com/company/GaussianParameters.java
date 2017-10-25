@@ -1,5 +1,8 @@
 package com.company;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Prepravka pro predani parametru gausova rozdeleni
  * Created by liska on 05.10.2017.
@@ -96,5 +99,17 @@ public class GaussianParameters
     public int getPocetCiselKVygenerovani()
     {
         return this.pocetCiselKVygenerovani;
+    }
+
+    /**
+     * Metoda slouzi ziskani ukazkovych parametru
+     * @return
+     */
+    public static List<GaussianParameters> GetFactoryParameters()
+    {
+        List<GaussianParameters> result = new ArrayList<>();
+        result.add(new GaussianParameters(6500,30,1000000));
+        result.add(new GaussianParameters(50,5,1000000));
+        return result;
     }
 }

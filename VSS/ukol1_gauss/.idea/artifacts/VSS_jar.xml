@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="VSS:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/VSS_jar</output-path>
+    <root id="archive" name="VSS.jar">
+      <element id="module-output" name="VSS" />
+    </root>
+  </artifact>
+</component>

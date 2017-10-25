@@ -31,8 +31,8 @@ public class InputParser {
         }
         else
         {
-            System.err.println("Program ocekava jako vstup: [pocet cisel k vygenerovani] [stredni hodnota] [smerodatna odchylka]");
-            System.exit(-1);
+            return null;
+            //System.err.println("Program ocekava jako vstup: [pocet cisel k vygenerovani] [stredni hodnota] [smerodatna odchylka]");
         }
 
         return result;
