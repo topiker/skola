@@ -14,8 +14,6 @@ int main(int argc, char* argv[])
 {
 	Parser::InputParser parser = Parser::InputParser(&argc, argv);
 
-	
-
 	if (parser.areParamstOk())
 	{
 		DataLoader::DataLoader dataLoader = DataLoader::DataLoader(parser.getDbPath());
