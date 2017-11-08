@@ -1,0 +1,25 @@
+udìlat prezentaci:
+
+øíci, že jsem zatím naèetl data, kde odeèítám magickou konstatu rovnájící se prvnímu lednu 1900,
+bylo zjištìno, že data jsou v èase zaznamenána kontinuálnì, nicménì nìkteré namìøene hodnoty se rovnají null
+Abych mohl pracovat s okýnkem (porovnávat zmìny), je nutné chybìjící hodnoty nìjak doplnit.
+K tomu jsem využil následující postup. Pokud hodnota chybí, vezme se pøedchozí namìøená hodnota.
+Pokud chybí hodnoty od zaèátku, naèti první nenulovou hodnotu a vlož jí pøedchozím záznamùm.
+
+Pro detekci zatím používám posuvné okénko, které je ohodnocené podle sumy zmìn v absolutní hodnotì.
+Následnì je nutné vyfiltrovat okénka, která jsou blízko sebe/ pøekrývají se. 
+S velikostí okénka jsem si zatím nehrál, aktuálnì mám jedno okénko pùl hodiny.
+Po ohodnocení a vyfiltrování okének se vezme x nejlepších a ty se prohlásí za deviace.
+Následnì se vynesou do grafu.
+
+Práce je aktuálnì ve stavu takovém, že popsaným øešením mám práci zpracovávanou sériovì.
+Do budoucna bych chtìl vyzkoušet genetický algoritmus pro detekci peakù.
+
+V souèasnosti mám nìjvìtší problémy z rozchozením TBB. V minulosti problém s rozchozením pøipojení k databázi.
+
+Postup pro paraelizaci bude následující. Sériovì si naètu data, která rozliším podle èísla segmentu.
+Následnì provedu výpoèet pro všechny segmenty v paraelním foreachy. 
+Pøedpokládám, že si vrátím indexi dat, ve kterých byly peaky.
+Výsledky z jednotlivých vláken poskládám, pravdìpodobnì TBB::concurrent_hash_map erase
+
+ 
