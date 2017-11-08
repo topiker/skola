@@ -1,1 +1,14 @@
 *.class
+*.tlog
+*.idb
+*.svg
+*.db
+*.ipch
+*.iobj
+*.ipdb
+*.opendb
+*.db-shm
+*.db-wal
+*.exp
+*.tmp
+*.rc
