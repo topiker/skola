@@ -5,4 +5,8 @@ typedef struct {
 	int segmentId;
 	double measureDate; //v julian
 	double ist; //namerene hodnoty
+	bool isInWindow;
+
 }TMeasuredValue;
+
+

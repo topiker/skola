@@ -28,13 +28,13 @@ namespace Parser
 	public:
 		InputParser(int *paramsCount, char** params);
 		bool areParamstOk();
-		std::string getDbPath();
-		std::string getExportPath();
+		char * getDbPath();
+		char * getExportPath();
 
 	private:
 		bool useGPU;
-		std::string dbPath;
-		std::string exportPath;
+		char * dbPath;
+		char * exportPath;
 		void setParams(int * paramsCount, char** params);
 		bool paramsOk;
 		ARGUMENTSENUM getParamEnumFromName(const std::string *paramName);

@@ -15,7 +15,7 @@ namespace SVGExporter {
 	class SVGEXPORTERDLLEXPORT SVGExporter
 	{
 	public:
-		void exportToSvg(std::string path, std::vector<TMeasuredValue*>  *toExport);
+		void exportToSvg(std::string path, std::vector<TMeasuredValue*>  *toExport, int * segmentId);
 	};
 
 }

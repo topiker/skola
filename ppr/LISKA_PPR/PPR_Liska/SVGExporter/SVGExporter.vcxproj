@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="simple_svg_1.0.0.hpp" />
     <ClInclude Include="SVGExporter.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

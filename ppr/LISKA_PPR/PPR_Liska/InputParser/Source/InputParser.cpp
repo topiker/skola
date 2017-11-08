@@ -18,7 +18,7 @@ namespace Parser{
 		//Predpokladam, ze budu ocekat parametry ve formatu -nazevParametru hodnota
 		if (((*paramsCount) > 1) && (((*paramsCount) % 2) == 1))
 		{
-			for (size_t i = 1; i < (*paramsCount); i=i+2)
+			for (unsigned int i = 1; i < unsigned(*paramsCount); i=i+2)
 			{
 				paramName = (params)[i];
 				paramValue = (params)[i+1];
@@ -26,13 +26,15 @@ namespace Parser{
 				switch (param)
 				{
 				case Parser::DB:
-					this->dbPath = paramValue;
+					this->dbPath = new char[paramValue.size() + 1];
+					strcpy_s((this->dbPath), paramValue.size()+1, paramValue.c_str());
 					break;
 				case Parser::GPU:
 					this->useGPU = paramValue == ("0") ? false : true;
 					break;
 				case Parser::OUTPUT:
-					this->exportPath = paramValue;
+					this->exportPath = new char[paramValue.size() + 1];
+					strcpy_s((this->exportPath), paramValue.size()+1, paramValue.c_str());
 					break;
 				case Parser::NOTMATCHED:
 					break;
@@ -62,12 +64,12 @@ namespace Parser{
 		return this->paramsOk;
 	}
 
-	std::string InputParser::getDbPath()
+	char * InputParser::getDbPath()
 	{
 		return this->dbPath;
 	}
 
-	std::string InputParser::getExportPath()
+	char * InputParser::getExportPath()
 	{
 		return this->exportPath;
 	}

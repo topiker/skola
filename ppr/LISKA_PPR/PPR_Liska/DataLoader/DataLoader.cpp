@@ -7,7 +7,7 @@
 
 namespace DataLoader {
 
-	DataLoader::DataLoader(std::string dbPath)
+	DataLoader::DataLoader(char * dbPath)
 	{
 		this->dbPath = dbPath;
 	}
@@ -19,7 +19,7 @@ namespace DataLoader {
 
 		sqlite3 *db;
 
-		rc = sqlite3_open((this->dbPath.c_str()), &db);
+		rc = sqlite3_open((this->dbPath), &db);
 
 		if (rc)
 		{
@@ -47,9 +47,41 @@ namespace DataLoader {
 		return 0;
 	}
 
-	void DataLoader::loadData(std::vector<TMeasuredValue*> *data, int * segmentId)
+	int DataLoader::loadData(std::vector<TMeasuredValue*> *data, int * segmentId)
 	{
+		sqlite3 *db;
+		char *zErrMsg = 0;
+		int rc;
 
+		rc = sqlite3_open(this->dbPath, &db);
+
+		if (rc) {
+			fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+			return(1);
+		}
+		else {
+			//fprintf(stderr, "Opened database successfully\n");
+		}
+
+
+
+		//pridame tam segment id
+		std::string sqlStr = "SELECT (julianday(measuredat) - 2415019.5) AS 'measuredat',id, segmentid, ist FROM measuredvalue WHERE segmentId=" + std::to_string(*segmentId) + " ORDER BY measuredat";
+		const char * sql = sqlStr.c_str();
+
+		// Execute SQL statement 
+		// zpracovani vsech kazdeho ziskaneho segmentu (kazdeho radku z tabulky) probehne ve funkci callback
+		rc = sqlite3_exec(db, sql, dataQueryCallback, (void*)data, &zErrMsg);
+		if (rc != SQLITE_OK) {
+			fprintf(stderr, "SQL error: %s\n", zErrMsg);
+			sqlite3_free(zErrMsg);
+		}
+		else {
+			//fprintf(stdout, "DB Select operation done successfully\n");
+		}
+		sqlite3_close(db);
+
+		return rc;
 	}
 
 
