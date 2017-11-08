@@ -14,13 +14,13 @@ namespace DataLoader {
 	class DATALOADERDLLEXPORT DataLoader
 	{
 	public:
-		DataLoader(const char * dbPath);
-		void getSegmentIds(std::vector<int> *getSegmentIds);
+		DataLoader(std::string dbPath);
+		int getSegmentIds(std::vector<int> *getSegmentIds);
 		void loadData(std::vector<TMeasuredValue*> *data, int * segmentId);
 		
 		~DataLoader();
 	private:
-		const char * dbPath;
+		std::string dbPath;
 	};
 
 }

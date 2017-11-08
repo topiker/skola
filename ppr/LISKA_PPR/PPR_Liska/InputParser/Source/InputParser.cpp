@@ -26,13 +26,13 @@ namespace Parser{
 				switch (param)
 				{
 				case Parser::DB:
-					this->dbPath = (paramValue.c_str());
+					this->dbPath = paramValue;
 					break;
 				case Parser::GPU:
 					this->useGPU = paramValue == ("0") ? false : true;
 					break;
 				case Parser::OUTPUT:
-					this->exportPath = (paramValue.c_str());
+					this->exportPath = paramValue;
 					break;
 				case Parser::NOTMATCHED:
 					break;
@@ -62,12 +62,12 @@ namespace Parser{
 		return this->paramsOk;
 	}
 
-	const char * InputParser::getDbPath()
+	std::string InputParser::getDbPath()
 	{
 		return this->dbPath;
 	}
 
-	const char * InputParser::getExportPath()
+	std::string InputParser::getExportPath()
 	{
 		return this->exportPath;
 	}

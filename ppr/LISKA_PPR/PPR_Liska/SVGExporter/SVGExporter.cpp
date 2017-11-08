@@ -3,7 +3,7 @@
 
 namespace SVGExporter {
 
-	void  SVGExporter::exportToSvg(const char * path, std::vector<TMeasuredValue*>  *toExport)
+	void  SVGExporter::exportToSvg(std::string path, std::vector<TMeasuredValue*>  *toExport)
 	{
 
 	}

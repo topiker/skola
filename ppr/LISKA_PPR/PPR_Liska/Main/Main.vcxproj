@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)CompiledDebug\x32\</OutDir>
+    <OutDir>$(SolutionDir)CompiledDebug\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -102,6 +102,9 @@
       </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)CompiledDebug\x86\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)\sqlLite\x86\sqlite3.dll $(SolutionDir)\CompiledDebug\x86\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -119,6 +122,9 @@
       </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)CompiledDebug\x64\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)\sqlLite\x64\sqlite3.dll $(SolutionDir)\CompiledDebug\x64\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -140,6 +146,9 @@
       </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)Compiled\x86\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)\sqlLite\x86\sqlite3.dll $(SolutionDir)\CompiledDebug\x86\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -161,6 +170,9 @@
       </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)Compiled\x64\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)\sqlLite\x64\sqlite3.dll $(SolutionDir)\CompiledDebug\x64\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
