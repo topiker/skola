@@ -12,7 +12,7 @@ namespace PeakDetector
 	{
 	}
 
-	void PeakDetector::detectPeaks(std::vector<TMeasuredValue *> *data, int *window_size, std::vector<Peak> *detectedPeaks)
+	void PeakDetector::detectPeaks(std::vector<TMeasuredValue *> *data, int *window_size, std::vector<PeakPeakDetector::Peak> *detectedPeaks)
 	{
 		std::vector<double> fitnessValues;
 
@@ -39,7 +39,7 @@ namespace PeakDetector
 			// po skonceni cylku vime ze v okoli aktualne nalezeneho okenka neexistuje zadne lepsi
 
 
-			(*detectedPeaks).push_back(Peak::Peak(i, i + (*window_size) / 2));
+			(*detectedPeaks).push_back(PeakPeakDetector::Peak(i, i + (*window_size) / 2));
 
 			//posuneme index o velikost pulku okenka doprava a zacneme hledat nove okenko
 			i += (*window_size) / 2;
@@ -88,13 +88,41 @@ namespace PeakDetector
 		}
 	}
 
+	void PeakDetector::moving_average(std::vector<TMeasuredValue *> *data, int *windowSize)
+	{
+		if ((*data).size() > (*windowSize))
+		{
+			double runningTotal = 0;
+			TMeasuredValue * prev = nullptr;
+			TMeasuredValue * current = nullptr;
+			//Spocitat pocatecni mean
+			for (int i = 0; i < (*data).size(); i++)
+			{
+				TMeasuredValue * current = (*data).at(i);
+				if (prev != nullptr)
+				{
+				runningTotal -= prev->ist / (double)(*windowSize);   // subtract
+				runningTotal += current->ist / (double)(*windowSize);  // add
+				current->smoothedValue = runningTotal;
+				}
+				else 
+				{
+					runningTotal = current->ist;
+					current->smoothedValue = runningTotal;
+				}
+				prev = current;
+			}
+		}
+		int x = 5;
+	}
+
 	double PeakDetector::calculateWindowFitness(std::vector<TMeasuredValue *> *data, int startIndex, int endIndex)
 	{
 		double fitnessSum = 0;
 		for (int i = startIndex; i < endIndex; i++) {
 			// vezmi dve sousedni hodnooty a zjisti jejich rozdil
-			double firstValue = (*data).at(i)->ist;
-			double nextValue = (*data).at(i + 1)->ist;
+			double firstValue = ((*data).at(i)->ist - (*data).at(i)->smoothedValue)*((*data).at(i)->ist - (*data).at(i)->smoothedValue);
+			double nextValue = ((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue)*((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue);
 			double difference = nextValue - firstValue;
 			// udelej druhou mocninu rozdilu a pricti k fitness
 			fitnessSum += difference * difference;

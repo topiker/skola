@@ -9,14 +9,15 @@
 void printHelp() 
 {
 	//TODO: Print help
-
+	std::cout << "Chyba pri vstupnich parametrech" << std::endl;
 }
 
 
 int main(int argc, char* argv[])
 {
 	Parser::InputParser parser = Parser::InputParser(&argc, argv);
-	int  windowSize = 60;
+	int  windowSize = 48;
+	int smoothSize = 10;
 
 	if (parser.areParamstOk())
 	{
@@ -33,14 +34,14 @@ int main(int argc, char* argv[])
 			dataLoader.loadData(&values, &(segmentIds.at(i)));
 			if (values.size() > 0)
 			{
-				std::vector<Peak> peaks;
+				std::vector<PeakPeakDetector::Peak> peaks;
 				PeakDetector::PeakDetector detector = PeakDetector::PeakDetector();
 				detector.smooth_null_values(&values);
+				detector.moving_average(&values, &smoothSize);
 				detector.detectPeaks(&values, &windowSize, &peaks);
-				exporter.exportToSvg(parser.getExportPath(), &(values), &segmentIds.at(i));
+				exporter.exportToSvg(parser.getExportPath(), &(values), &segmentIds.at(i), &peaks);
 			}
 		}
-
 	}
 	else 
 	{

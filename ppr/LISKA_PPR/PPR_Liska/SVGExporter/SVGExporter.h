@@ -1,6 +1,7 @@
 #pragma once
 #include "TMeasuredValue.h"
 #include <vector>
+#include "Peak.h"
 
 #ifdef  SVGEXPORTERRDLL_EXPORTS 
 /*Enabled as "export" while compiling the dll project*/
@@ -15,7 +16,7 @@ namespace SVGExporter {
 	class SVGEXPORTERDLLEXPORT SVGExporter
 	{
 	public:
-		void exportToSvg(std::string path, std::vector<TMeasuredValue*>  *toExport, int * segmentId);
+		void exportToSvg(std::string path, std::vector<TMeasuredValue*>  *values, int * segmentId, std::vector<PeakPeakDetector::Peak> *peaks);
 	};
 
 }

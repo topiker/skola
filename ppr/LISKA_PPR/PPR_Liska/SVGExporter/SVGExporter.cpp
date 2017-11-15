@@ -1,10 +1,11 @@
 #include "SVGExporter.h"
 #include <vector>
 #include "simple_svg_1.0.0.hpp"
+#include "Peak.h"
 
 namespace SVGExporter {
 
-	void  SVGExporter::exportToSvg(std::string path, std::vector<TMeasuredValue*>  *values, int * segmentId)
+	void  SVGExporter::exportToSvg(std::string path, std::vector<TMeasuredValue*>  *values, int * segmentId, std::vector<PeakPeakDetector::Peak> *peaks)
 	{
 		double scale = 1.5;
 		//Sirka platna
@@ -82,6 +83,8 @@ namespace SVGExporter {
 		double columnWidth = (chartWidth) / (*values).size();
 
 		svg::Polyline polyline_chart(svg::Stroke(2, svg::Color::Black));
+		svg::Polyline polyline_chart_mean(svg::Stroke(1, svg::Color::Blue));
+
 
 		bool drawPeak = false;
 		for (unsigned i = 0; i < (*values).size(); i++)
@@ -97,6 +100,7 @@ namespace SVGExporter {
 			//	}
 			//}
 			polyline_chart << svg::Point(chartMinX + i*columnWidth, PixelPerMmol * (*values).at(i)->ist + chartMinY);
+			polyline_chart_mean << svg::Point(chartMinX + i*columnWidth, PixelPerMmol * (*values).at(i)->smoothedValue + chartMinY);
 			////Test, zda se jedna o peak, pokud ano, vykreslim bod
 			//if (drawPeak)
 			//{
@@ -104,6 +108,24 @@ namespace SVGExporter {
 			//}
 		}
 		doc << polyline_chart;
+		doc << polyline_chart_mean;
+
+
+		for (int i = 0; i < (*peaks).size(); i++)
+		{
+			svg::Polyline peakLineBackground(svg::Stroke(4, svg::Color::Red));
+			svg::Polyline peakLine(svg::Stroke(2, svg::Color::White));
+
+
+			for (unsigned int j = (*peaks).at(i).startIndex; j < (*peaks).at(i).endIndex; j++)
+			{
+				peakLineBackground << svg::Point(chartMinX + j*columnWidth, PixelPerMmol * (*values).at(j)->ist + chartMinY), 10 * scale, svg::Fill(svg::Color::Red);
+				peakLine << svg::Point(chartMinX + j*columnWidth, PixelPerMmol * (*values).at(j)->ist + chartMinY), 10 * scale, svg::Fill(svg::Color::Red);
+			}
+			doc << peakLineBackground;
+			doc << peakLine;
+
+		}
 
 
 		//Vykresleni os

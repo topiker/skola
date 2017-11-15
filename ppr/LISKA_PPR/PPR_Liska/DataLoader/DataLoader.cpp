@@ -20,7 +20,7 @@ namespace DataLoader {
 		sqlite3 *db;
 
 		rc = sqlite3_open((this->dbPath), &db);
-
+		std::cout << "Oteviram spojeni" << std::endl << std::endl;
 		if (rc)
 		{
 			std::cerr << "Error opening SQLite3 database: " << sqlite3_errmsg(db) << std::endl << std::endl;

@@ -42,6 +42,7 @@ namespace Parser{
 					break;
 				}
 			}
+			this->paramsOk = true;
 		}
 		else 
 		{

@@ -6,6 +6,7 @@ typedef struct {
 	double measureDate; //v julian
 	double ist; //namerene hodnoty
 	bool isInWindow;
+	double smoothedValue;
 
 }TMeasuredValue;
 
