@@ -41,7 +41,7 @@ namespace DataLoader {
 		}
 		else
 		{
-			fprintf(stdout, "Operation done successfully\n");
+			//fprintf(stdout, "Operation done successfully\n");
 		}
 		sqlite3_close(db);
 		return 0;

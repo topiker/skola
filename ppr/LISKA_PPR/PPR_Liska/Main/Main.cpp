@@ -4,12 +4,14 @@
 #include "DataLoader.h"
 #include "SVGExporter.h"
 #include "PeakDetector.h"
+#include "tbb\tbb.h"
 
 void printHelp() 
 {
 	//TODO: Print help
 
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -44,7 +46,8 @@ int main(int argc, char* argv[])
 	{
 		printHelp();
 	}
-
+	std::cout << "Hotovo" << std::endl;
+	getchar();
     return 0;
 }
 

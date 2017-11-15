@@ -31,6 +31,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <UseIntelTBB>true</UseIntelTBB>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -38,12 +39,14 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseIntelTBB>true</UseIntelTBB>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <UseIntelTBB>true</UseIntelTBB>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -51,6 +54,7 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseIntelTBB>true</UseIntelTBB>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -93,7 +97,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,7 +107,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)CompiledDebug\x86\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)\sqlLite\x86\sqlite3.dll $(SolutionDir)\CompiledDebug\x86\</Command>
+      <Command>copy "$(SolutionDir)\sqlLite\x86\sqlite3.dll" "$(SolutionDir)\CompiledDebug\x86\"
+copy "$(TBB_DLL_DIR_X86)tbb_debug.dll" "$(SolutionDir)\CompiledDebug\x86\"
+copy "$(TBB_DLL_DIR_X86)tbbmalloc_debug.dll" "$(SolutionDir)\CompiledDebug\x86\"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -113,7 +120,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,7 +130,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)CompiledDebug\x64\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)\sqlLite\x64\sqlite3.dll $(SolutionDir)\CompiledDebug\x64\</Command>
+      <Command>copy "$(SolutionDir)\sqlLite\x64\sqlite3.dll" "$(SolutionDir)\CompiledDebug\x64\"
+copy "$(TBB_DLL_DIR_X64)tbb_debug.dll" "$(SolutionDir)\CompiledDebug\x64\"
+copy "$(TBB_DLL_DIR_X64)tbbmalloc_debug.dll" "$(SolutionDir)\CompiledDebug\x64\"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +145,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,7 +157,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Compiled\x86\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)\sqlLite\x86\sqlite3.dll $(SolutionDir)\Compiled\x86\</Command>
+      <Command>copy "$(SolutionDir)\sqlLite\x86\sqlite3.dll" "$(SolutionDir)\Compiled\x86\"
+copy "$(TBB_DLL_DIR_X86)tbb.dll" "$(SolutionDir)\Compiled\x86\"
+copy "$(TBB_DLL_DIR_X86)tbbmalloc.dll" "$(SolutionDir)\Compiled\x86\"
+
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -159,7 +173,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -171,7 +185,12 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Compiled\x64\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)\sqlLite\x64\sqlite3.dll $(SolutionDir)\Compiled\x64\</Command>
+      <Command>copy "$(SolutionDir)\sqlLite\x64\sqlite3.dll" "$(SolutionDir)\Compiled\x64\"
+copy "$(TBB_DLL_DIR_X64)tbb.dll" "$(SolutionDir)\Compiled\x64\"
+copy "$(TBB_DLL_DIR_X64)tbbmalloc.dll" "$(SolutionDir)\Compiled\x64\"
+
+
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
