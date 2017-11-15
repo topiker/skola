@@ -16,11 +16,11 @@ namespace DataLoader {
 	public:
 		DataLoader(char * dbPath);
 		int getSegmentIds(std::vector<int> *getSegmentIds);
-		int loadData(std::vector<TMeasuredValue*> *data, int * segmentId);
+		size_t loadData(std::vector<TMeasuredValue*> *data, int * segmentId);
 		
 		~DataLoader();
 	private:
-		char * dbPath;
+		const char * dbPath;
 	};
 
 }

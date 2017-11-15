@@ -1,7 +1,7 @@
 #include "../Headers/InputParser.h"
 #include <iostream>
 
-namespace Parser{
+namespace Parser {
 
 
 
@@ -14,27 +14,33 @@ namespace Parser{
 	{
 		std::string paramName;
 		std::string paramValue;
+		bool dbPathInput = false;
+		bool gpuInput = false;
+		bool outputInput = false;
 
 		//Predpokladam, ze budu ocekat parametry ve formatu -nazevParametru hodnota
-		if (((*paramsCount) > 1) && (((*paramsCount) % 2) == 1))
+		if ((*paramsCount) == 7)
 		{
-			for (unsigned int i = 1; i < unsigned(*paramsCount); i=i+2)
+			for (unsigned int i = 1; i < unsigned(*paramsCount); i = i + 2)
 			{
 				paramName = (params)[i];
-				paramValue = (params)[i+1];
+				paramValue = (params)[i + 1];
 				ARGUMENTSENUM param = this->getParamEnumFromName(&paramName);
 				switch (param)
 				{
 				case Parser::DB:
 					this->dbPath = new char[paramValue.size() + 1];
-					strcpy_s((this->dbPath), paramValue.size()+1, paramValue.c_str());
+					strcpy_s((this->dbPath), paramValue.size() + 1, paramValue.c_str());
+					dbPathInput = true;
 					break;
 				case Parser::GPU:
 					this->useGPU = paramValue == ("0") ? false : true;
+					gpuInput = true;
 					break;
 				case Parser::OUTPUT:
 					this->exportPath = new char[paramValue.size() + 1];
-					strcpy_s((this->exportPath), paramValue.size()+1, paramValue.c_str());
+					strcpy_s((this->exportPath), paramValue.size() + 1, paramValue.c_str());
+					outputInput = true;
 					break;
 				case Parser::NOTMATCHED:
 					break;
@@ -42,12 +48,17 @@ namespace Parser{
 					break;
 				}
 			}
+
+		}
+		if (outputInput && gpuInput && dbPathInput)
+		{
 			this->paramsOk = true;
 		}
-		else 
+		else
 		{
 			this->paramsOk = false;
 		}
+
 	}
 
 	ARGUMENTSENUM InputParser::getParamEnumFromName(const std::string *paramName)

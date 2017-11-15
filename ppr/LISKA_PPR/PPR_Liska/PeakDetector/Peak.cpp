@@ -7,13 +7,4 @@ namespace PeakPeakDetector {
 		this->startIndex = startIndex;
 		this->endIndex = endIndex;
 	}
-
-	//unsigned int Peak::getStartIndex()
-	//{
-	//	return this->startIndex;
-	//}
-	//unsigned int Peak::getEndIndex()
-	//{
-	//	return this->endIndex;
-	//}
 }

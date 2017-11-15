@@ -7,7 +7,7 @@
 
 
 const char *segmentsQuery = "SELECT id FROM timesegment ORDER BY id ASC;";
-const char *measuredvalueQuery = "SELECT (julianday(measuredat) - 2415019.5) AS 'measuredat',id, segmentid, ist FROM measuredvalue WHERE segmentId=%i ORDER BY measuredat;";
+const char *measuredvalueQuery = "SELECT (julianday(measuredat)) AS 'measuredat',id, segmentid, ist FROM measuredvalue WHERE segmentId=%i ORDER BY measuredat;";
 
 static int segmentsQueryCallback(void *data, int argc, char **argv, char **azColName)
 {
@@ -73,6 +73,7 @@ static int dataQueryCallback(void *data, int argc, char **argv, char **azColName
 			else if (strcmp(azColName[i], "measuredat") == 0) {
 				if (argv[i]) {
 					double measureDate = std::stod(argv[i]);
+					//Zajima mi pouze cas, nepotreba tedy dale upravovat.
 					value->measureDate = measureDate;
 				}
 				else {
@@ -88,3 +89,4 @@ static int dataQueryCallback(void *data, int argc, char **argv, char **azColName
 	}
 	return 0;
 }
+

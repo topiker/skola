@@ -24,9 +24,18 @@
     <ClInclude Include="simple_svg_1.0.0.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SVGExporterConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SVGExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

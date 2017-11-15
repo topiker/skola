@@ -9,14 +9,21 @@
 void printHelp() 
 {
 	//TODO: Print help
-	std::cout << "Chyba pri vstupnich parametrech" << std::endl;
+	std::cout << "Program slouzi k detekci vyznamnych odchylek ve vstupnich datech." << std::endl;
+	std::cout << std::endl;
+	std::cout << "-db [cesta k databazi]" << std::endl;
+	std::cout << "-useGpu [0 - ne, 1 ano]" << std::endl;
+	std::cout << "-outputDir [cesta k adresari pro export]" << std::endl;
+	std::cout << std::endl;
+
 }
 
 
 int main(int argc, char* argv[])
 {
 	Parser::InputParser parser = Parser::InputParser(&argc, argv);
-	int  windowSize = 48;
+	//24 = 2 hodiny
+	int windowSize = 24;
 	int smoothSize = 10;
 
 	if (parser.areParamstOk())
@@ -47,8 +54,8 @@ int main(int argc, char* argv[])
 	{
 		printHelp();
 	}
-	std::cout << "Hotovo" << std::endl;
-	getchar();
+
+	//getchar();
     return 0;
 }
 

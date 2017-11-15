@@ -156,11 +156,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DataHelper.h" />
     <ClInclude Include="simple_svg_1.0.0.hpp" />
     <ClInclude Include="SVGExporter.h" />
+    <ClInclude Include="SVGExporterConstants.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DataHelper.cpp" />
     <ClCompile Include="SVGExporter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
