@@ -20,13 +20,13 @@ namespace  PeakDetector
 		public:
 			PeakDetector();
 			~PeakDetector();
-			void detectPeaks(std::vector<TMeasuredValue *> *data, int * windowSize, std::vector<PeakPeakDetector::Peak> *detectedPeaks);
-			void smooth_null_values(std::vector<TMeasuredValue *> *data);
-			void moving_average(std::vector<TMeasuredValue *> *data, int *windowSize);
+			void detectPeaks(std::vector<Common::TMeasuredValue *> *data, int * windowSize, std::vector<PeakPeakDetector::Peak> *detectedPeaks);
+			void smooth_null_values(std::vector<Common::TMeasuredValue *> *data);
+			void moving_average(std::vector<Common::TMeasuredValue *> *data, int *windowSize);
 
 
 		private:
-			double calculateWindowFitness(std::vector<TMeasuredValue *> *data, int startIndex, int endIndex);
+			double calculateWindowFitness(std::vector<Common::TMeasuredValue *> *data, int startIndex, int endIndex);
 			//projdeme fitness hodnoty okenek od startIndex do endIndex a vratime index nejlepsiho okenka
 			int intervalMaxValueIndex(unsigned int startIndex, unsigned int endIndex, std::vector<double> *fitnessValues);
 	};

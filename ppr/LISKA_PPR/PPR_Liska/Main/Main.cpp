@@ -30,14 +30,14 @@ int main(int argc, char* argv[])
 	{
 		DataLoader::DataLoader dataLoader = DataLoader::DataLoader(parser.getDbPath());
 		std::vector<int> segmentIds = std::vector<int>();
-		std::vector<std::vector<TMeasuredValue*>> data = std::vector<std::vector<TMeasuredValue*>>();
+		std::vector<std::vector<Common::TMeasuredValue*>> data = std::vector<std::vector<Common::TMeasuredValue*>>();
 
 		dataLoader.getSegmentIds(&segmentIds);
 		SVGExporter::SVGExporter exporter = SVGExporter::SVGExporter();
 
 		for (unsigned int i = 0; i < segmentIds.size(); i++)
 		{
-			std::vector<TMeasuredValue*> values;
+			std::vector<Common::TMeasuredValue*> values;
 			dataLoader.loadData(&values, &(segmentIds.at(i)));
 			if (values.size() > 0)
 			{

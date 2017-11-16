@@ -12,7 +12,7 @@ namespace PeakDetector
 	{
 	}
 
-	void PeakDetector::detectPeaks(std::vector<TMeasuredValue *> *data, int *window_size, std::vector<PeakPeakDetector::Peak> *detectedPeaks)
+	void PeakDetector::detectPeaks(std::vector<Common::TMeasuredValue *> *data, int *window_size, std::vector<PeakPeakDetector::Peak> *detectedPeaks)
 	{
 		std::vector<double> fitnessValues;
 
@@ -62,7 +62,7 @@ namespace PeakDetector
 		return maxValueIndex;
 	}
 
-	void PeakDetector::smooth_null_values(std::vector<TMeasuredValue *> *data)
+	void PeakDetector::smooth_null_values(std::vector<Common::TMeasuredValue *> *data)
 	{
 		double lastNonNullValue = 0;
 		for (unsigned int i = 0; i < (*data).size(); i++) {
@@ -88,17 +88,17 @@ namespace PeakDetector
 		}
 	}
 
-	void PeakDetector::moving_average(std::vector<TMeasuredValue *> *data, int *windowSize)
+	void PeakDetector::moving_average(std::vector<Common::TMeasuredValue *> *data, int *windowSize)
 	{
 		if ((*data).size() > (*windowSize))
 		{
 			double runningTotal = 0;
-			TMeasuredValue * prev = nullptr;
-			TMeasuredValue * current = nullptr;
+			Common::TMeasuredValue * prev = nullptr;
+			Common::TMeasuredValue * current = nullptr;
 			//Spocitat pocatecni mean
 			for (int i = 0; i < (*data).size(); i++)
 			{
-				TMeasuredValue * current = (*data).at(i);
+				Common::TMeasuredValue * current = (*data).at(i);
 				if (prev != nullptr)
 				{
 				runningTotal -= prev->ist / (double)(*windowSize);   // subtract
@@ -116,7 +116,7 @@ namespace PeakDetector
 		int x = 5;
 	}
 
-	double PeakDetector::calculateWindowFitness(std::vector<TMeasuredValue *> *data, int startIndex, int endIndex)
+	double PeakDetector::calculateWindowFitness(std::vector<Common::TMeasuredValue *> *data, int startIndex, int endIndex)
 	{
 		double fitnessSum = 0;
 		for (int i = startIndex; i < endIndex; i++) {

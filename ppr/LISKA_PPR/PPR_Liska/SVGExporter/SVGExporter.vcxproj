@@ -94,7 +94,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>SVGEXPORTERRDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)Common\;$(SolutionDir)Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)\DataLoader\;$(SolutionDir)Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,7 +109,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>SVGEXPORTERRDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)Common\;$(SolutionDir)Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)\DataLoader\;$(SolutionDir)Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,7 +126,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>SVGEXPORTERRDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)Common\;$(SolutionDir)Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)\DataLoader\;$(SolutionDir)Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,7 +145,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>SVGEXPORTERRDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)Common\;$(SolutionDir)Common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)\DataLoader\;$(SolutionDir)Common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

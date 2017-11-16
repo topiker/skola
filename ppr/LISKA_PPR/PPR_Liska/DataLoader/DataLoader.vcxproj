@@ -93,7 +93,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>DATALOADERDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\sqlLite\SourceFiles\;$(SolutionDir)Common\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\sqlLite\SourceFiles\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,7 +109,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>DATALOADERDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\sqlLite\SourceFiles\;$(SolutionDir)Common\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\sqlLite\SourceFiles\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,7 +126,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>DATALOADERDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\sqlLite\SourceFiles\;$(SolutionDir)Common\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\sqlLite\SourceFiles\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,7 +145,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>DATALOADERDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\sqlLite\SourceFiles\;$(SolutionDir)Common\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\sqlLite\SourceFiles\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,12 +161,17 @@
   <ItemGroup>
     <ClInclude Include="DatabaseConnector.h" />
     <ClInclude Include="DataLoader.h" />
+    <ClInclude Include="FromTo.h" />
+    <ClInclude Include="SegmentDay.h" />
     <ClInclude Include="sqlQueries.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TMeasuredValue.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DatabaseConnector.cpp" />
     <ClCompile Include="DataLoader.cpp" />
+    <ClCompile Include="FromTo.cpp" />
+    <ClCompile Include="SegmentDay.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -30,12 +30,27 @@
     <ClInclude Include="DatabaseConnector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FromTo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SegmentDay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TMeasuredValue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DataLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DatabaseConnector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FromTo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SegmentDay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

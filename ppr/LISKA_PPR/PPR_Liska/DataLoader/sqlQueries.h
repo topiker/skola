@@ -8,6 +8,7 @@
 
 const char *segmentsQuery = "SELECT id FROM timesegment ORDER BY id ASC;";
 const char *measuredvalueQuery = "SELECT (julianday(measuredat)) AS 'measuredat',id, segmentid, ist FROM measuredvalue WHERE segmentId=%i ORDER BY measuredat;";
+const unsigned int minutesPerDay = 1440;
 
 static int segmentsQueryCallback(void *data, int argc, char **argv, char **azColName)
 {
@@ -31,13 +32,13 @@ static int segmentsQueryCallback(void *data, int argc, char **argv, char **azCol
 
 static int dataQueryCallback(void *data, int argc, char **argv, char **azColName)
 {
-	std::vector<TMeasuredValue*> *values = (std::vector<TMeasuredValue*>*)data;
+	std::vector<Common::TMeasuredValue*> *values = (std::vector<Common::TMeasuredValue*>*)data;
 
-	TMeasuredValue *value = (TMeasuredValue*)malloc(sizeof(TMeasuredValue));
+	Common::TMeasuredValue *value = (Common::TMeasuredValue*)malloc(sizeof(Common::TMeasuredValue));
 	if (value != nullptr) {
 		int i;
-		// v cyklu prochazime vsechny sloupecky, a hodnoty ukladame do TmeasuredValue promenne
-		// pokud je hodnota z databaze null, ulozi se do TMeasuredValue take null
+		// v cyklu prochazime vsechny sloupecky, a hodnoty ukladame do Common::TMeasuredValue promenne
+		// pokud je hodnota z databaze null, ulozi se do Common::TMeasuredValue take null
 		for (i = 0; i < argc; i++) {
 			//id
 			if (strcmp(azColName[i], "id") == 0) {
@@ -74,7 +75,10 @@ static int dataQueryCallback(void *data, int argc, char **argv, char **azColName
 				if (argv[i]) {
 					double measureDate = std::stod(argv[i]);
 					//Zajima mi pouze cas, nepotreba tedy dale upravovat.
-					value->measureDate = measureDate;
+					double desetinne = measureDate - (int)measureDate;
+					int casVMinutach = (int)(desetinne*minutesPerDay);
+					value->hour = (int)(casVMinutach/60);
+					value->minutes = (int)(casVMinutach % 60);
 				}
 				else {
 					std::cerr << "measuredate is NULL" << std::endl;

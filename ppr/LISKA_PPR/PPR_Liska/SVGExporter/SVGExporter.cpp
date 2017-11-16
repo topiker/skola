@@ -8,7 +8,7 @@ namespace SVGExporter {
 	{
 	}
 
-	void  SVGExporter::exportToSvg(std::string path, std::vector<TMeasuredValue*>  *values, int * segmentId, std::vector<PeakPeakDetector::Peak> *peaks)
+	void  SVGExporter::exportToSvg(std::string path, std::vector<Common::TMeasuredValue*>  *values, int * segmentId, std::vector<PeakPeakDetector::Peak> *peaks)
 	{
 		double scale = 1.5;
 		svg::Dimensions dimensions(width, height);
@@ -76,7 +76,7 @@ namespace SVGExporter {
 		(*doc) << svg::Line(svg::Point(chartMaxX + double(legendLineWidth / 2), legendStartY - fontSize * 2 - legendItemMargin), svg::Point(canvasMaxX - double(legendLineWidth / 2), legendStartY - fontSize * 2 - legendItemMargin), svg::Stroke(2, svg::Color::White));
 	}
 
-	void SVGExporter::printPeaks(svg::Document *doc, std::vector<TMeasuredValue*>  *values, std::vector<PeakPeakDetector::Peak> *peaks, const double * columnWidth, const double * pixelPerMmol)
+	void SVGExporter::printPeaks(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, std::vector<PeakPeakDetector::Peak> *peaks, const double * columnWidth, const double * pixelPerMmol)
 	{
 		for (int i = 0; i < (*peaks).size(); i++)
 		{
@@ -94,7 +94,7 @@ namespace SVGExporter {
 		}
 	}
 
-	void SVGExporter::printData(svg::Document *doc, std::vector<TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol)
+	void SVGExporter::printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol)
 	{
 		svg::Polyline polyline_chart(svg::Stroke(2, svg::Color::Black));
 		//svg::Polyline polyline_chart_mean(svg::Stroke(1, svg::Color::Blue));
@@ -107,45 +107,41 @@ namespace SVGExporter {
 		(*doc) << polyline_chart;
 	}
 
-	void SVGExporter::printYAxis(svg::Document *doc, std::vector<TMeasuredValue*>  *values)
+	void SVGExporter::printYAxis(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values)
 	{
-		if ((*values).size() > 0)
-		{
+		//if ((*values).size() > 0)
+		//{
 
 
-			//std::cout<< (*values).at(0)->measureDate)
-			//pocet minut za den
-			unsigned int minutesPerDay = 1440;
-			//doba mereni, tj jednoho segmentu, v minutách!
+		//	//std::cout<< (*values).at(0)->measureDate)
+		//	//pocet minut za den
+		//	unsigned int minutesPerDay = 1440;
+		//	//doba mereni, tj jednoho segmentu, v minutách!
 
-			unsigned int minutes = (unsigned int)(((*values).at((*values).size() - 1)->measureDate - (*values).at(0)->measureDate) * minutesPerDay);
-			//ziskani mantisy
-			double mantisa = (*values).at(0)->measureDate - (int)((*values).at(0)->measureDate);
-			//doba v minutach, kdy zacalo mereni (v ramci jednoho dne)
-			unsigned int startTime = (int)(mantisa * minutesPerDay);
+		//	unsigned int minutes = ((*values).size() - 1) * 5;
+		//	//ziskani mantisy
+		//	//jak casto chceme vykreslovat grid
+		//	unsigned int frequency = 30; // kazdych 90 minut bude cara
+		//	double PixelPerMinute = chartWidth / minutes;
 
-			//jak casto chceme vykreslovat grid
-			unsigned int frequency = 30; // kazdych 90 minut bude cara
-			double PixelPerMinute = chartWidth / minutes;
+		//	//posunuti popisku doleva
+		//	unsigned int textShiftLeft = 15;
+		//	//posunuti popisku dolu;
+		//	unsigned int textShiftDown = 25;
 
-			//posunuti popisku doleva
-			unsigned int textShiftLeft = 15;
-			//posunuti popisku dolu;
-			unsigned int textShiftDown = 25;
+		//	for (unsigned int i = 0; i < minutes; i++)
+		//	{
+		//		unsigned int currentTime = i + startTime;
+		//		if (currentTime % frequency == 0) {
 
-			for (unsigned int i = 0; i < minutes; i++)
-			{
-				unsigned int currentTime = i + startTime;
-				if (currentTime % frequency == 0) {
-
-					//kvuli preteceni do dalsiho dne provadime operaci modulo
-					currentTime = currentTime % minutesPerDay;
-					(*doc) << svg::Line(svg::Point(chartMinX + (i*PixelPerMinute), chartMinY), svg::Point(chartMinX + (i*PixelPerMinute), chartMaxY), svg::Stroke(1, svg::Color::Grey));
-					//TODO: Doplnit nuly
-					(*doc) << svg::Text(svg::Point(chartMinX + (i*PixelPerMinute) - textShiftLeft, chartMinY - textShiftDown), std::to_string((int)(currentTime / 60)) + ":" + std::to_string((int)(currentTime % 60)), svg::Color::Black, svg::Font((int)(fontSize*.9), "Verdana"));
-				}
-			}
-		}
+		//			//kvuli preteceni do dalsiho dne provadime operaci modulo
+		//			currentTime = currentTime % minutesPerDay;
+		//			(*doc) << svg::Line(svg::Point(chartMinX + (i*PixelPerMinute), chartMinY), svg::Point(chartMinX + (i*PixelPerMinute), chartMaxY), svg::Stroke(1, svg::Color::Grey));
+		//			//TODO: Doplnit nuly
+		//			(*doc) << svg::Text(svg::Point(chartMinX + (i*PixelPerMinute) - textShiftLeft, chartMinY - textShiftDown), std::to_string((int)(currentTime / 60)) + ":" + std::to_string((int)(currentTime % 60)), svg::Color::Black, svg::Font((int)(fontSize*.9), "Verdana"));
+		//		}
+		//	}
+		//}
 		
 	}
 

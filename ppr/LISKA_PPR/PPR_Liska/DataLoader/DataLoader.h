@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "TMeasuredValue.h"
+#include "FromTo.h"
 
 #ifdef  DATALOADERDLL_EXPORTS 
 /*Enabled as "export" while compiling the dll project*/
@@ -16,11 +17,12 @@ namespace DataLoader {
 	public:
 		DataLoader(char * dbPath);
 		int getSegmentIds(std::vector<int> *getSegmentIds);
-		size_t loadData(std::vector<TMeasuredValue*> *data, int * segmentId);
+		size_t loadData(std::vector<Common::TMeasuredValue*> *data, int * segmentId);
 		
 		~DataLoader();
 	private:
 		const char * dbPath;
+		std::vector<FromTo> getDaysIndexes(std::vector<Common::TMeasuredValue*> *data);
 	};
 
 }

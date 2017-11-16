@@ -19,16 +19,16 @@ namespace SVGExporter {
 	{
 	public:
 		SVGExporter();
-		void exportToSvg(std::string path, std::vector<TMeasuredValue*>  *values, int * segmentId, std::vector<PeakPeakDetector::Peak> *peaks);
+		void exportToSvg(std::string path, std::vector<Common::TMeasuredValue*>  *values, int * segmentId, std::vector<PeakPeakDetector::Peak> *peaks);
 	private:
 
 		void printXAxis(svg::Document *doc, const double * pixelPerMmol, const double *maxMmolGridValue);
-		void printYAxis(svg::Document *doc, std::vector<TMeasuredValue*>  *values);
+		void printYAxis(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values);
 
 		void printArrows(svg::Document *doc);
 		void printLegend(svg::Document *doc);
-		void printPeaks(svg::Document *doc, std::vector<TMeasuredValue*>  *values, std::vector<PeakPeakDetector::Peak> *peaks, const double * columnWidth, const double * pixelPerMmol);
-		void printData(svg::Document *doc, std::vector<TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol);
+		void printPeaks(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, std::vector<PeakPeakDetector::Peak> *peaks, const double * columnWidth, const double * pixelPerMmol);
+		void printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol);
 		std::string getFileName(int * segmentId, std::string path);
 	};
 
