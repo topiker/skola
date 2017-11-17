@@ -1,4 +1,5 @@
 #include "PeakDetector.h"
+#include <algorithm>
 
 
 namespace PeakDetector
@@ -25,7 +26,10 @@ namespace PeakDetector
 
 	void PeakDetector::detectPeakInDay(std::vector<Common::TMeasuredValue *> *data, std::vector<PeakPeakDetector::Peak> *peaks, int * windowSize)
 	{
+		size_t nBestPeaks = 5;
 		std::vector<double> fitnessValues;
+
+		std::vector<PeakPeakDetector::Peak> localPeaks = std::vector<PeakPeakDetector::Peak>();
 
 		//prochazime postupne vsechny okenka a urcujeme jejich fitness
 		for (unsigned int i = 0; i + (*windowSize) < (*data).size(); i++)
@@ -33,42 +37,51 @@ namespace PeakDetector
 			fitnessValues.push_back(calculateWindowFitness(data, i, i + (*windowSize)));
 		}
 
+		double sum = 0;
+		for (unsigned int i = 0; i < (fitnessValues).size(); i++)
+		{
+			sum += fitnessValues.at(i);
+			//fitnessValues.push_back(calculateWindowFitness(data, i, i + (*windowSize)));
+		}
+
+		double threshold = sum/((double)fitnessValues.size());
+
+
 		for (unsigned int i = 0; i < fitnessValues.size(); i++)
 		{
-			//najdeme index okenka s maximalni hodnotou v intervalu  i + windowSize/2
-			unsigned int maxValueIndex = intervalMaxValueIndex(i, i + (*windowSize) / 2, &fitnessValues);
-
-			//hledej index nejlepsiho okenka, dokud se dari najit ve vzdalenosti windowSize/2 okenko s vyssi fitness.
-			while (maxValueIndex != i && maxValueIndex < fitnessValues.size()) {
-				// pokud maxValueIndex == i -> ve vzdalenosti windowSize/2 neexistuje okenko s lepsi fitness, cyklus konci
-
-				// zmenime aktualni pozici na nove nalezene nejlepsi okenko
-				i = maxValueIndex;
-
-				// zkusime se podivat jestli ve vzdalenosti windowSize/2 neexistuje jeste lepsi okenko nez aktualne nalezene1
-				maxValueIndex = intervalMaxValueIndex(i, i + (*windowSize) / 2, &fitnessValues);
-			}
-			// po skonceni cylku vime ze v okoli aktualne nalezeneho okenka neexistuje zadne lepsi
-
-			(*peaks).push_back(PeakPeakDetector::Peak(i - (*windowSize) / 2, i + (*windowSize) / 2, 5));
-
-			i += (*windowSize);
-		}
-
-
-	}
-
-	//projdeme fitness hodnoty okenek od startIndex do endIndex a vratime index nejlepsiho okenka
-	int PeakDetector::intervalMaxValueIndex(unsigned int startIndex, unsigned int endIndex, std::vector<double> *fitnessValues) {
-		int maxValueIndex = startIndex;
-		double maxValue = (*fitnessValues).at(startIndex);
-		for (unsigned int i = startIndex; i < endIndex && i < (*fitnessValues).size(); i++) {
-			if ((*fitnessValues).at(i) > maxValue) {
-				maxValueIndex = i;
-				maxValue = (*fitnessValues).at(i);
+			if (threshold < fitnessValues.at(i))
+			{
+				localPeaks.push_back(PeakPeakDetector::Peak(i, i + (*windowSize) / 2, fitnessValues.at(i)));
 			}
 		}
-		return maxValueIndex;
+
+		std::vector<PeakPeakDetector::Peak> joinedPeaks = std::vector<PeakPeakDetector::Peak>();
+		if(localPeaks.size()>0){
+			PeakPeakDetector::Peak current = localPeaks.at(0);
+			for (size_t i = 1; i < localPeaks.size(); i++)
+			{
+				if (current.endIndex >= localPeaks.at(i).startIndex)
+				{
+					current.endIndex = localPeaks.at(i).endIndex;
+				}
+				else 
+				{
+					joinedPeaks.push_back(current);
+					current = localPeaks.at(i);
+				}
+			}
+			joinedPeaks.push_back(current);
+		}
+
+		for (size_t i = 0; i < joinedPeaks.size(); i++)
+		{
+			auto current = joinedPeaks.at(i);
+			current.fitness = calculateWindowFitness(data, current.startIndex, current.endIndex);
+		}
+
+		std::sort((joinedPeaks).begin(), (joinedPeaks).end(), [](PeakPeakDetector::Peak a, PeakPeakDetector::Peak b) { return a.fitness > b.fitness; });
+		size_t peaksLength = (joinedPeaks).size() > nBestPeaks ? nBestPeaks : (joinedPeaks).size();
+		(*peaks) = std::vector<PeakPeakDetector::Peak >((joinedPeaks).begin(),(joinedPeaks).begin()+peaksLength);
 	}
 
 	void PeakDetector::smooth_null_values(std::vector<Common::TMeasuredValue *> *data)
@@ -104,10 +117,14 @@ namespace PeakDetector
 			double runningTotal = 0;
 			Common::TMeasuredValue * prev = nullptr;
 			Common::TMeasuredValue * current = nullptr;
+			for (int i = 0; i < (*windowSize); i++)
+			{
+				runningTotal += (*data).at(i)->ist;
+			}
 			//Spocitat pocatecni mean
 			for (int i = 0; i < (*data).size(); i++)
 			{
-				Common::TMeasuredValue * current = (*data).at(i);
+				current = (*data).at(i);
 				if (prev != nullptr)
 				{
 					runningTotal -= prev->ist;   // subtract
@@ -116,22 +133,21 @@ namespace PeakDetector
 				}
 				else
 				{
-					runningTotal = current->ist;
-					current->smoothedValue = runningTotal;
+					current->smoothedValue = runningTotal/(double)(*windowSize);
 				}
 				prev = current;
 			}
 		}
-		int x = 5;
+		//TODO:Osetrit
 	}
 
-	double PeakDetector::calculateWindowFitness(std::vector<Common::TMeasuredValue *> *data, int startIndex, int endIndex)
+	double PeakDetector::calculateWindowFitness(std::vector<Common::TMeasuredValue *> *data, size_t startIndex, size_t endIndex)
 	{
 		double fitnessSum = 0;
-		for (int i = startIndex; i < endIndex; i++) {
+		for (size_t i = startIndex; i < endIndex; i++) {
 			// vezmi dve sousedni hodnooty a zjisti jejich rozdil
-			double firstValue = (*data).at(i)->smoothedValue;// ((*data).at(i)->ist - (*data).at(i)->smoothedValue)*((*data).at(i)->ist - (*data).at(i)->smoothedValue);
-			double nextValue = (*data).at(i + 1)->smoothedValue;//;((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue)*((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue);
+			double firstValue = (*data).at(i)->ist;// ((*data).at(i)->ist - (*data).at(i)->smoothedValue)*((*data).at(i)->ist - (*data).at(i)->smoothedValue);
+			double nextValue = (*data).at(i + 1)->ist;//;((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue)*((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue);
 			double difference = nextValue - firstValue;
 			// udelej druhou mocninu rozdilu a pricti k fitness
 			fitnessSum += difference * difference;

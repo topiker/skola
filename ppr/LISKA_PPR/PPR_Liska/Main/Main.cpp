@@ -23,8 +23,8 @@ int main(int argc, char* argv[])
 {
 	Parser::InputParser parser = Parser::InputParser(&argc, argv);
 	//24 = 2 hodiny
-	int windowSize = 24;
-	int smoothSize = 5;
+	int windowSize = 36;
+	int smoothSize = 4;
 
 	if (parser.areParamstOk())
 	{
@@ -47,7 +47,6 @@ int main(int argc, char* argv[])
 				detector.smooth_null_values(&values);
 				detector.moving_average(&values, &smoothSize);
 				dataLoader.splitIntoDays(&days, &values);
-
 				detector.detectPeaks(&days,&windowSize,&peaks);
 				exporter.exportToSvg(parser.getExportPath(), &(days), &segmentIds.at(i), &peaks,true);
 			}

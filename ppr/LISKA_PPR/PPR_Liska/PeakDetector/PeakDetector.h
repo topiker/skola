@@ -27,10 +27,9 @@ namespace  PeakDetector
 
 
 	private:
-		double calculateWindowFitness(std::vector<Common::TMeasuredValue *> *data, int startIndex, int endIndex);
+		double calculateWindowFitness(std::vector<Common::TMeasuredValue *> *data, size_t startIndex, size_t endIndex);
 		void detectPeakInDay(std::vector<Common::TMeasuredValue *> *data, std::vector<PeakPeakDetector::Peak> *peaks, int * windowSize);
-			//projdeme fitness hodnoty okenek od startIndex do endIndex a vratime index nejlepsiho okenka
-		int intervalMaxValueIndex(unsigned int startIndex, unsigned int endIndex, std::vector<double> *fitnessValues);
 	};
+
 }
 

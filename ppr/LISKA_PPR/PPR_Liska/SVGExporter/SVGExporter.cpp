@@ -96,7 +96,7 @@ namespace SVGExporter {
 		this->printYAxis(&doc, &graphData, &yOffset);
 		this->printData(&doc, &graphData, &columnWidth, &pixelPerMmol,&yOffset);
 
-		unsigned int xOffset = 0;
+		size_t xOffset = 0;
 		for (size_t i = 0; i < (*peaks).size(); i++)
 		{
 			auto current = (*peaks).at(i);
@@ -187,16 +187,16 @@ namespace SVGExporter {
 	void SVGExporter::printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol, double *yOffset)
 	{
 		svg::Polyline polyline_chart(svg::Stroke(2, svg::Color::Black));
-		svg::Polyline smoothed_polyline(svg::Stroke(2, svg::Color::Blue));
+		//svg::Polyline smoothed_polyline(svg::Stroke(2, svg::Color::Blue));
 
 
 		for (size_t i = 0; i < (*values).size(); i++)
 		{
 			polyline_chart << svg::Point(chartMinX + i*(*columnWidth), (*pixelPerMol) * (*values).at(i)->ist + chartMinY + (*yOffset));
-			smoothed_polyline << svg::Point(chartMinX + i*(*columnWidth), (*pixelPerMol) * (*values).at(i)->smoothedValue + chartMinY + (*yOffset));
+			//smoothed_polyline << svg::Point(chartMinX + i*(*columnWidth), (*pixelPerMol) * (*values).at(i)->smoothedValue + chartMinY + (*yOffset));
 		}
 		(*doc) << polyline_chart;
-		(*doc) << smoothed_polyline;
+		//(*doc) << smoothed_polyline;
 
 	}
 
