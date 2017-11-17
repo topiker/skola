@@ -77,6 +77,7 @@ static int dataQueryCallback(void *data, int argc, char **argv, char **azColName
 					//Zajima mi pouze cas, nepotreba tedy dale upravovat.
 					double desetinne = measureDate - (int)measureDate;
 					int casVMinutach = (int)(desetinne*minutesPerDay);
+					value->measureDate = measureDate;
 					value->hour = (int)(casVMinutach/60);
 					value->minutes = (int)(casVMinutach % 60);
 				}

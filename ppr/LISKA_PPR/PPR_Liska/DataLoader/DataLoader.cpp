@@ -32,23 +32,42 @@ namespace DataLoader {
 		//TODO: Rozdelit po dnech.
 		//Podle prvniho datumu
 
+		//std::vector<FromTo> daysIndexes = this->getDaysIndexes(&data);
+		//(*days) = std::vector<Common::SegmentDay>();
+		//int index = 0;
+		//for (unsigned int i = 0; i < daysIndexes.size(); i++)
+		//{
+		//	FromTo current = daysIndexes.at(i);
+		//	std::vector<Common::TMeasuredValue * > subdata = std::vector<Common::TMeasuredValue * >();
+		//	for (size_t j = current.from; j < current.to; j++)
+		//	{
+		//		subdata.push_back((data).at(j));
+		//	}
+		//	Common::SegmentDay day = Common::SegmentDay(&subdata, &(index));
+		//	(*days).push_back(day);
+		//	index++;
+		//}
+
+		return (*data).size();
+	}
+
+	void DataLoader::splitIntoDays(std::vector<Common::SegmentDay> *days, std::vector<Common::TMeasuredValue*> *data)
+	{
 		std::vector<FromTo> daysIndexes = this->getDaysIndexes(data);
-		std::vector<Common::SegmentDay> days = std::vector<Common::SegmentDay>();
+		(*days) = std::vector<Common::SegmentDay>();
 		int index = 0;
 		for (unsigned int i = 0; i < daysIndexes.size(); i++)
 		{
 			FromTo current = daysIndexes.at(i);
-			std::vector<Common::TMeasuredValue * > subdata = (std::vector<Common::TMeasuredValue * >());
+			std::vector<Common::TMeasuredValue * > subdata = std::vector<Common::TMeasuredValue * >();
 			for (size_t j = current.from; j < current.to; j++)
 			{
-				(subdata).push_back(data->at(j));
+				subdata.push_back((*data).at(j));
 			}
-			Common::SegmentDay day = Common::SegmentDay(, &(index));
-			days.push_back(day);
+			Common::SegmentDay day = Common::SegmentDay(&subdata, &(index));
+			(*days).push_back(day);
 			index++;
 		}
-
-		return (*data).size();
 	}
 
 	std::vector<FromTo> DataLoader::getDaysIndexes(std::vector<Common::TMeasuredValue*> *data)

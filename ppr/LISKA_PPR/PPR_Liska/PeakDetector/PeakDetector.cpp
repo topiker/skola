@@ -12,41 +12,50 @@ namespace PeakDetector
 	{
 	}
 
-	void PeakDetector::detectPeaks(std::vector<Common::TMeasuredValue *> *data, int *window_size, std::vector<PeakPeakDetector::Peak> *detectedPeaks)
+	void PeakDetector::detectPeaks(std::vector<Common::SegmentDay> *days, int * window_size, std::vector<std::vector<PeakPeakDetector::Peak>> *detectedPeaks)
+	{
+		(*detectedPeaks) = std::vector<std::vector<PeakPeakDetector::Peak>>();
+		for (size_t i = 0; i < (*days).size(); i++)
+		{
+			std::vector<PeakPeakDetector::Peak> peaks = std::vector<PeakPeakDetector::Peak>();
+			this->detectPeakInDay(&((*days).at(i).data), &peaks, window_size);
+			(detectedPeaks)->push_back(peaks);
+		}
+	}
+
+	void PeakDetector::detectPeakInDay(std::vector<Common::TMeasuredValue *> *data, std::vector<PeakPeakDetector::Peak> *peaks, int * windowSize)
 	{
 		std::vector<double> fitnessValues;
 
 		//prochazime postupne vsechny okenka a urcujeme jejich fitness
-		for (unsigned int i = 0; i + (*window_size) < (*data).size(); i++) {
-			fitnessValues.push_back(calculateWindowFitness(data, i, i + (*window_size)));
+		for (unsigned int i = 0; i + (*windowSize) < (*data).size(); i++)
+		{
+			fitnessValues.push_back(calculateWindowFitness(data, i, i + (*windowSize)));
 		}
 
+		for (unsigned int i = 0; i < fitnessValues.size(); i++)
+		{
+			//najdeme index okenka s maximalni hodnotou v intervalu  i + windowSize/2
+			unsigned int maxValueIndex = intervalMaxValueIndex(i, i + (*windowSize) / 2, &fitnessValues);
 
-		for (unsigned int i = 0; i < fitnessValues.size(); i++) {
-			//najdeme index okenka s maximalni hodnotou v intervalu  i + window_size/2
-			unsigned int maxValueIndex = intervalMaxValueIndex(i, i + (*window_size) / 2, &fitnessValues);
-
-			//hledej index nejlepsiho okenka, dokud se dari najit ve vzdalenosti window_size/2 okenko s vyssi fitness.
+			//hledej index nejlepsiho okenka, dokud se dari najit ve vzdalenosti windowSize/2 okenko s vyssi fitness.
 			while (maxValueIndex != i && maxValueIndex < fitnessValues.size()) {
-				// pokud maxValueIndex == i -> ve vzdalenosti window_size/2 neexistuje okenko s lepsi fitness, cyklus konci
+				// pokud maxValueIndex == i -> ve vzdalenosti windowSize/2 neexistuje okenko s lepsi fitness, cyklus konci
 
 				// zmenime aktualni pozici na nove nalezene nejlepsi okenko
 				i = maxValueIndex;
 
-				// zkusime se podivat jestli ve vzdalenosti window_size/2 neexistuje jeste lepsi okenko nez aktualne nalezene1
-				maxValueIndex = intervalMaxValueIndex(i, i + (*window_size) / 2, &fitnessValues);
+				// zkusime se podivat jestli ve vzdalenosti windowSize/2 neexistuje jeste lepsi okenko nez aktualne nalezene1
+				maxValueIndex = intervalMaxValueIndex(i, i + (*windowSize) / 2, &fitnessValues);
 			}
 			// po skonceni cylku vime ze v okoli aktualne nalezeneho okenka neexistuje zadne lepsi
 
+			(*peaks).push_back(PeakPeakDetector::Peak(i - (*windowSize) / 2, i + (*windowSize) / 2, 5));
 
-			(*detectedPeaks).push_back(PeakPeakDetector::Peak(i, i + (*window_size) / 2));
-
-			//posuneme index o velikost pulku okenka doprava a zacneme hledat nove okenko
-			i += (*window_size) / 2;
-
-			//TODO:Vybrat pouze ty nejlepsi
-			// -> tahle metoda muze najit velike mnozstvi okenek, jeste to bude chtit vyfiltrovat treba 5 nejlepsich
+			i += (*windowSize);
 		}
+
+
 	}
 
 	//projdeme fitness hodnoty okenek od startIndex do endIndex a vratime index nejlepsiho okenka
@@ -101,11 +110,11 @@ namespace PeakDetector
 				Common::TMeasuredValue * current = (*data).at(i);
 				if (prev != nullptr)
 				{
-				runningTotal -= prev->ist / (double)(*windowSize);   // subtract
-				runningTotal += current->ist / (double)(*windowSize);  // add
-				current->smoothedValue = runningTotal;
+					runningTotal -= prev->ist;   // subtract
+					runningTotal += current->ist;  // add
+					current->smoothedValue = runningTotal / (double)(*windowSize);
 				}
-				else 
+				else
 				{
 					runningTotal = current->ist;
 					current->smoothedValue = runningTotal;
@@ -121,8 +130,8 @@ namespace PeakDetector
 		double fitnessSum = 0;
 		for (int i = startIndex; i < endIndex; i++) {
 			// vezmi dve sousedni hodnooty a zjisti jejich rozdil
-			double firstValue = ((*data).at(i)->ist - (*data).at(i)->smoothedValue)*((*data).at(i)->ist - (*data).at(i)->smoothedValue);
-			double nextValue = ((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue)*((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue);
+			double firstValue = (*data).at(i)->smoothedValue;// ((*data).at(i)->ist - (*data).at(i)->smoothedValue)*((*data).at(i)->ist - (*data).at(i)->smoothedValue);
+			double nextValue = (*data).at(i + 1)->smoothedValue;//;((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue)*((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue);
 			double difference = nextValue - firstValue;
 			// udelej druhou mocninu rozdilu a pricti k fitness
 			fitnessSum += difference * difference;

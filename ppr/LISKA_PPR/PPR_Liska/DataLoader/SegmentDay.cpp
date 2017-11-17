@@ -3,9 +3,10 @@
 namespace Common
 {
 
-	SegmentDay::SegmentDay(std::vector<TMeasuredValue *> **data, int *indexDay)
+	SegmentDay::SegmentDay(std::vector<TMeasuredValue *> *data, int *indexDay)
 	{
 		this->data = *data;
 		this->dayIndex = (*indexDay);
 	}
+
 }

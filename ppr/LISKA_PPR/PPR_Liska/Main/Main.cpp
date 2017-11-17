@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	Parser::InputParser parser = Parser::InputParser(&argc, argv);
 	//24 = 2 hodiny
 	int windowSize = 24;
-	int smoothSize = 10;
+	int smoothSize = 5;
 
 	if (parser.areParamstOk())
 	{
@@ -37,16 +37,19 @@ int main(int argc, char* argv[])
 
 		for (unsigned int i = 0; i < segmentIds.size(); i++)
 		{
-			std::vector<Common::TMeasuredValue*> values;
+			std::vector<Common::TMeasuredValue *> values;
 			dataLoader.loadData(&values, &(segmentIds.at(i)));
 			if (values.size() > 0)
 			{
-				std::vector<PeakPeakDetector::Peak> peaks;
+				std::vector<Common::SegmentDay> days;
+				std::vector<std::vector<PeakPeakDetector::Peak>> peaks;
 				PeakDetector::PeakDetector detector = PeakDetector::PeakDetector();
 				detector.smooth_null_values(&values);
 				detector.moving_average(&values, &smoothSize);
-				detector.detectPeaks(&values, &windowSize, &peaks);
-				exporter.exportToSvg(parser.getExportPath(), &(values), &segmentIds.at(i), &peaks);
+				dataLoader.splitIntoDays(&days, &values);
+
+				detector.detectPeaks(&days,&windowSize,&peaks);
+				exporter.exportToSvg(parser.getExportPath(), &(days), &segmentIds.at(i), &peaks,true);
 			}
 		}
 	}

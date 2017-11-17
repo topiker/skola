@@ -1,9 +1,12 @@
 #pragma once
+
+#include <vector>
+#include <string>
+
 #include "TMeasuredValue.h"
 #include "simple_svg_1.0.0.hpp"
-#include <vector>
 #include "Peak.h"
-#include <string>
+#include "SegmentDay.h"
 
 #ifdef  SVGEXPORTERRDLL_EXPORTS 
 /*Enabled as "export" while compiling the dll project*/
@@ -19,16 +22,21 @@ namespace SVGExporter {
 	{
 	public:
 		SVGExporter();
-		void exportToSvg(std::string path, std::vector<Common::TMeasuredValue*>  *values, int * segmentId, std::vector<PeakPeakDetector::Peak> *peaks);
+		void exportToSvg(std::string path, std::vector<Common::SegmentDay>  *days, int * segmentId, std::vector<std::vector<PeakPeakDetector::Peak>> *peaks, bool inOne);
 	private:
 
-		void printXAxis(svg::Document *doc, const double * pixelPerMmol, const double *maxMmolGridValue);
-		void printYAxis(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values);
+		void allInOneGraph(std::string path, std::vector<Common::SegmentDay>  *days, int * segmentId, std::vector<std::vector<PeakPeakDetector::Peak>> *peaks);
+		void oneToOneGraph(std::string path, std::vector<Common::SegmentDay>  *days, int * segmentId, std::vector<std::vector<PeakPeakDetector::Peak>> *peaks);
 
-		void printArrows(svg::Document *doc);
-		void printLegend(svg::Document *doc);
-		void printPeaks(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, std::vector<PeakPeakDetector::Peak> *peaks, const double * columnWidth, const double * pixelPerMmol);
-		void printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol);
+
+		void printXAxis(svg::Document *doc, const double * pixelPerMmol, const double *maxMmolGridValue, double *yOffset);
+		void printYAxis(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, double *yOffset);
+
+		void printArrows(svg::Document *doc, double *yOffset);
+		void printLegend(svg::Document *doc, double *yOffset);
+		void printPeaks(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, std::vector<PeakPeakDetector::Peak> *peaks, const double * columnWidth, const double * pixelPerMmol, double *yOffset);
+		void printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol, double *yOffset);
+		double getMaxIst(std::vector<Common::TMeasuredValue*>  *values);
 		std::string getFileName(int * segmentId, std::string path);
 	};
 

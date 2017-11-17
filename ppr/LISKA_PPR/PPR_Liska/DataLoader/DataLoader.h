@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "TMeasuredValue.h"
+#include "SegmentDay.h"
 #include "FromTo.h"
 
 #ifdef  DATALOADERDLL_EXPORTS 
@@ -18,6 +19,7 @@ namespace DataLoader {
 		DataLoader(char * dbPath);
 		int getSegmentIds(std::vector<int> *getSegmentIds);
 		size_t loadData(std::vector<Common::TMeasuredValue*> *data, int * segmentId);
+		void splitIntoDays(std::vector<Common::SegmentDay> *days, std::vector<Common::TMeasuredValue *> *data);
 		
 		~DataLoader();
 	private:

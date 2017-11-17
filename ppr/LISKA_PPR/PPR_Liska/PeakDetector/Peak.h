@@ -14,9 +14,10 @@ namespace PeakPeakDetector
 	class PEAKDLLEXPORT Peak
 	{
 	public:
-		Peak(unsigned int startIndex, unsigned int endIndex);
+		Peak(unsigned int startIndex, unsigned int endIndex,double fitness);
 		unsigned int startIndex;
 		unsigned int endIndex;
+		double fitness;
 		//unsigned int getStartIndex();
 		//unsigned int getEndIndex();
 	private:

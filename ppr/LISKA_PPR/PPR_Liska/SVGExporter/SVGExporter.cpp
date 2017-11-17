@@ -1,6 +1,7 @@
 #include "SVGExporter.h"
 #include "SVGExporterConstants.h"
 #include "DataHelper.h"
+#include <ctime>
 
 namespace SVGExporter {
 
@@ -8,66 +9,155 @@ namespace SVGExporter {
 	{
 	}
 
-	void  SVGExporter::exportToSvg(std::string path, std::vector<Common::TMeasuredValue*>  *values, int * segmentId, std::vector<PeakPeakDetector::Peak> *peaks)
+	void  SVGExporter::exportToSvg(std::string path, std::vector<Common::SegmentDay>  *days, int * segmentId, std::vector<std::vector<PeakPeakDetector::Peak>> *peaks, bool inOne)
 	{
-		double scale = 1.5;
-		svg::Dimensions dimensions(width, height);
-		svg::Document doc(getFileName(segmentId,path), svg::Layout(dimensions, svg::Layout::BottomLeft));
-		/*Zjisteni nejvetsi a nejmensi ist hodnoty v datech*/
-		double maxMmolValue = DataHelper::getMaxIstValue(values);
+		if (inOne)
+		{
+		this->allInOneGraph(path, days, segmentId, peaks);
+		}
+		else 
+		{
+			this->oneToOneGraph(path, days, segmentId, peaks);
+		}
+	}
 
-		double maxMmolGridValue = ((double)(int)maxMmolValue) + 1;
-		
-		//Vypocet hodnoty na pixel
-		double pixelPerMmol = chartHeight / maxMmolGridValue;
-		//Vypocet sirky sloupce, tak aby se nam vesly do obrazku
-		double columnWidth = (chartWidth) / (*values).size();
+	void SVGExporter::oneToOneGraph(std::string path, std::vector<Common::SegmentDay>  *days, int * segmentId, std::vector<std::vector<PeakPeakDetector::Peak>> *peaks)
+	{
+		svg::Dimensions dimensions(width, height*(days->size()));
+		svg::Document doc(getFileName(segmentId, path), svg::Layout(dimensions, svg::Layout::BottomLeft));
+		double xOffset = 0;
+		for (size_t i = 0; i < (*days).size(); i++)
+		{
+			double yOffset = height * ((*days).size()-(i+1));
+			std::vector<Common::TMeasuredValue * > values = (*days).at(i).data;
+			std::vector<PeakPeakDetector::Peak> peaksCurrent = (*peaks).at(i);
+			double maxMmolValue = DataHelper::getMaxIstValue(&values);
 
-		this->printData(&doc, values, &columnWidth, &pixelPerMmol);
-		this->printLegend(&doc);
-		this->printPeaks(&doc, values,peaks, &columnWidth, &pixelPerMmol);
-		this->printXAxis(&doc,&pixelPerMmol,&maxMmolGridValue);
-		this->printYAxis(&doc, values);
-		this->printArrows(&doc);
+			double maxMmolGridValue = ((double)(int)maxMmolValue) + 1;
+
+			//Vypocet hodnoty na pixel
+			double pixelPerMmol = chartHeight / maxMmolGridValue;
+			//Vypocet sirky sloupce, tak aby se nam vesly do obrazku
+			double columnWidth = (chartWidth) / (values).size();
+
+			this->printXAxis(&doc, &pixelPerMmol, &maxMmolGridValue, &yOffset);
+			this->printYAxis(&doc, &values, &yOffset);
+			this->printData(&doc, &values, &columnWidth, &pixelPerMmol, &yOffset);
+			this->printLegend(&doc, &yOffset);
+			this->printPeaks(&doc, &values, &peaksCurrent, &columnWidth, &pixelPerMmol, &yOffset);
+			this->printArrows(&doc, &yOffset);
+			xOffset += values.size();
+		}
 
 
-
-		//Vykresleni gridu 
-
-
-		////vykresleni vertikaliniho gridu
-		
 		doc.save();
 	}
 
-	void SVGExporter::printXAxis(svg::Document *doc, const double * pixelPerMmol, const double *maxMmolGridValue)
+	void SVGExporter::allInOneGraph(std::string path, std::vector<Common::SegmentDay>  *days, int * segmentId, std::vector<std::vector<PeakPeakDetector::Peak>> *peaks)
+	{
+		svg::Dimensions dimensions(width, height);
+		svg::Document doc(getFileName(segmentId, path), svg::Layout(dimensions, svg::Layout::BottomLeft));
+		double yOffset = 0;
+
+		double maxMmolValue = -DBL_MAX;
+		double currentMol = 0;
+		size_t dataSize = 0;
+		for (size_t i = 0; i < (*days).size(); i++)
+		{
+			auto current = (*days).at(i);
+			currentMol = this->getMaxIst(&(current.data));
+			if (currentMol > maxMmolValue)
+			{
+				maxMmolValue = currentMol;
+			}
+			dataSize += (current).data.size();
+
+		}
+
+		double maxMmolGridValue = ((double)(int)maxMmolValue) + 1;
+		//Vypocet hodnoty na pixel
+		double pixelPerMmol = chartHeight / maxMmolGridValue;
+		//Vypocet sirky sloupce, tak aby se nam vesly do obrazku
+		double columnWidth = (chartWidth) / dataSize;
+		std::vector<Common::TMeasuredValue *> graphData;
+
+		for (size_t i = 0; i < (*days).size(); i++)
+		{
+			auto current = (*days).at(i);
+			auto currentData = (current.data);
+			for (size_t j = 0; j < currentData.size(); j++)
+			{
+				graphData.push_back(currentData.at(j));
+			}
+		}
+		std::vector<PeakPeakDetector::Peak> peaksData;
+
+		this->printXAxis(&doc, &pixelPerMmol, &maxMmolGridValue, &yOffset);
+		this->printYAxis(&doc, &graphData, &yOffset);
+		this->printData(&doc, &graphData, &columnWidth, &pixelPerMmol,&yOffset);
+
+		unsigned int xOffset = 0;
+		for (size_t i = 0; i < (*peaks).size(); i++)
+		{
+			auto current = (*peaks).at(i);
+			auto currentData = (current);
+			for (size_t j = 0; j < currentData.size(); j++)
+			{
+				auto currentPeak = currentData.at(j);
+				currentPeak.startIndex = currentPeak.startIndex + xOffset;
+				currentPeak.endIndex = currentPeak.endIndex + xOffset;
+				peaksData.push_back(currentPeak);
+			}
+			xOffset += (*days).at(i).data.size();
+		}
+		this->printPeaks(&doc, &graphData, &peaksData, &columnWidth, &pixelPerMmol,&yOffset);
+		this->printLegend(&doc,&yOffset);
+		this->printArrows(&doc,&yOffset);
+
+		doc.save();
+	}
+
+	double SVGExporter::getMaxIst(std::vector<Common::TMeasuredValue*>  *values)
+	{
+		double maxMmolValue = -DBL_MAX;
+		for (size_t i = 0; i < (*values).size(); i++)
+		{
+			if ((*values).at(i)->ist > maxMmolValue)
+			{
+				maxMmolValue = (*values).at(i)->ist;
+			}
+		}
+		return maxMmolValue;
+	}
+
+	void SVGExporter::printXAxis(svg::Document *doc, const double * pixelPerMmol, const double *maxMmolGridValue, double *yOffset)
 	{
 		svg::Polyline polyline_axis(svg::Stroke(2, svg::Color::Black));
-		polyline_axis << svg::Point(chartMinX, chartMaxY) << svg::Point(chartMinX, chartMinY) << svg::Point(chartMaxX, chartMinY);
+		polyline_axis << svg::Point(chartMinX, chartMaxY+ (*yOffset)) << svg::Point(chartMinX, chartMinY+ (*yOffset)) << svg::Point(chartMaxX, chartMinY+ (*yOffset));
 		(*doc) << polyline_axis;
 
-		(*doc) << svg::Text(svg::Point(canvasMinX, chartMinY + (*maxMmolGridValue) * (*pixelPerMmol) - fontSize / 2), "[mmol/L]", svg::Color::Black, svg::Font(fontSize, "Verdana"));
+		(*doc) << svg::Text(svg::Point(canvasMinX, chartMinY + (*yOffset) + (*maxMmolGridValue) * (*pixelPerMmol) - fontSize / 2), "[mmol/L]", svg::Color::Black, svg::Font(fontSize, "Verdana"));
 
 		for (unsigned int i = 1; i < (*maxMmolGridValue); i++)
 		{
-			(*doc) << svg::Text(svg::Point(canvasMinX + 20, chartMinY + i * (*pixelPerMmol) - fontSize / 2), std::to_string(i), svg::Color::Black, svg::Font(fontSize, "Verdana"));
-			(*doc) << svg::Line(svg::Point(chartMinX, chartMinY + i * (*pixelPerMmol)), svg::Point(chartMaxX, chartMinY + i * (*pixelPerMmol)), svg::Stroke(1, svg::Color::Grey));
+			(*doc) << svg::Text(svg::Point(canvasMinX + 20, chartMinY + (*yOffset) + i * (*pixelPerMmol) - fontSize / 2), std::to_string(i), svg::Color::Black, svg::Font(fontSize, "Verdana"));
+			(*doc) << svg::Line(svg::Point(chartMinX, chartMinY + (*yOffset) + i * (*pixelPerMmol)), svg::Point(chartMaxX, chartMinY + (*yOffset) + i * (*pixelPerMmol)), svg::Stroke(1, svg::Color::Grey));
 		}
 
 	}
-	void SVGExporter::printArrows(svg::Document *doc)
+	void SVGExporter::printArrows(svg::Document *doc, double *yOffset)
 	{
 		svg::Polyline leftArrow(svg::Stroke(2, svg::Color::Black));
-		leftArrow << svg::Point(chartMinX - 8, chartMaxY - 10) << svg::Point(chartMinX, chartMaxY + 5) << svg::Point(chartMinX + 8, chartMaxY - 10);
+		leftArrow << svg::Point(chartMinX - 8, chartMaxY + (*yOffset) - 10) << svg::Point(chartMinX, chartMaxY + (*yOffset) + 5) << svg::Point(chartMinX + 8, chartMaxY + (*yOffset) - 10);
 		(*doc) << leftArrow;
 
 		svg::Polyline rightArrow(svg::Stroke(2, svg::Color::Black));
-		rightArrow << svg::Point(chartMaxX - 10, chartMinY - 8) << svg::Point(chartMaxX + 5, chartMinY) << svg::Point(chartMaxX - 10, chartMinY + 8);
+		rightArrow << svg::Point(chartMaxX - 10, chartMinY + (*yOffset) - 8) << svg::Point(chartMaxX + 5, chartMinY + (*yOffset)) << svg::Point(chartMaxX - 10, chartMinY + (*yOffset) + 8);
 		(*doc) << rightArrow;
 	}
-	void SVGExporter::printLegend(svg::Document *doc)
+	void SVGExporter::printLegend(svg::Document *doc, double *yOffset)
 	{
-		double legendStartY = chartMinY + (chartHeight) / 2;
+		double legendStartY = chartMinY + (*yOffset) + (chartHeight) / 2;
 		(*doc) << svg::Text(svg::Point(chartMaxX + 25, legendStartY + fontSize), "Namereno", svg::Color::Black, svg::Font(fontSize, "Verdana"));
 		(*doc) << svg::Line(svg::Point(chartMaxX + double(legendLineWidth / 2), legendStartY), svg::Point(canvasMaxX - double(legendLineWidth / 2), legendStartY), svg::Stroke(3, svg::Color::Black));
 
@@ -76,7 +166,7 @@ namespace SVGExporter {
 		(*doc) << svg::Line(svg::Point(chartMaxX + double(legendLineWidth / 2), legendStartY - fontSize * 2 - legendItemMargin), svg::Point(canvasMaxX - double(legendLineWidth / 2), legendStartY - fontSize * 2 - legendItemMargin), svg::Stroke(2, svg::Color::White));
 	}
 
-	void SVGExporter::printPeaks(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, std::vector<PeakPeakDetector::Peak> *peaks, const double * columnWidth, const double * pixelPerMmol)
+	void SVGExporter::printPeaks(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, std::vector<PeakPeakDetector::Peak> *peaks, const double * columnWidth, const double * pixelPerMmol, double *yOffset)
 	{
 		for (int i = 0; i < (*peaks).size(); i++)
 		{
@@ -86,62 +176,63 @@ namespace SVGExporter {
 
 			for (unsigned int j = (*peaks).at(i).startIndex; j < (*peaks).at(i).endIndex; j++)
 			{
-				peakLineBackground << svg::Point(chartMinX + j*(*columnWidth), (*pixelPerMmol) * (*values).at(j)->ist + chartMinY), 10, svg::Fill(svg::Color::Red);
-				peakLine << svg::Point(chartMinX + j*(*columnWidth), (*pixelPerMmol) * (*values).at(j)->ist + chartMinY), 10, svg::Fill(svg::Color::Red);
+				peakLineBackground << svg::Point(chartMinX + j*(*columnWidth), (*pixelPerMmol) * (*values).at(j)->ist + chartMinY+ (*yOffset)), 10, svg::Fill(svg::Color::Red);
+				peakLine << svg::Point(chartMinX + j*(*columnWidth), (*pixelPerMmol) * (*values).at(j)->ist + chartMinY+ (*yOffset)), 10, svg::Fill(svg::Color::Red);
 			}
 			(*doc) << peakLineBackground;
 			(*doc) << peakLine;
 		}
 	}
 
-	void SVGExporter::printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol)
+	void SVGExporter::printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, const double * columnWidth, const double *pixelPerMol, double *yOffset)
 	{
 		svg::Polyline polyline_chart(svg::Stroke(2, svg::Color::Black));
-		//svg::Polyline polyline_chart_mean(svg::Stroke(1, svg::Color::Blue));
+		svg::Polyline smoothed_polyline(svg::Stroke(2, svg::Color::Blue));
 
-		for (unsigned i = 0; i < (*values).size(); i++)
+
+		for (size_t i = 0; i < (*values).size(); i++)
 		{
-			polyline_chart << svg::Point(chartMinX + i*(*columnWidth), (*pixelPerMol) * (*values).at(i)->ist + chartMinY);
-			//polyline_chart_mean << svg::Point(chartMinX + i*columnWidth, PixelPerMmol * (*values).at(i)->smoothedValue + chartMinY);
+			polyline_chart << svg::Point(chartMinX + i*(*columnWidth), (*pixelPerMol) * (*values).at(i)->ist + chartMinY + (*yOffset));
+			smoothed_polyline << svg::Point(chartMinX + i*(*columnWidth), (*pixelPerMol) * (*values).at(i)->smoothedValue + chartMinY + (*yOffset));
 		}
 		(*doc) << polyline_chart;
+		(*doc) << smoothed_polyline;
+
 	}
 
-	void SVGExporter::printYAxis(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values)
+	void SVGExporter::printYAxis(svg::Document *doc, std::vector<Common::TMeasuredValue*>  *values, double *yOffset)
 	{
-		//if ((*values).size() > 0)
-		//{
+		if ((*values).size() > 0)
+		{
+				//pocet minut za den
+				unsigned int minutesPerDay = 1440;
+				//Rozdil posledniho a prvni v minutach
+				unsigned int dataMinutes = ((*values).at((*values).size() - 1)->measureDate - (*values).at(0)->measureDate)* minutesPerDay;
 
+				unsigned int frequency = dataMinutes/25; // kazdych 90 minut bude cara
+				double pixelPerMinute = chartWidth / dataMinutes;
 
-		//	//std::cout<< (*values).at(0)->measureDate)
-		//	//pocet minut za den
-		//	unsigned int minutesPerDay = 1440;
-		//	//doba mereni, tj jednoho segmentu, v minutách!
+				//posunuti popisku doleva
+				unsigned int textShiftLeft = 15;
+				//posunuti popisku dolu;
+				unsigned int textShiftDown = 25;
 
-		//	unsigned int minutes = ((*values).size() - 1) * 5;
-		//	//ziskani mantisy
-		//	//jak casto chceme vykreslovat grid
-		//	unsigned int frequency = 30; // kazdych 90 minut bude cara
-		//	double PixelPerMinute = chartWidth / minutes;
+				double currentTime = (*values).at(0)->measureDate*minutesPerDay;
+				std::string minutesStr();
+				int hours;
+				int minutes;
+				for (unsigned int i = 0; i < dataMinutes; i+=frequency)
+				{
 
-		//	//posunuti popisku doleva
-		//	unsigned int textShiftLeft = 15;
-		//	//posunuti popisku dolu;
-		//	unsigned int textShiftDown = 25;
+						(*doc) << svg::Line(svg::Point(chartMinX + (i*pixelPerMinute), chartMinY+ (*yOffset)), svg::Point(chartMinX + (i*pixelPerMinute), chartMaxY+ (*yOffset)), svg::Stroke(1, svg::Color::Grey));
+						//TODO: Doplnit nuly
+						hours = ((int)(currentTime / 60))%24;
+						minutes = (((int)currentTime) % 60);
 
-		//	for (unsigned int i = 0; i < minutes; i++)
-		//	{
-		//		unsigned int currentTime = i + startTime;
-		//		if (currentTime % frequency == 0) {
-
-		//			//kvuli preteceni do dalsiho dne provadime operaci modulo
-		//			currentTime = currentTime % minutesPerDay;
-		//			(*doc) << svg::Line(svg::Point(chartMinX + (i*PixelPerMinute), chartMinY), svg::Point(chartMinX + (i*PixelPerMinute), chartMaxY), svg::Stroke(1, svg::Color::Grey));
-		//			//TODO: Doplnit nuly
-		//			(*doc) << svg::Text(svg::Point(chartMinX + (i*PixelPerMinute) - textShiftLeft, chartMinY - textShiftDown), std::to_string((int)(currentTime / 60)) + ":" + std::to_string((int)(currentTime % 60)), svg::Color::Black, svg::Font((int)(fontSize*.9), "Verdana"));
-		//		}
-		//	}
-		//}
+						(*doc) << svg::Text(svg::Point(chartMinX + (i*pixelPerMinute) - textShiftLeft, chartMinY + (*yOffset) - textShiftDown), std::to_string(hours) + ":" + ((minutes > 9) ? std::to_string(minutes) : std::string("0") + (std::to_string(minutes))), svg::Color::Black, svg::Font((int)(fontSize*.9), "Verdana"));
+						currentTime += frequency;
+				}
+		}
 		
 	}
 

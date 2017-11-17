@@ -19,6 +19,15 @@ const double legendItemMargin = 15;
 const unsigned int textShiftLeft = 15;
 const unsigned int textShiftDown = 25;
 
+
+
+#pragma region legend
+//Sirka legendy
+const double legendWidth = 100;
+//Sirka cary legendy
+const double legendLineWidth = 80;
+#pragma endregion
+
 #pragma region CanvasMinMax
 //Minimalni x-ova souradnice platna -> odtud se kresli
 const double canvasMinX = canvasMargin;
@@ -28,13 +37,6 @@ const double canvasMaxX = width - canvasMargin;
 const double canvasMinY = canvasMargin;
 //Maximalni y-ova souradnice platna -> do sem se kresli
 const double canvasMaxY = height - canvasMargin;
-#pragma endregion
-
-#pragma region legend
-//Sirka legendy
-const double legendWidth = 100;
-//Sirka cary legendy
-const double legendLineWidth = 80;
 #pragma endregion
 
 
