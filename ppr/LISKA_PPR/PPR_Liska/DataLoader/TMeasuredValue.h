@@ -8,7 +8,6 @@ namespace Common
 		int hour;
 		int minutes;
 		double ist; //namerene hodnoty
-		double smoothedValue;
 
 	}TMeasuredValue;
 }

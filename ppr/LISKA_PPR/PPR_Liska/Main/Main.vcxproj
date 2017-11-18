@@ -94,7 +94,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
@@ -117,7 +117,7 @@ copy "$(TBB_DLL_DIR_X86)tbbmalloc_debug.dll" "$(SolutionDir)\CompiledDebug\x86\"
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)Common\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\Headers\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
@@ -168,7 +168,7 @@ copy "$(TBB_DLL_DIR_X86)tbbmalloc.dll" "$(SolutionDir)\Compiled\x86\"
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <Optimization>Full</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -197,6 +197,7 @@ copy "$(TBB_DLL_DIR_X64)tbbmalloc.dll" "$(SolutionDir)\Compiled\x64\"
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Main.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

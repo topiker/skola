@@ -28,26 +28,6 @@ namespace DataLoader {
 		const char * sql = sqlStr.c_str();
 		DatabaseConnector connector = DatabaseConnector::DatabaseConnector(&(this->dbPath));
 		connector.executeCommand(sql, dataQueryCallback, (void*)data);
-
-		//TODO: Rozdelit po dnech.
-		//Podle prvniho datumu
-
-		//std::vector<FromTo> daysIndexes = this->getDaysIndexes(&data);
-		//(*days) = std::vector<Common::SegmentDay>();
-		//int index = 0;
-		//for (unsigned int i = 0; i < daysIndexes.size(); i++)
-		//{
-		//	FromTo current = daysIndexes.at(i);
-		//	std::vector<Common::TMeasuredValue * > subdata = std::vector<Common::TMeasuredValue * >();
-		//	for (size_t j = current.from; j < current.to; j++)
-		//	{
-		//		subdata.push_back((data).at(j));
-		//	}
-		//	Common::SegmentDay day = Common::SegmentDay(&subdata, &(index));
-		//	(*days).push_back(day);
-		//	index++;
-		//}
-
 		return (*data).size();
 	}
 
@@ -101,6 +81,14 @@ namespace DataLoader {
 			}
 		}
 		return fromTo;
+	}
+
+	void DataLoader::freeData(std::vector<Common::TMeasuredValue *> *data)
+	{
+		for (size_t i = 0; i < (*data).size();i++)
+		{
+			free((*data).at(i));
+		}
 	}
 
 

@@ -42,7 +42,7 @@ namespace DataLoader {
 		/// <param name="days">Jedna polozka vektoru = 1 den</param>
 		/// <param name="data">Data, ze kterych se cte</param>
 		void splitIntoDays(std::vector<Common::SegmentDay> *days, std::vector<Common::TMeasuredValue *> *data);
-		
+		void freeData(std::vector<Common::TMeasuredValue *> *data);
 		~DataLoader();
 	private:
 		/// <summary>

@@ -91,7 +91,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>SVGEXPORTERRDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)DataLoader\;$(SolutionDir)Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -106,7 +106,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>SVGEXPORTERRDLL_EXPORTS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)PeakDetector\;$(SolutionDir)DataLoader\;$(SolutionDir)Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -160,7 +160,6 @@
     <ClInclude Include="simple_svg_1.0.0.hpp" />
     <ClInclude Include="SVGExporter.h" />
     <ClInclude Include="SVGExporterConstants.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DataHelper.cpp" />

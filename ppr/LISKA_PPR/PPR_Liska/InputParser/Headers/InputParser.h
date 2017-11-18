@@ -18,7 +18,8 @@ namespace Parser
 	enum ARGUMENTSENUM
 	{
 		DB,
-		GPU,
+		PARALELISM,
+		WINDOWSIZE,
 		OUTPUT,
 		NOTMATCHED,
 	};
@@ -27,12 +28,19 @@ namespace Parser
 	{
 	public:
 		InputParser(int *paramsCount, char** params);
+		~InputParser();
+
 		bool areParamstOk();
 		char * getDbPath();
 		char * getExportPath();
+		bool isGpu();
+		bool isParallel();
+		int getWindowSize();
 
 	private:
 		bool useGPU;
+		bool parallel;
+		int windowSize;
 		char * dbPath;
 		char * exportPath;
 		void setParams(int * paramsCount, char** params);

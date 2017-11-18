@@ -18,16 +18,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DataLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sqlQueries.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DatabaseConnector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FromTo.h">
@@ -37,6 +28,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TMeasuredValue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseConnector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
