@@ -146,10 +146,10 @@ namespace PeakDetector
 		double fitnessSum = 0;
 		for (size_t i = startIndex; i < endIndex; i++) {
 			// vezmi dve sousedni hodnooty a zjisti jejich rozdil
-			double firstValue = (*data).at(i)->ist;// ((*data).at(i)->ist - (*data).at(i)->smoothedValue)*((*data).at(i)->ist - (*data).at(i)->smoothedValue);
-			double nextValue = (*data).at(i + 1)->ist;//;((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue)*((*data).at(i+1)->ist - (*data).at(i+1)->smoothedValue);
+			double firstValue = (*data).at(i)->ist;
+			double nextValue = (*data).at(i + 1)->ist;
 			double difference = nextValue - firstValue;
-			// udelej druhou mocninu rozdilu a pricti k fitness
+			//Druha mocnina, aby nebyla zaporna
 			fitnessSum += difference * difference;
 		}
 

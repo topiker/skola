@@ -8,7 +8,3 @@ FromTo::FromTo(size_t from, size_t to)
 	this->to = to;
 }
 
-
-FromTo::~FromTo()
-{
-}

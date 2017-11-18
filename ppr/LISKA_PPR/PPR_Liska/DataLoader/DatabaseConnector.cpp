@@ -6,8 +6,6 @@
 DatabaseConnector::DatabaseConnector(const char **dbPath)
 {
 	int rc;
-	char *error = 0;
-
 
 	rc = sqlite3_open(*dbPath, &(this->db));
 	if (rc)

@@ -13,13 +13,13 @@ namespace DataLoader {
 		this->dbPath = dbPath;
 	}
 
-	int DataLoader::getSegmentIds(std::vector<int> *segmentIds)
+	size_t DataLoader::getSegmentIds(std::vector<int> *segmentIds)
 	{
 		std::cout << "Ziskavam id segmentu" << std::endl;
 		DatabaseConnector connector = DatabaseConnector::DatabaseConnector(&(this->dbPath));
 		connector.executeCommand(segmentsQuery, segmentsQueryCallback, (void*)segmentIds);
 		
-		return 0;
+		return (*segmentIds).size();
 	}
 
 	size_t DataLoader::loadData(std::vector<Common::TMeasuredValue*> *data, int * segmentId)

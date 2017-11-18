@@ -18,13 +18,15 @@ static int segmentsQueryCallback(void *data, int argc, char **argv, char **azCol
 	int i;
 	for (i = 0; i < argc; i++)
 	{
-		if (argv[i]) {
-			segmentId = std::stoi(argv[i]);
-			segments->push_back(segmentId);
-		}
-		else
-		{
-			std::cerr << "Segment id is NULL" << std::endl;
+		if (strcmp(azColName[i], "id") == 0) {
+			if (argv[i]) {
+				segmentId = std::stoi(argv[i]);
+				segments->push_back(segmentId);
+			}
+			else
+			{
+				std::cerr << "Segment id is NULL" << std::endl;
+			}
 		}
 	}
 	return 0;

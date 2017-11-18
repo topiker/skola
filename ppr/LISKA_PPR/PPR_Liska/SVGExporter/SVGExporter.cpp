@@ -174,7 +174,7 @@ namespace SVGExporter {
 			svg::Polyline peakLine(svg::Stroke(2, svg::Color::White));
 
 
-			for (unsigned int j = (*peaks).at(i).startIndex; j < (*peaks).at(i).endIndex; j++)
+			for (size_t j = (*peaks).at(i).startIndex; j < (*peaks).at(i).endIndex; j++)
 			{
 				peakLineBackground << svg::Point(chartMinX + j*(*columnWidth), (*pixelPerMmol) * (*values).at(j)->ist + chartMinY+ (*yOffset)), 10, svg::Fill(svg::Color::Red);
 				peakLine << svg::Point(chartMinX + j*(*columnWidth), (*pixelPerMmol) * (*values).at(j)->ist + chartMinY+ (*yOffset)), 10, svg::Fill(svg::Color::Red);
@@ -207,18 +207,12 @@ namespace SVGExporter {
 				//pocet minut za den
 				unsigned int minutesPerDay = 1440;
 				//Rozdil posledniho a prvni v minutach
-				unsigned int dataMinutes = ((*values).at((*values).size() - 1)->measureDate - (*values).at(0)->measureDate)* minutesPerDay;
+				unsigned int dataMinutes = (int)(((*values).at((*values).size() - 1)->measureDate - (*values).at(0)->measureDate)* minutesPerDay);
 
 				unsigned int frequency = dataMinutes/25; // kazdych 90 minut bude cara
 				double pixelPerMinute = chartWidth / dataMinutes;
 
-				//posunuti popisku doleva
-				unsigned int textShiftLeft = 15;
-				//posunuti popisku dolu;
-				unsigned int textShiftDown = 25;
-
 				double currentTime = (*values).at(0)->measureDate*minutesPerDay;
-				std::string minutesStr();
 				int hours;
 				int minutes;
 				for (unsigned int i = 0; i < dataMinutes; i+=frequency)
