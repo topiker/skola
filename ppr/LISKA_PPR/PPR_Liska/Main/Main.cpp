@@ -4,7 +4,8 @@
 #include "DataLoader.h"
 #include "SVGExporter.h"
 #include "PeakDetector.h"
-#include "tbb\tbb.h"
+#include <tbb\tbb.h>
+#include "Segment.h"
 #include "Main.h"
 #include <iostream>
 #include <chrono>
@@ -45,74 +46,54 @@ void printHelp()
 
 void runSolution(Parser::InputParser *params)
 {
-	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
-	std::vector<int> segmentIds = std::vector<int>();
-	std::vector<std::vector<Common::TMeasuredValue*>> data = std::vector<std::vector<Common::TMeasuredValue*>>();
-
-	dataLoader.getSegmentIds(&segmentIds);
-
-	if ((*params).isGpu())
-	{
-		runOnGraphics(params, &segmentIds);
-	}
-	else if ((*params).isParallel())
-	{
-		runParallel(params, &segmentIds,true);
-	}
-	else
-	{
-		runSerial(params, &segmentIds);
-	}
-	/*double xTimes = 100;
+	//if ((*params).isGpu())
+	//{
+	//	runOnGraphics(params, &segmentIds);
+	//}
+	//else if ((*params).isParallel())
+	//{
+	//	runParallel(params, &segmentIds,true);
+	//}
+	//else
+	//{
+		runSerial(params);
+	//}
+	double xTimes = 100;
 	long long perDay = 0;
 	long long notPerDay = 0;
 	for (size_t i = 0; i < xTimes; i++)
 	{
 		std::cout << std::to_string(i) << std::endl;
-		notPerDay += runParallel(params, &segmentIds, false);
-		perDay += runParallel(params, &segmentIds, true);
+		notPerDay += runParallel(params, false);
+		perDay += runParallel(params, true);
 	}
 
 	std::cout << "Paralel per day" << std::endl;
 	std::cout << std::to_string(perDay/ xTimes) << std::endl;
 	std::cout << "Paralel not per day" << std::endl;
-	std::cout << std::to_string(notPerDay/ xTimes) << std::endl;*/
+	std::cout << std::to_string(notPerDay/ xTimes) << std::endl;
 
-
-	//std::cout << "Parallel" << std::endl;
-	//runParallel(params, &segmentIds, false);
-	//std::cout << "Parallel day" << std::endl;
-	//runParallel(params, &segmentIds, true);
-
-	//std::cout << "Serial" << std::endl;
-	//runSerial(params, &segmentIds);
-	//std::cout << "Serial" << std::endl;
-	//runSerial(params, &segmentIds);
+	getchar();
 
 
 }
 
-void runSerial(Parser::InputParser *params, std::vector<int> *segmentIds)
+void runSerial(Parser::InputParser *params)
 {
 	int windowSize = (*params).getWindowSize();
 	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
+	std::vector<Common::Segment> values;
+	dataLoader.loadData(&values);
 	auto t1 = Clock::now();
-	for (unsigned int i = 0; i < (*segmentIds).size(); i++)
+	for (unsigned int i = 0; i < (values).size(); i++)
 	{
-		std::vector<Common::TMeasuredValue *> values;
-		dataLoader.loadData(&values, &((*segmentIds).at(i)));
-		if (values.size() > 0)
-		{
-			std::vector<Common::SegmentDay> days;
+		if ((values).at(i).getSegmentDays() != NULL) {
+			Common::SegmentDays *days = values.at(i).getSegmentDays();
 			std::vector<std::vector<PeakPeakDetector::Peak>> peaks;
 			PeakDetector::PeakDetector detector = PeakDetector::PeakDetector(false);
-			detector.smooth_null_values(&values);
-			dataLoader.splitIntoDays(&days, &values);
-			detector.detectPeaks(&days, &windowSize, &peaks);
-			SVGExporter::SVGExporter exporter = SVGExporter::SVGExporter();
-			exporter.exportToSvg((*params).getExportPath(), &(days), &(*segmentIds).at(i), &peaks, true);
-			dataLoader.freeData(&values);
-			values.clear();
+			detector.detectPeaks(days, &windowSize, &peaks);
+			//MySVG::exportToSvg((*params).getExportPath(), &(values).at(i), &peaks, false);
+			//(values).at(i).clearAfterMe();
 		}
 	}
 
@@ -120,44 +101,34 @@ void runSerial(Parser::InputParser *params, std::vector<int> *segmentIds)
 
 	std::cout << "Delta t2-t1: "
 		<< (std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000)
-		<< " nanoseconds" << std::endl;
+		<< " miliseconds" << std::endl;
 }
 
 
-long long runParallel(Parser::InputParser *params, std::vector<int> *segmentIds, bool dayParalelism)
+long long runParallel(Parser::InputParser *params, bool dayParalelism)
 {
 	tbb::task_scheduler_init init;
 
 	int windowSize = (*params).getWindowSize();
+	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
+	std::vector<Common::Segment> values;
+	dataLoader.loadData(&values);
 	
 	auto t1 = Clock::now();
-
-	tbb::parallel_for(size_t(0), (*segmentIds).size(), [&](size_t i) {
-		DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
-		std::vector<Common::TMeasuredValue *> values;
-		dataLoader.loadData(&values, &((*segmentIds).at(i)));
-		if (values.size() > 0)
-		{ 
-			std::vector<Common::SegmentDay> days;
+	tbb::parallel_for(size_t(0), (values).size(), [&](size_t i) {
+		if ((values).at(i).getSegmentDays() != NULL) {
+			Common::SegmentDays *days = values.at(i).getSegmentDays();
 			std::vector<std::vector<PeakPeakDetector::Peak>> peaks;
-			PeakDetector::PeakDetector detector = PeakDetector::PeakDetector(dayParalelism);
-			detector.smooth_null_values(&values);
-			dataLoader.splitIntoDays(&days, &values);
-			detector.detectPeaks(&days, &windowSize, &peaks);
-			SVGExporter::SVGExporter exporter = SVGExporter::SVGExporter();
-			exporter.exportToSvg((*params).getExportPath(), &(days), &(*segmentIds).at(i), &peaks, true);
-			dataLoader.freeData(&values);
-			values.clear();
+			PeakDetector::PeakDetector detector = PeakDetector::PeakDetector(false);
+			detector.detectPeaks(days, &windowSize, &peaks);
+			//MySVG::exportToSvg((*params).getExportPath(), &(values).at(i), &peaks, false);
 		}
 	});
 
 	auto t2 = Clock::now();
 
-	//std::cout << "Delta t2-t1: "
-	//	<< (std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000)
-	//	<< " nanoseconds" << std::endl;
-
 	return (std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000);
+	return 0;
 
 }
 void runOnGraphics(Parser::InputParser *params, std::vector<int> *segmentIds)

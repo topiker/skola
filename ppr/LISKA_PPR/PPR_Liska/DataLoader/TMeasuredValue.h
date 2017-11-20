@@ -1,15 +1,23 @@
 #pragma once
+
+
+
+
 namespace Common
 {
-	typedef struct {
-		int id;
-		int segmentId;
+	class TMeasuredValue {
+	public:
+		TMeasuredValue(int *segmentId, double *measureDate, double *ist);
+		~TMeasuredValue();
+		double ist;
 		double measureDate; //v julian
 		int hour;
 		int minutes;
-		double ist; //namerene hodnoty
 
-	}TMeasuredValue;
+	private:
+		int segmentId;
+		void setTimeFromMeasureDate(double *measureDate);
+	};
 }
 
 

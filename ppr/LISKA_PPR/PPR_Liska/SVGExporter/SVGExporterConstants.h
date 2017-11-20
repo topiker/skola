@@ -1,6 +1,6 @@
 #pragma once
 
-namespace SVGExporter {
+namespace MySVG {
 	//Sirka platna
 	const double width = 1500;
 	//Vyska platna

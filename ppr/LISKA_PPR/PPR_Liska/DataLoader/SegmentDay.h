@@ -2,6 +2,8 @@
 #include "TMeasuredValue.h"
 #include <vector>
 
+
+
 namespace Common
 {
 	/// <summary>
@@ -23,6 +25,8 @@ namespace Common
 		/// <summary>
 		/// Data pro dany den
 		/// </summary>
+		std::vector<TMeasuredValue *>* getData();
+	private:
 		std::vector<TMeasuredValue *> data;
 	};
 }

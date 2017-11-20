@@ -15,29 +15,30 @@ namespace PeakDetector
 	{
 	}
 
-	void PeakDetector::detectPeaks(std::vector<Common::SegmentDay> *days, int * window_size, std::vector<std::vector<PeakPeakDetector::Peak>> *detectedPeaks)
+	void PeakDetector::detectPeaks(Common::SegmentDays *segment, int * window_size, std::vector<std::vector<PeakPeakDetector::Peak>> *detectedPeaks)
 	{
+		size_t daysCount = (*segment).getDays()->size();
+
 		if (this->paralelism)
 		{
-			(*detectedPeaks) = std::vector<std::vector<PeakPeakDetector::Peak>>();
-			tbb::mutex tmpMutex;
-			tbb::parallel_for(size_t(0), (*days).size(), [&](size_t i)
+			(*detectedPeaks) = std::vector<std::vector<PeakPeakDetector::Peak>>(daysCount);
+			tbb::parallel_for(size_t(0), daysCount, [&](size_t i)
 			{
 				std::vector<PeakPeakDetector::Peak> peaks = std::vector<PeakPeakDetector::Peak>();
-				this->detectPeakInDay(&((*days).at(i).data), &peaks, window_size);
-				//tmpMutex.lock();
-				(detectedPeaks)->push_back(peaks);
-				//tmpMutex.unlock();
+				this->detectPeakInData(((*segment).getDays()->at(i).getData()), &peaks, window_size);
+				(*detectedPeaks)[i] = peaks;
 			});
+
+
 		}
 		else 
 		{
-			(*detectedPeaks) = std::vector<std::vector<PeakPeakDetector::Peak>>();
-			for (size_t i = 0; i < (*days).size(); i++)
+			(*detectedPeaks) = std::vector<std::vector<PeakPeakDetector::Peak>>(daysCount);
+			for (size_t i = 0; i < daysCount; i++)
 			{
 				std::vector<PeakPeakDetector::Peak> peaks = std::vector<PeakPeakDetector::Peak>();
-				this->detectPeakInDay(&((*days).at(i).data), &peaks, window_size);
-				(detectedPeaks)->push_back(peaks);
+				this->detectPeakInData(((*segment).getDays()->at(i).getData()), &peaks, window_size);
+				(*detectedPeaks)[i] = peaks;
 			}
 		}
 
@@ -45,7 +46,7 @@ namespace PeakDetector
 		
 	}
 
-	void PeakDetector::detectPeakInDay(std::vector<Common::TMeasuredValue *> *data, std::vector<PeakPeakDetector::Peak> *peaks, int * windowSize)
+	void PeakDetector::detectPeakInData(std::vector<Common::TMeasuredValue *> *data, std::vector<PeakPeakDetector::Peak> *peaks, int * windowSize)
 	{
 		size_t nBestPeaks = 5;
 		std::vector<double> fitnessValues;
@@ -105,63 +106,7 @@ namespace PeakDetector
 		(*peaks) = std::vector<PeakPeakDetector::Peak >((joinedPeaks).begin(),(joinedPeaks).begin()+peaksLength);
 	}
 
-	void PeakDetector::smooth_null_values(std::vector<Common::TMeasuredValue *> *data)
-	{
-		double lastNonNullValue = 0;
-		for (unsigned int i = 0; i < (*data).size(); i++) {
-			if ((*data).at(i)->ist == NULL) {
-				//nasli jsme null
-				if (lastNonNullValue != 0) {
-					// lastNonNullValue je nenulova, to znamena, ze uz jsme drive nasli validni hodnotu a tak ji nastavime misto nullu.
-					(*data).at(i)->ist = lastNonNullValue;
-				}
-			}
-			else {
-				// aktualni hodnota neni null
-				if (lastNonNullValue == 0 && i != 0) {
-					// v predchozich pruchodech jsme dosud nenasli zadnou validni hodnotu (lastNonNullValue == 0) a  i != 0 -> to implikuje ze vsechny doposud od zacatku prectene hodnoty byly null
-					// v cyklu pujdeme zpet az na zacatek a vsem hodnotam nastavime aktualne nalezenou validni hodnotu 
-					for (int j = i; j >= 0; j--) {
-						(*data).at(j)->ist = (*data).at(i)->ist;
-					}
-				}
-				//aktualizace posledni validni nenulove hodnoty
-				lastNonNullValue = (*data).at(i)->ist;
-			}
-		}
-	}
-
-	//void PeakDetector::moving_average(std::vector<Common::TMeasuredValue *> *data, int *windowSize)
-	//{
-	//	if ((*data).size() > (*windowSize))
-	//	{
-	//		double runningTotal = 0;
-	//		Common::TMeasuredValue * prev = nullptr;
-	//		Common::TMeasuredValue * current = nullptr;
-	//		for (int i = 0; i < (*windowSize); i++)
-	//		{
-	//			runningTotal += (*data).at(i)->ist;
-	//		}
-	//		//Spocitat pocatecni mean
-	//		for (int i = 0; i < (*data).size(); i++)
-	//		{
-	//			current = (*data).at(i);
-	//			if (prev != nullptr)
-	//			{
-	//				runningTotal -= prev->ist;   // subtract
-	//				runningTotal += current->ist;  // add
-	//				current->smoothedValue = runningTotal / (double)(*windowSize);
-	//			}
-	//			else
-	//			{
-	//				current->smoothedValue = runningTotal/(double)(*windowSize);
-	//			}
-	//			prev = current;
-	//		}
-	//	}
-	//	//TODO:Osetrit
-	//}
-
+	
 	double PeakDetector::calculateWindowFitness(std::vector<Common::TMeasuredValue *> *data, size_t startIndex, size_t endIndex)
 	{
 		double fitnessSum = 0;

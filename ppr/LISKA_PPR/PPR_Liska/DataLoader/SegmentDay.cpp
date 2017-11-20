@@ -9,4 +9,9 @@ namespace Common
 		this->dayIndex = (*indexDay);
 	}
 
+	std::vector<TMeasuredValue *>* SegmentDay::getData()
+	{
+		return &(this->data);
+	}
+
 }
