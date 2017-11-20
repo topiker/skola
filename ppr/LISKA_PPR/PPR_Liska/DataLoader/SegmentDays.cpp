@@ -4,13 +4,13 @@ namespace Common
 {
 
 
-	SegmentDays::SegmentDays(std::vector<SegmentDay> *days)
+	SegmentDays::SegmentDays(std::shared_ptr<std::vector<std::shared_ptr<SegmentDay>>> &days)
 	{
 		this->segmentDays = days;
 	}
 
 
-	std::vector<SegmentDay>* SegmentDays::getDays()
+	std::shared_ptr<std::vector<std::shared_ptr<SegmentDay>>> SegmentDays::getDays()
 	{
 		return this->segmentDays;
 	}

@@ -1,5 +1,6 @@
 #pragma once
 #include "SegmentDay.h"
+#include <memory>
 
 
 
@@ -8,10 +9,10 @@ namespace Common
 	class SegmentDays
 	{
 	public:
-		SegmentDays(std::vector<SegmentDay> *days);
-		std::vector<SegmentDay>* getDays();
+		SegmentDays(std::shared_ptr<std::vector<std::shared_ptr<SegmentDay>>>& days);
+		std::shared_ptr<std::vector<std::shared_ptr<SegmentDay>>> getDays();
 	private:
-		std::vector<SegmentDay> *segmentDays;
+		std::shared_ptr<std::vector<std::shared_ptr<SegmentDay>>> segmentDays;
 	};
 
 }

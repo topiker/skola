@@ -1,5 +1,6 @@
 #pragma once
 #include "SegmentDays.h"
+#include <memory>
 
 
 namespace Common {
@@ -7,14 +8,12 @@ namespace Common {
 	class Segment
 	{
 	public:
-		Segment();
-		Segment(int *segmentId, SegmentDays *days);
-		SegmentDays* getSegmentDays();
-		//void clearAfterMe();
-		int* getSegmentId();
+		Segment(int *segmentId, std::shared_ptr<SegmentDays>& days);
+		std::shared_ptr<SegmentDays> getSegmentDays();
+		int getSegmentId();
 	private:
 		int segmentId;
-		SegmentDays *segmentDays;
+		std::shared_ptr<SegmentDays> segmentDays;
 	};
 
 }

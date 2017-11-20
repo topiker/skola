@@ -22,44 +22,44 @@ namespace DataLoader {
 		return (*segmentIds).size();
 	}
 
-	void DataLoader::loadDataBySegment(Common::Segment **result, int * segmentId)
+	void DataLoader::loadDataBySegment(std::shared_ptr<Common::Segment>& result, int * segmentId)
 	{
-		
+
 		std::string sqlStr = "SELECT (julianday(md.measuredat) - 2415019.5) AS 'measuredat', md.segmentid, md.ist FROM measuredvalue md inner join timesegment ts on md.segmentid = ts.id WHERE md.segmentId=" + std::to_string(*segmentId) + " ORDER BY md.measuredat";
 		const char * sql = sqlStr.c_str();
 		DatabaseConnector connector = DatabaseConnector::DatabaseConnector(&(this->dbPath));
-		std::vector<Common::TMeasuredValue*> data = std::vector<Common::TMeasuredValue*>();
+		std::vector<std::shared_ptr<Common::TMeasuredValue>> data = std::vector<std::shared_ptr<Common::TMeasuredValue>>();
 		connector.executeCommand(sql, dataQueryCallback, (void*)(&data));
-		Common::SegmentDays *days = NULL;
+		std::shared_ptr<Common::SegmentDays> days = std::shared_ptr<Common::SegmentDays>();
+		std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>> dataLoaded = std::make_shared<std::vector<std::shared_ptr<Common::TMeasuredValue>>>(data);
 		if (data.size() > 0) 
 		{
-			this->smoothNullValues(&data);
-			this->splitIntoDays(&days,&data);
+			this->smoothNullValues(dataLoaded);
+			this->splitIntoDays(days, dataLoaded);
 		}
-		(*result) = new Common::Segment(segmentId, days);
+		(result) = std::shared_ptr<Common::Segment>(new Common::Segment(segmentId, days));
 	}
 
-	void DataLoader::splitIntoDays(Common::SegmentDays **segmentDays, std::vector<Common::TMeasuredValue*> *data)
+	void DataLoader::splitIntoDays(std::shared_ptr<Common::SegmentDays>& segmentDays, const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data)
 	{
 		std::vector<FromTo> daysIndexes = this->getDaysIndexes(data);
-		std::vector<Common::SegmentDay> *days = new std::vector<Common::SegmentDay>();
+		std::shared_ptr<std::vector<std::shared_ptr<Common::SegmentDay>>> days = std::make_shared<std::vector<std::shared_ptr<Common::SegmentDay>>>();
 		int index = 0;
 		for (size_t i = 0; i < daysIndexes.size(); i++)
 		{
 			FromTo current = daysIndexes.at(i);
-			std::vector<Common::TMeasuredValue * > subdata = std::vector<Common::TMeasuredValue * >();
+			auto subdata = std::make_shared<std::vector<std::shared_ptr<Common::TMeasuredValue>>>();
 			for (size_t j = current.from; j < current.to; j++)
 			{
-				subdata.push_back((*data).at(j));
+				(*subdata).push_back((*data).at(j));
 			}
-			Common::SegmentDay *day = new Common::SegmentDay(&subdata, &(index));
-			(*days).push_back(*day);
+			(*days).push_back(std::shared_ptr<Common::SegmentDay>(new Common::SegmentDay(subdata, &(index))));
 			index++;
 		}
-		(*segmentDays) = new Common::SegmentDays(days);
+		(segmentDays) = std::shared_ptr<Common::SegmentDays>(new Common::SegmentDays(days));
 	}
 
-	std::vector<FromTo> DataLoader::getDaysIndexes(std::vector<Common::TMeasuredValue*> *data)
+	std::vector<FromTo> DataLoader::getDaysIndexes(const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data)
 	{
 		std::vector<FromTo> fromTo = std::vector<FromTo>();
 		size_t startIndex = 0;
@@ -68,7 +68,7 @@ namespace DataLoader {
 		{
 			for (size_t i = 0; i < dataSize; i++)
 			{
-				Common::TMeasuredValue *current = (*data).at(i);
+				auto current = (*data).at(i);
 				if ((*current).hour == 23)
 				{
 					for (size_t j = (i+1); j < dataSize; j++)
@@ -93,52 +93,53 @@ namespace DataLoader {
 		return fromTo;
 	}
 
-	void DataLoader::freeData(std::vector<Common::TMeasuredValue *> *data)
-	{
-		//for (size_t i = 0; i < (*data).size();i++)
-		//{
-		//	delete((*data).at(i));
-		//}
-	}
+	//void DataLoader::freeData(std::vector<Common::TMeasuredValue *> *data)
+	//{
+	//	//for (size_t i = 0; i < (*data).size();i++)
+	//	//{
+	//	//	delete((*data).at(i));
+	//	//}
+	//}
 
-	size_t DataLoader::loadData(std::vector<Common::Segment> *data)
+	size_t DataLoader::loadData(std::shared_ptr<std::vector<std::shared_ptr<Common::Segment>>>& data)
 	{
 		std::vector<int> segmentIds;
 		this->getSegmentIds(&segmentIds);
-		(*data) = std::vector<Common::Segment>();
-		//for (size_t i = 0; i < segmentIds.size(); i++)
-		//{
-		//	Common::Segment *current;
-		//	loadDataBySegment(&current, &((segmentIds).at(i)));
-		//	(*data).push_back((*current));
-		//}
+		(data) = std::make_shared<std::vector<std::shared_ptr<Common::Segment>>>();
+		for (size_t i = 0; i < segmentIds.size(); i++)
+		{
+			std::shared_ptr<Common::Segment> current = std::shared_ptr<Common::Segment>();
+			loadDataBySegment(current, &((segmentIds).at(i)));
+			(*data).push_back(current);
+		}
 
-		tbb::parallel_for(size_t(0), (segmentIds).size(), [&](size_t i) {
-			Common::Segment *current;
-			loadDataBySegment(&current, &((segmentIds).at(i)));
-			(*data).push_back((*current));
-		});
+		//(data) = std::make_shared<std::vector<std::shared_ptr<Common::Segment>>>();
+		//tbb::parallel_for(size_t(0), (segmentIds).size(), [&](size_t i) {
+		//	std::shared_ptr<Common::Segment> current = std::shared_ptr<Common::Segment>();
+		//	loadDataBySegment(current, &((segmentIds).at(i)));
+		//	(*data).push_back(current);
+		//});
 		
 		return 0;
 	}
 
-	void DataLoader::smoothNullValues(std::vector<Common::TMeasuredValue *> *data)
+	void DataLoader::smoothNullValues(std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data)
 	{
 		double lastNonNullValue = 0;
 		for (unsigned int i = 0; i < (*data).size(); i++) {
-			if ((*data).at(i)->ist == NULL) {
+			if ((*data).at(i).get()->ist == NULL) {
 				if (lastNonNullValue != 0) {
-					(*data).at(i)->ist = lastNonNullValue;
+					(*data).at(i).get()->ist = lastNonNullValue;
 				}
 			}
 			else {
 				if (lastNonNullValue == 0 && i != 0) {
 					for (int j = i; j >= 0; j--) {
-						double ist = (*data).at(i)->ist;
-						(*data).at(j)->ist = ist;
+						double ist = (*data).at(i).get()->ist;
+						(*data).at(j).get()->ist = ist;
 					}
 				}
-				lastNonNullValue = (*data).at(i)->ist;
+				lastNonNullValue = (*data).at(i).get()->ist;
 			}
 		}
 	}

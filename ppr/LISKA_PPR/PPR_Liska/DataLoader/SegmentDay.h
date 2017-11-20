@@ -1,7 +1,7 @@
 #pragma once
 #include "TMeasuredValue.h"
 #include <vector>
-
+#include <memory>
 
 
 namespace Common
@@ -17,7 +17,7 @@ namespace Common
 		/// </summary>
 		/// <param name="data">Data pro dany den</param>
 		/// <param name="indexDay">Index dne</param>
-		SegmentDay(std::vector<TMeasuredValue *> *data, int *indexDay);
+		SegmentDay(std::shared_ptr<std::vector<std::shared_ptr<TMeasuredValue>>>& data, int *indexDay);
 		/// <summary>
 		/// Index dne
 		/// </summary>
@@ -25,9 +25,9 @@ namespace Common
 		/// <summary>
 		/// Data pro dany den
 		/// </summary>
-		std::vector<TMeasuredValue *>* getData();
+		std::shared_ptr<std::vector<std::shared_ptr<TMeasuredValue>>> getData();
 	private:
-		std::vector<TMeasuredValue *> data;
+		std::shared_ptr<std::vector<std::shared_ptr<TMeasuredValue>>> data;
 	};
 }
 

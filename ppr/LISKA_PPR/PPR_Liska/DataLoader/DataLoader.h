@@ -28,10 +28,9 @@ namespace DataLoader {
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns>Pocet nactenych dat</returns>
-		size_t loadData(std::vector<Common::Segment> *data);
-		void splitIntoDays(Common::SegmentDays **segmentDays, std::vector<Common::TMeasuredValue*> *data);
-		void freeData(std::vector<Common::TMeasuredValue *> *data);
-		void smoothNullValues(std::vector<Common::TMeasuredValue *> *data);
+		size_t loadData(std::shared_ptr<std::vector<std::shared_ptr<Common::Segment>>>& data);
+		void splitIntoDays(std::shared_ptr<Common::SegmentDays>& segmentDays,const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data);
+		//void freeData(std::vector<Common::TMeasuredValue *> *data);
 		~DataLoader();
 	private:
 		/// <summary>
@@ -43,9 +42,9 @@ namespace DataLoader {
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns>Rozsahy indexu jednotlivych dnu v datech</returns>
-		std::vector<FromTo> getDaysIndexes(std::vector<Common::TMeasuredValue*> *data);
-
-		void loadDataBySegment(Common::Segment **result, int * segmentId);
+		std::vector<FromTo> getDaysIndexes(const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data);
+		void smoothNullValues(std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data);
+		void loadDataBySegment(std::shared_ptr<Common::Segment>& result, int * segmentId);
 	};
 
 }
