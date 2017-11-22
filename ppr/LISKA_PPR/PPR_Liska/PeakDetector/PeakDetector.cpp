@@ -5,46 +5,38 @@
 
 namespace PeakDetector
 {
-	PeakDetector::PeakDetector(bool paralelism)
-	{
-		this->paralelism = paralelism;
-	}
 
-
-	PeakDetector::~PeakDetector()
-	{
-	}
-
-	void PeakDetector::detectPeaks(Common::SegmentDays* const segment, int * windowSize, std::shared_ptr< std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& detectedPeaks)
+	void detectPeaks(Common::SegmentDays*const segment, int * windowSize, std::shared_ptr< std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& detectedPeaks, bool paralelismPerDay)
 	{
 		size_t daysCount = (*segment).getDaysSize();
-		//if (this->paralelism)
-		//{
-		///*	(*detectedPeaks) = std::vector<std::vector<PeakPeakDetector::Peak>>(daysCount);
-		//	tbb::parallel_for(size_t(0), daysCount, [&](size_t i)
-		//	{
-		//		std::vector<PeakPeakDetector::Peak> peaks = std::vector<PeakPeakDetector::Peak>();
-		//		this->detectPeakInData(((*segment).getDays()->at(i).getData()), &peaks, window_size);
-		//		(*detectedPeaks)[i] = peaks;
-		//	});*/
+		if (paralelismPerDay)
+		{
+			detectedPeaks = std::make_unique<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(daysCount);
+			std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>> result = std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>(daysCount);
+			tbb::parallel_for(size_t(0), daysCount, [&](size_t i)
+			{
+				std::shared_ptr<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>> peaks = std::shared_ptr<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>();
+				detectPeakInData(segment->getDays()->at(i).get()->getData(), peaks, windowSize);
+				result[i].insert(std::move(result[i].begin()), peaks.get()->begin(), peaks.get()->end());
+			});
 
 
-		//}
-		//else
-		//{
+		}
+		else
+		{
 			detectedPeaks = std::make_unique<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(daysCount);
 			std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>> result = std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>(daysCount);
 			for (size_t i = 0; i < daysCount; i++)
 			{
 				std::shared_ptr<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>> peaks = std::shared_ptr<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>();
-				this->detectPeakInData(segment->getDays()->at(i).get()->getData(), peaks, windowSize);
+				detectPeakInData(segment->getDays()->at(i).get()->getData(), peaks, windowSize);
 				result[i].insert(std::move(result[i].begin()), peaks.get()->begin(), peaks.get()->end());
 			}
 			(detectedPeaks) = std::make_shared<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(result.begin(), result.end());
-		//}
+		}
 	}
 
-	double PeakDetector::calculateWindowFitness(std::vector<std::unique_ptr<Common::TMeasuredValue>>* const data, size_t startIndex, size_t endIndex)
+	double calculateWindowFitness(std::vector<std::unique_ptr<Common::TMeasuredValue>>* const data, size_t startIndex, size_t endIndex)
 	{
 			double fitnessSum = 0;
 			for (size_t i = startIndex; i < endIndex; i++) {
@@ -57,7 +49,7 @@ namespace PeakDetector
 			return fitnessSum;
 	}
 
-	void PeakDetector::detectPeakInData(std::vector<std::unique_ptr<Common::TMeasuredValue>>* const data, std::shared_ptr<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>& peaks, int * windowSize)
+	void detectPeakInData(std::vector<std::unique_ptr<Common::TMeasuredValue>>* const data, std::shared_ptr<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>& peaks, int * windowSize)
 	{
 		size_t nBestPeaks = 5;
 		std::vector<double> fitnessValues;
