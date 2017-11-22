@@ -9,7 +9,7 @@ namespace MySVG {
 
 
 
-	void exportToSvg(std::string path, const std::shared_ptr<Common::Segment>& segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks, bool inOne)
+	void exportToSvg(std::string path, Common::Segment* const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks, bool inOne)
 	{
 
 		if (inOne)
@@ -22,9 +22,9 @@ namespace MySVG {
 		}
 	}
 
-	void oneToOneGraph(std::string path, const std::shared_ptr<Common::Segment>& segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks)
+	void oneToOneGraph(std::string path, Common::Segment* const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks)
 	{
-		auto days = segment->getSegmentDays()->getDays();
+		auto days = (*segment).getSegmentDays()->getDays();
 		int segmentId = (*segment).getSegmentId();
 		svg::Dimensions dimensions(width, height*(days->size()));
 		svg::Document doc(getFileName((&segmentId), path), svg::Layout(dimensions, svg::Layout::BottomLeft));
@@ -38,26 +38,34 @@ namespace MySVG {
 
 			double maxMmolGridValue = ((double)(int)maxMmolValue) + 1;
 
+			std::vector<Common::TMeasuredValue*> graphData = std::vector<Common::TMeasuredValue*>();
+			auto current = (*days).at(i).get();
+			auto currentData = (current->getData());
+			for (size_t j = 0; j < currentData->size(); j++)
+			{
+				graphData.push_back(currentData->at(j).get());
+			}
+
 			//Vypocet hodnoty na pixel
 			double pixelPerMmol = chartHeight / maxMmolGridValue;
 			//Vypocet sirky sloupce, tak aby se nam vesly do obrazku
-			double columnWidth = (chartWidth) / (*values).size();
+			double columnWidth = (chartWidth) / (graphData).size();
 			MySVG::printXAxis(&doc, &pixelPerMmol, &maxMmolGridValue, &yOffset);
-			MySVG::printYAxis(&doc, values, &yOffset);
-			MySVG::printData(&doc, values, &columnWidth, &pixelPerMmol, &yOffset);
+			MySVG::printYAxis(&doc, &graphData, &yOffset);
+			MySVG::printData(&doc, &graphData, &columnWidth, &pixelPerMmol, &yOffset);
 			MySVG::printLegend(&doc, &yOffset);
-			MySVG::printPeaks(&doc, values, &peaksCurrent, &columnWidth, &pixelPerMmol, &yOffset);
+			MySVG::printPeaks(&doc, &graphData, &peaksCurrent, &columnWidth, &pixelPerMmol, &yOffset);
 			MySVG::printArrows(&doc, &yOffset);
-			xOffset += (*values).size();
+			xOffset += (graphData).size();
 		}
 
 
 		doc.save();
 	}
 
-	void allInOneGraph(std::string path, const std::shared_ptr<Common::Segment>& segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks)
+	void allInOneGraph(std::string path, Common::Segment* const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks)
 	{
-		auto days = segment->getSegmentDays()->getDays();
+		auto days = (*segment).getSegmentDays()->getDays();
 		int segmentId = (*segment).getSegmentId();
 
 		svg::Dimensions dimensions(width, height);
@@ -69,13 +77,13 @@ namespace MySVG {
 		size_t dataSize = 0;
 		for (size_t i = 0; i < (*days).size(); i++)
 		{
-			auto current = (*days).at(i);
-			currentMol = MySVG::getMaxIst((current.get()->getData()));
+			auto current = (*days).at(i).get();
+			currentMol = MySVG::getMaxIst((current->getData()));
 			if (currentMol > maxMmolValue)
 			{
 				maxMmolValue = currentMol;
 			}
-			dataSize += current.get()->getData().get()->size();
+			dataSize += current->getData()->size();
 
 		}
 
@@ -84,23 +92,22 @@ namespace MySVG {
 		double pixelPerMmol = chartHeight / maxMmolGridValue;
 		//Vypocet sirky sloupce, tak aby se nam vesly do obrazku
 		double columnWidth = (chartWidth) / dataSize;
-		std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>> graphData = std::make_shared<std::vector<std::shared_ptr<Common::TMeasuredValue>>>();
+		std::vector<Common::TMeasuredValue*> graphData = std::vector<Common::TMeasuredValue*>();
 
 		for (size_t i = 0; i < (*days).size(); i++)
 		{
-			auto current = (*days).at(i);
-			auto currentData = (current.get()->getData());
-			for (size_t j = 0; j < (*currentData).size(); j++)
+			auto current = (*days).at(i).get();
+			auto currentData = (current->getData());
+			for (size_t j = 0; j < currentData->size(); j++)
 			{
-				graphData.get()->push_back(currentData.get()->at(j));
-				//graphData.push_back((*currentData).at(j));
+				graphData.push_back(currentData->at(j).get());
 			}
 		}
 		std::vector<std::shared_ptr<PeakPeakDetector::Peak>> peaksData;
 
 		MySVG::printXAxis(&doc, &pixelPerMmol, &maxMmolGridValue, &yOffset);
-		MySVG::printYAxis(&doc, graphData, &yOffset);
-		MySVG::printData(&doc, graphData, &columnWidth, &pixelPerMmol, &yOffset);
+		MySVG::printYAxis(&doc, &graphData, &yOffset);
+		MySVG::printData(&doc, &graphData, &columnWidth, &pixelPerMmol, &yOffset);
 
 		size_t xOffset = 0;
 		for (size_t i = 0; i < (*peaks).size(); i++)
@@ -114,16 +121,17 @@ namespace MySVG {
 				currentPeak.get()->endIndex = currentPeak.get()->endIndex + xOffset;
 				peaksData.push_back(currentPeak);
 			}
-			xOffset += (*days).at(i).get()->getData().get()->size();
+			xOffset += (*days).at(i).get()->getData()->size();
 		}
-		MySVG::printPeaks(&doc, graphData, &peaksData, &columnWidth, &pixelPerMmol, &yOffset);
+
+		MySVG::printPeaks(&doc, &graphData, &peaksData, &columnWidth, &pixelPerMmol, &yOffset);
 		MySVG::printLegend(&doc, &yOffset);
 		MySVG::printArrows(&doc, &yOffset);
 
 		doc.save();
 	}
 
-	double getMaxIst(const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& values)
+	double getMaxIst( std::vector<std::unique_ptr<Common::TMeasuredValue>>*const values)
 	{
 		double maxMmolValue = -DBL_MAX;
 		for (size_t i = 0; i < (*values).size(); i++)
@@ -172,7 +180,7 @@ namespace MySVG {
 		(*doc) << svg::Line(svg::Point(chartMaxX + double(legendLineWidth / 2), legendStartY - fontSize * 2 - legendItemMargin), svg::Point(canvasMaxX - double(legendLineWidth / 2), legendStartY - fontSize * 2 - legendItemMargin), svg::Stroke(2, svg::Color::White));
 	}
 
-	void printPeaks(svg::Document *doc, const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& values, std::vector<std::shared_ptr<PeakPeakDetector::Peak>> *peaks, const double * columnWidth, const double * pixelPerMmol, double *yOffset)
+	void printPeaks(svg::Document *doc, std::vector<Common::TMeasuredValue*>*const values, std::vector<std::shared_ptr<PeakPeakDetector::Peak>> *peaks, const double * columnWidth, const double * pixelPerMmol, double *yOffset)
 	{
 		for (int i = 0; i < (*peaks).size(); i++)
 		{
@@ -190,7 +198,7 @@ namespace MySVG {
 		}
 	}
 
-	void printData(svg::Document *doc, const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& values, const double * columnWidth, const double *pixelPerMol, double *yOffset)
+	void printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>* const values, const double * columnWidth, const double *pixelPerMol, double *yOffset)
 	{
 		svg::Polyline polyline_chart(svg::Stroke(2, svg::Color::Black));
 		//svg::Polyline smoothed_polyline(svg::Stroke(2, svg::Color::Blue));
@@ -206,7 +214,7 @@ namespace MySVG {
 
 	}
 
-	void printYAxis(svg::Document *doc, const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& values, double *yOffset)
+	void printYAxis(svg::Document *doc,  std::vector<Common::TMeasuredValue*>* const values, double *yOffset)
 	{
 		if ((*values).size() > 0)
 		{

@@ -4,15 +4,14 @@
 namespace Common
 {
 
-	Segment::Segment(int *segmentId, std::shared_ptr<SegmentDays>& days)
+	Segment::Segment(int *segmentId, std::unique_ptr<SegmentDays>& days):segmentDays(std::move(days))
 	{
-		this->segmentDays = days;
 		this->segmentId = (*segmentId);
 	}
 
-	std::shared_ptr<SegmentDays> Segment::getSegmentDays()
+	SegmentDays* Segment::getSegmentDays()
 	{
-		return (this->segmentDays);
+		return (this->segmentDays).get();
 	}
 
 	int Segment::getSegmentId()

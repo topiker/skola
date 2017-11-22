@@ -33,7 +33,7 @@ static int segmentsQueryCallback(void *data, int argc, char **argv, char **azCol
 
 static int dataQueryCallback(void *data, int argc, char **argv, char **azColName)
 {
-	std::vector<std::shared_ptr<Common::TMeasuredValue>> *values = (std::vector<std::shared_ptr<Common::TMeasuredValue>> *)data;
+	std::vector<std::unique_ptr<Common::TMeasuredValue>> *values = (std::vector<std::unique_ptr<Common::TMeasuredValue>> *)data;
 
 	int segmentId = NULL;
 	double ist = NULL;
@@ -75,7 +75,7 @@ static int dataQueryCallback(void *data, int argc, char **argv, char **azColName
 		}
 	}
 
-	(*values).push_back(std::make_shared<Common::TMeasuredValue>(&segmentId, &measureDate, &ist));
+	(*values).push_back(std::make_unique<Common::TMeasuredValue>(&segmentId, &measureDate, &ist));
 
 	return 0;
 }

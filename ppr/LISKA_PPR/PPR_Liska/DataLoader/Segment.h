@@ -8,12 +8,12 @@ namespace Common {
 	class Segment
 	{
 	public:
-		Segment(int *segmentId, std::shared_ptr<SegmentDays>& days);
-		std::shared_ptr<SegmentDays> getSegmentDays();
+		Segment(int *segmentId, std::unique_ptr<SegmentDays>& days);
+		SegmentDays* getSegmentDays();
 		int getSegmentId();
 	private:
 		int segmentId;
-		std::shared_ptr<SegmentDays> segmentDays;
+		std::unique_ptr<SegmentDays> segmentDays;
 	};
 
 }

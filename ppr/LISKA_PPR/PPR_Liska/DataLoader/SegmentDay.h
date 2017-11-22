@@ -17,7 +17,7 @@ namespace Common
 		/// </summary>
 		/// <param name="data">Data pro dany den</param>
 		/// <param name="indexDay">Index dne</param>
-		SegmentDay(std::shared_ptr<std::vector<std::shared_ptr<TMeasuredValue>>>& data, int *indexDay);
+		SegmentDay(std::unique_ptr<std::vector<std::unique_ptr<TMeasuredValue>>>& data, int *indexDay);
 		/// <summary>
 		/// Index dne
 		/// </summary>
@@ -25,9 +25,9 @@ namespace Common
 		/// <summary>
 		/// Data pro dany den
 		/// </summary>
-		std::shared_ptr<std::vector<std::shared_ptr<TMeasuredValue>>> getData();
+		std::vector<std::unique_ptr<TMeasuredValue>>* getData();
 	private:
-		std::shared_ptr<std::vector<std::shared_ptr<TMeasuredValue>>> data;
+		std::unique_ptr<std::vector<std::unique_ptr<TMeasuredValue>>> data;
 	};
 }
 

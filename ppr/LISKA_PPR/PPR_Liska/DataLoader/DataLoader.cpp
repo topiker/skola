@@ -22,44 +22,45 @@ namespace DataLoader {
 		return (*segmentIds).size();
 	}
 
-	void DataLoader::loadDataBySegment(std::shared_ptr<Common::Segment>& result, int * segmentId)
+	void DataLoader::loadDataBySegment(std::unique_ptr<Common::Segment>& result, int * segmentId)
 	{
 
 		std::string sqlStr = "SELECT (julianday(md.measuredat) - 2415019.5) AS 'measuredat', md.segmentid, md.ist FROM measuredvalue md inner join timesegment ts on md.segmentid = ts.id WHERE md.segmentId=" + std::to_string(*segmentId) + " ORDER BY md.measuredat";
 		const char * sql = sqlStr.c_str();
 		DatabaseConnector connector = DatabaseConnector::DatabaseConnector(&(this->dbPath));
-		std::vector<std::shared_ptr<Common::TMeasuredValue>> data = std::vector<std::shared_ptr<Common::TMeasuredValue>>();
+		std::vector<std::unique_ptr<Common::TMeasuredValue>> data = std::vector<std::unique_ptr<Common::TMeasuredValue>>();
 		connector.executeCommand(sql, dataQueryCallback, (void*)(&data));
-		std::shared_ptr<Common::SegmentDays> days = std::shared_ptr<Common::SegmentDays>();
-		std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>> dataLoaded = std::make_shared<std::vector<std::shared_ptr<Common::TMeasuredValue>>>(data);
-		if (data.size() > 0) 
+		std::unique_ptr<Common::SegmentDays> days = std::unique_ptr<Common::SegmentDays>();
+		std::unique_ptr<std::vector<std::unique_ptr<Common::TMeasuredValue>>> dataLoaded = std::make_unique<std::vector<std::unique_ptr<Common::TMeasuredValue>>>(std::move(data));
+		if (dataLoaded.get()->size() > 0)
 		{
 			this->smoothNullValues(dataLoaded);
 			this->splitIntoDays(days, dataLoaded);
 		}
-		(result) = std::shared_ptr<Common::Segment>(new Common::Segment(segmentId, days));
+		(result) = std::unique_ptr<Common::Segment>(new Common::Segment(segmentId, days));
 	}
 
-	void DataLoader::splitIntoDays(std::shared_ptr<Common::SegmentDays>& segmentDays, const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data)
+	void DataLoader::splitIntoDays(std::unique_ptr<Common::SegmentDays>& segmentDays, const std::unique_ptr<std::vector<std::unique_ptr<Common::TMeasuredValue>>>& data)
 	{
 		std::vector<FromTo> daysIndexes = this->getDaysIndexes(data);
-		std::shared_ptr<std::vector<std::shared_ptr<Common::SegmentDay>>> days = std::make_shared<std::vector<std::shared_ptr<Common::SegmentDay>>>();
+		std::unique_ptr<std::vector<std::unique_ptr<Common::SegmentDay>>> days = std::make_unique<std::vector<std::unique_ptr<Common::SegmentDay>>>();
 		int index = 0;
 		for (size_t i = 0; i < daysIndexes.size(); i++)
 		{
 			FromTo current = daysIndexes.at(i);
-			auto subdata = std::make_shared<std::vector<std::shared_ptr<Common::TMeasuredValue>>>();
+			auto subdata = std::make_unique<std::vector<std::unique_ptr<Common::TMeasuredValue>>>();
 			for (size_t j = current.from; j < current.to; j++)
 			{
-				(*subdata).push_back((*data).at(j));
+				(*subdata).push_back(std::move((*data).at(j)));
 			}
-			(*days).push_back(std::shared_ptr<Common::SegmentDay>(new Common::SegmentDay(subdata, &(index))));
+			(*days).push_back(std::unique_ptr<Common::SegmentDay>(new Common::SegmentDay(subdata, &(index))));
+			//double neco  =(*subdata).at(0).get()->measureDate;
 			index++;
 		}
-		(segmentDays) = std::shared_ptr<Common::SegmentDays>(new Common::SegmentDays(days));
+		(segmentDays) = std::unique_ptr<Common::SegmentDays>(new Common::SegmentDays(days));
 	}
 
-	std::vector<FromTo> DataLoader::getDaysIndexes(const std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data)
+	std::vector<FromTo> DataLoader::getDaysIndexes(const std::unique_ptr<std::vector<std::unique_ptr<Common::TMeasuredValue>>>& data)
 	{
 		std::vector<FromTo> fromTo = std::vector<FromTo>();
 		size_t startIndex = 0;
@@ -68,7 +69,7 @@ namespace DataLoader {
 		{
 			for (size_t i = 0; i < dataSize; i++)
 			{
-				auto current = (*data).at(i);
+				auto current = (data).get()->at(i).get();
 				if ((*current).hour == 23)
 				{
 					for (size_t j = (i+1); j < dataSize; j++)
@@ -101,21 +102,21 @@ namespace DataLoader {
 	//	//}
 	//}
 
-	size_t DataLoader::loadData(std::shared_ptr<std::vector<std::shared_ptr<Common::Segment>>>& data)
+	size_t DataLoader::loadData(std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>& data)
 	{
 		std::vector<int> segmentIds;
 		this->getSegmentIds(&segmentIds);
-		(data) = std::make_shared<std::vector<std::shared_ptr<Common::Segment>>>();
+		(data) = std::make_unique<std::vector<std::unique_ptr<Common::Segment>>>();
 		for (size_t i = 0; i < segmentIds.size(); i++)
 		{
-			std::shared_ptr<Common::Segment> current = std::shared_ptr<Common::Segment>();
+			std::unique_ptr<Common::Segment> current = std::unique_ptr<Common::Segment>();
 			loadDataBySegment(current, &((segmentIds).at(i)));
-			(*data).push_back(current);
+			(data.get()->push_back(std::move(current)));
 		}
 
-		//(data) = std::make_shared<std::vector<std::shared_ptr<Common::Segment>>>();
+		//(data) = std::make_unique<std::vector<std::unique_ptr<Common::Segment>>>();
 		//tbb::parallel_for(size_t(0), (segmentIds).size(), [&](size_t i) {
-		//	std::shared_ptr<Common::Segment> current = std::shared_ptr<Common::Segment>();
+		//	std::unique_ptr<Common::Segment> current = std::unique_ptr<Common::Segment>();
 		//	loadDataBySegment(current, &((segmentIds).at(i)));
 		//	(*data).push_back(current);
 		//});
@@ -123,7 +124,7 @@ namespace DataLoader {
 		return 0;
 	}
 
-	void DataLoader::smoothNullValues(std::shared_ptr<std::vector<std::shared_ptr<Common::TMeasuredValue>>>& data)
+	void DataLoader::smoothNullValues(std::unique_ptr<std::vector<std::unique_ptr<Common::TMeasuredValue>>>& data)
 	{
 		double lastNonNullValue = 0;
 		for (unsigned int i = 0; i < (*data).size(); i++) {

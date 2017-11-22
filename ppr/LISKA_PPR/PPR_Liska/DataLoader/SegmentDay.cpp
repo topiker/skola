@@ -3,15 +3,14 @@
 namespace Common
 {
 
-	SegmentDay::SegmentDay(std::shared_ptr<std::vector<std::shared_ptr<TMeasuredValue>>>& data, int *indexDay)
+	SegmentDay::SegmentDay(std::unique_ptr<std::vector<std::unique_ptr<TMeasuredValue>>>& data, int *indexDay):data(std::move(data))
 	{
-		this->data = data;
 		this->dayIndex = (*indexDay);
 	}
 
-	std::shared_ptr<std::vector<std::shared_ptr<TMeasuredValue>>> SegmentDay::getData()
+	std::vector<std::unique_ptr<TMeasuredValue>>* SegmentDay::getData()
 	{
-		return (this->data);
+		return this->data.get();
 	}
 
 }

@@ -9,10 +9,11 @@ namespace Common
 	class SegmentDays
 	{
 	public:
-		SegmentDays(std::shared_ptr<std::vector<std::shared_ptr<SegmentDay>>>& days);
-		std::shared_ptr<std::vector<std::shared_ptr<SegmentDay>>> getDays();
+		SegmentDays(std::unique_ptr<std::vector<std::unique_ptr<SegmentDay>>>& days);
+		std::vector<std::unique_ptr<SegmentDay>>* getDays();
+		size_t getDaysSize();
 	private:
-		std::shared_ptr<std::vector<std::shared_ptr<SegmentDay>>> segmentDays;
+		std::unique_ptr<std::vector<std::unique_ptr<SegmentDay>>> segmentDays;
 	};
 
 }
