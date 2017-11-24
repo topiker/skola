@@ -62,16 +62,23 @@ void runSolution(Parser::InputParser *params)
 	//	runSerial(params);
 	//}
 	//}
-	double xTimes = 20;
+	double xTimes = 1000;
 	double serial = 0;
 	double perDay = 0;
 	double notPerDay = 0;
+	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
+	std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>> values = std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>();
+	dataLoader.loadData(values);
+
 	for (size_t i = 0; i < xTimes; i++)
 	{
-		std::cout << std::to_string(i) << std::endl;
-		notPerDay += runParallel(params, false);
-		perDay += runParallel(params, true);
-		serial += runSerial(params);
+		if ((i % 100) == 0)
+		{
+			std::cout << std::to_string(i) << std::endl;
+		}
+		notPerDay += runParallel(params,values, false);
+		perDay += runParallel(params,values, true);
+		serial += runSerial(params,values);
 	}
 
 	std::cout << "Paralel per day" << std::endl;
@@ -97,33 +104,28 @@ void runComputation(std::unique_ptr<Common::Segment>& segment, int *windowSize, 
 	}
 }
 
-double runSerial(Parser::InputParser *params)
+double runSerial(Parser::InputParser *params, const std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>& data)
 {
 	int windowSize = (*params).getWindowSize();
-	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
-	std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>> values = std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>();
-	dataLoader.loadData(values);
+
 	tbb::tick_count before = tbb::tick_count::now();
-	for (unsigned int i = 0; i < (*values).size(); i++)
+	for (unsigned int i = 0; i < (data).get()->size(); i++)
 	{
-		runComputation(values.get()->at(i), &windowSize, false);
+		runComputation(data.get()->at(i), &windowSize, false);
 	}
 	tbb::tick_count after = tbb::tick_count::now();
 	return (after - before).seconds();
 }
 
 
-double runParallel(Parser::InputParser *params, bool dayParalelism)
+double runParallel(Parser::InputParser *params, const std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>& data,bool dayParalelism)
 {
 	tbb::task_scheduler_init init;
-
 	int windowSize = (*params).getWindowSize();
-	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
-	std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>> values = std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>();
-	dataLoader.loadData(values);
+
 	tbb::tick_count before = tbb::tick_count::now();
-	tbb::parallel_for(size_t(0), (*values).size(), [&](size_t i) {
-		runComputation(values.get()->at(i), &windowSize, false);
+	tbb::parallel_for(size_t(0), (data).get()->size(), [&](size_t i) {
+		runComputation(data.get()->at(i), &windowSize, false);
 	});
 
 	tbb::tick_count after = tbb::tick_count::now();

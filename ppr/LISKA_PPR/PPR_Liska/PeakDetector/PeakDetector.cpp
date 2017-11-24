@@ -80,6 +80,7 @@ namespace PeakDetector
 			}
 		}
 
+
 		std::vector<std::shared_ptr<PeakPeakDetector::Peak>> joinedPeaks = std::vector<std::shared_ptr<PeakPeakDetector::Peak>>();
 		if (localPeaks.size() > 0) {
 			std::shared_ptr<PeakPeakDetector::Peak> current = std::shared_ptr<PeakPeakDetector::Peak>(std::move(localPeaks.at(0)));
@@ -102,10 +103,25 @@ namespace PeakDetector
 		{
 			joinedPeaks.at(i).get()->fitness = calculateWindowFitness(data, (joinedPeaks.at(i).get())->startIndex, (joinedPeaks.at(i).get())->endIndex);
 		}
+		std::map<double, std::shared_ptr<PeakPeakDetector::Peak>> joinedOrderedPeaks = std::map<double, std::shared_ptr<PeakPeakDetector::Peak>>();
 
-		std::sort((joinedPeaks).begin(), (joinedPeaks).end(), [](const std::shared_ptr<PeakPeakDetector::Peak>& a, const std::shared_ptr<PeakPeakDetector::Peak>& b) { return (*a).fitness > (*b).fitness; });
-		size_t peaksLength = (joinedPeaks).size() > nBestPeaks ? nBestPeaks : (joinedPeaks).size();
-		peaks = std::make_shared<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>((joinedPeaks).begin(), (joinedPeaks).begin() + peaksLength);
+		for (size_t i = 0; i < joinedPeaks.size(); i++)
+		{
+			joinedOrderedPeaks.insert(std::pair<double, std::shared_ptr<PeakPeakDetector::Peak>>(joinedPeaks.at(i).get()->fitness, joinedPeaks.at(i)));
+		}
+
+		//Vyber n nejlepsich
+
+		std::map<double, std::shared_ptr<PeakPeakDetector::Peak>>::reverse_iterator rit;
+		int counter = 0;
+		joinedPeaks = std::vector<std::shared_ptr<PeakPeakDetector::Peak>>();
+
+		for (rit = joinedOrderedPeaks.rbegin(); rit != joinedOrderedPeaks.rend() && (counter<nBestPeaks); ++rit)
+		{
+			joinedPeaks.push_back(rit->second);
+		}
+
+		peaks = std::make_shared<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>(joinedPeaks);
 	}
 
 }
