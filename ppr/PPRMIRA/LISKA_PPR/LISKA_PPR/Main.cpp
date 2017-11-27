@@ -109,7 +109,7 @@ void runComputation(Parser::InputParser *params,std::unique_ptr<Common::Segment>
 		Common::SegmentDays* days = segment.get()->getSegmentDays();
 		std::shared_ptr< std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>> peaks = std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>();
 		PeakDetector::detectPeaks(days, windowSize, peaks, dayParalelism);
-		//MySVG::exportToSvg((*params).getExportPath(), segment.get(), peaks, true);
+		MySVG::exportToSvg((*params).getExportPath(), segment.get(), peaks, false);
 	}
 }
 

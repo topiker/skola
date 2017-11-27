@@ -75,7 +75,7 @@ namespace PeakDetectorAMP
 
 		for (int i = from; i < to; i++) {
 			int j = i + 1;
-			int tmp = fitness[j];
+			double tmp = fitness[j];
 			while (j > from && tmp > fitness[j - 1]) {
 				fitness[j] = fitness[j - 1];
 				j--;
@@ -105,7 +105,7 @@ namespace PeakDetectorAMP
 			{
 				//segmentStartIndexes.push_back(indexCounter);
 				auto currentDays = currentSegment->getSegmentDays()->getDays();
-				dayCount.push_back(currentDays->size());
+				dayCount.push_back((int)currentDays->size());
 				for (size_t j = 0; j < currentDays->size(); j++)
 				{
 					segmentDaysStartIndexes.push_back(indexCounter);

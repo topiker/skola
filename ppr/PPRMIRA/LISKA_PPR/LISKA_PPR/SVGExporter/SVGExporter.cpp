@@ -43,12 +43,22 @@ namespace MySVG {
 		svg::Dimensions dimensions(width, height*(days->size()));
 		svg::Document doc(getFileName((&segmentId), path), svg::Layout(dimensions, svg::Layout::BottomLeft));
 		double xOffset = 0;
+
+		
+		double maxMmolValue = 0;
+		double currentMax;
+		for (size_t i = 0; i < (*days).size(); i++)
+		{
+			auto values = (*days).at(i).get()->getData();
+			currentMax = getMaxIst(values);
+			maxMmolValue = (currentMax > maxMmolValue) ? currentMax : maxMmolValue;
+		}
+
 		for (size_t i = 0; i < (*days).size(); i++)
 		{
 			double yOffset = height * ((*days).size() - (i + 1));
 			auto values = (*days).at(i).get()->getData();
 			auto peaksCurrent = (peaks).get()->at(i);
-			double maxMmolValue = getMaxIst(values);
 
 			double maxMmolGridValue = ((double)(int)maxMmolValue) + 1;
 
@@ -65,10 +75,10 @@ namespace MySVG {
 			//Vypocet sirky sloupce, tak aby se nam vesly do obrazku
 			double columnWidth = (chartWidth) / (graphData).size();
 			MySVG::printXAxis(&doc, &pixelPerMmol, &maxMmolGridValue, &yOffset);
-			MySVG::printYAxis(&doc, &graphData, &yOffset);
-			MySVG::printData(&doc, &graphData, &columnWidth, &pixelPerMmol, &yOffset);
+			MySVG::printYAxisDay(&doc, &graphData, &yOffset);
+			MySVG::printDataDay(&doc, &graphData, &pixelPerMmol, &yOffset);
 			MySVG::printLegend(&doc, &yOffset);
-			MySVG::printPeaks(&doc, &graphData, &peaksCurrent, &columnWidth, &pixelPerMmol, &yOffset);
+			MySVG::printPeaksDay(&doc, &graphData, &peaksCurrent, &pixelPerMmol, &yOffset);
 			MySVG::printArrows(&doc, &yOffset);
 			xOffset += (graphData).size();
 		}
@@ -76,6 +86,8 @@ namespace MySVG {
 
 		doc.save();
 	}
+
+
 
 	void allInOneGraph(std::string path, Common::Segment* const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks)
 	{
@@ -212,6 +224,50 @@ namespace MySVG {
 		}
 	}
 
+	void printPeaksDay(svg::Document *doc, std::vector<Common::TMeasuredValue*>* const values, std::vector<std::shared_ptr<PeakPeakDetector::Peak>> *peaks, const double * pixelPerMmol, double *yOffset)
+	{
+		//pocet minut za den
+		unsigned int minutesPerDay = 1440;
+		double minuteWidth = chartWidth / (double)minutesPerDay;
+		double currentMinutesFromStart = 0;
+		for (int i = 0; i < (*peaks).size(); i++)
+		{
+			svg::Polyline peakLineBackground(svg::Stroke(4, svg::Color::Red));
+			svg::Polyline peakLine(svg::Stroke(2, svg::Color::White));
+
+
+			for (size_t j = (*peaks).at(i).get()->startIndex; j < (*peaks).at(i).get()->endIndex; j++)
+			{
+				currentMinutesFromStart = (*values).at(j)->hour * 60 + (*values).at(j)->minutes;
+				peakLineBackground << svg::Point(chartMinX + currentMinutesFromStart*minuteWidth, (*pixelPerMmol) * (*values).at(j)->ist + chartMinY + (*yOffset)), 10, svg::Fill(svg::Color::Red);
+				peakLine << svg::Point(chartMinX + currentMinutesFromStart*minuteWidth, (*pixelPerMmol) * (*values).at(j)->ist + chartMinY + (*yOffset)), 10, svg::Fill(svg::Color::Red);
+			}
+			(*doc) << peakLineBackground;
+			(*doc) << peakLine;
+		}
+	}
+
+	void printDataDay(svg::Document *doc, std::vector<Common::TMeasuredValue*>* const values, const double *pixelPerMol, double *yOffset)
+	{
+		svg::Polyline polyline_chart(svg::Stroke(2, svg::Color::Black));
+
+		//pocet minut za den
+		unsigned int minutesPerDay = 1440;
+		unsigned int dataMinutes = (int)(((*values).at((*values).size() - 1)->measureDate - (*values).at(0)->measureDate)* minutesPerDay);
+		double minuteWidth = chartWidth / (double)minutesPerDay;
+		//Vypocet poctu minut na jeden dilek - 24 hodin
+
+		double minutesFromDayBegin = 0;
+		for (size_t i = 0; i < (*values).size(); i++)
+		{
+			minutesFromDayBegin = (values)->at(i)->hour * 60 + (values)->at(i)->minutes;
+			polyline_chart << svg::Point(chartMinX + minutesFromDayBegin*minuteWidth, (*pixelPerMol) * (*values).at(i)->ist + chartMinY + (*yOffset));
+		}
+
+		(*doc) << polyline_chart;
+
+	}
+
 	void printData(svg::Document *doc, std::vector<Common::TMeasuredValue*>* const values, const double * columnWidth, const double *pixelPerMol, double *yOffset)
 	{
 		svg::Polyline polyline_chart(svg::Stroke(2, svg::Color::Black));
@@ -257,6 +313,18 @@ namespace MySVG {
 		}
 
 	}
+
+	void printYAxisDay(svg::Document *doc, std::vector<Common::TMeasuredValue*>* const values, double *yOffset)
+	{
+		double hourWidth = chartWidth/24;
+		for (int i = 1; i < 24; i++)
+		{
+			(*doc) << svg::Line(svg::Point(chartMinX + (i*hourWidth), chartMinY + (*yOffset)), svg::Point(chartMinX + (i*hourWidth), chartMaxY + (*yOffset)), svg::Stroke(1, svg::Color::Grey));
+			(*doc) << svg::Text(svg::Point(chartMinX + (i*hourWidth) - textShiftLeft, chartMinY + (*yOffset) - textShiftDown), ((i > 9) ? std::to_string(i) : std::string("0") + (std::to_string(i))) + ":00", svg::Color::Black, svg::Font((int)(fontSize*.9), "Verdana"));
+
+		}
+	}
+
 
 
 
