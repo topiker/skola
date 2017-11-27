@@ -72,8 +72,8 @@ void runSolution(Parser::InputParser *params)
 	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
 	std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>> values = std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>();
 	dataLoader.loadData(values);
-	notPerDay += runParallel(params, values, false);
-	//PeakDetectorAMP::v20();
+
+	PeakDetectorAMP::v20();
 	//PeakDetectorAMP::runOnGraphics(params, values);
 
 	/*for (size_t i = 0; i < xTimes; i++)
@@ -99,14 +99,14 @@ void runSolution(Parser::InputParser *params)
 
 }
 
-void runComputation(std::unique_ptr<Common::Segment>& segment, int *windowSize, bool dayParalelism, Parser::InputParser *params)
+void runComputation(std::unique_ptr<Common::Segment>& segment, int *windowSize, bool dayParalelism) 
 {
 	if (segment.get()->getSegmentDays() != nullptr)
 	{
 		Common::SegmentDays* days = segment.get()->getSegmentDays();
 		std::shared_ptr< std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>> peaks = std::shared_ptr< std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>();
 		PeakDetector::detectPeaks(days, windowSize, peaks, dayParalelism);
-		MySVG::exportToSvg((*params).getExportPath(), segment.get(), peaks, false);
+		//MySVG::exportToSvg((*params).getExportPath(), values.get()->at(i).get(), peaks, true);
 	}
 }
 
@@ -117,7 +117,7 @@ double runSerial(Parser::InputParser *params, const std::unique_ptr<std::vector<
 	tbb::tick_count before = tbb::tick_count::now();
 	for (unsigned int i = 0; i < (data).get()->size(); i++)
 	{
-		runComputation(data.get()->at(i), &windowSize, false, params);
+		runComputation(data.get()->at(i), &windowSize, false);
 	}
 	tbb::tick_count after = tbb::tick_count::now();
 	return (after - before).seconds();
@@ -131,7 +131,7 @@ double runParallel(Parser::InputParser *params, const std::unique_ptr<std::vecto
 
 	tbb::tick_count before = tbb::tick_count::now();
 	tbb::parallel_for(size_t(0), (data).get()->size(), [&](size_t i) {
-		runComputation(data.get()->at(i), &windowSize, false,params);
+		runComputation(data.get()->at(i), &windowSize, false);
 	});
 
 	tbb::tick_count after = tbb::tick_count::now();

@@ -18,12 +18,45 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DataLoader\DatabaseConnector.cpp" />
+    <ClCompile Include="DataLoader\DataLoader.cpp" />
+    <ClCompile Include="DataLoader\DataWrapper.cpp" />
+    <ClCompile Include="DataLoader\FromTo.cpp" />
+    <ClCompile Include="DataLoader\Segment.cpp" />
+    <ClCompile Include="DataLoader\SegmentDay.cpp" />
+    <ClCompile Include="DataLoader\SegmentDays.cpp" />
+    <ClCompile Include="DataLoader\TMeasuredValue.cpp" />
+    <ClCompile Include="InputParser\InputParser.cpp" />
+    <ClCompile Include="PeakDetector\Peak.cpp" />
+    <ClCompile Include="PeakDetector\PeakDetector.cpp" />
+    <ClCompile Include="SVGExporter\DataHelper.cpp" />
+    <ClCompile Include="SVGExporter\SVGExporter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DataLoader\DatabaseConnector.h" />
+    <ClInclude Include="DataLoader\DataLoader.h" />
+    <ClInclude Include="DataLoader\DataWrapper.h" />
+    <ClInclude Include="DataLoader\FromTo.h" />
+    <ClInclude Include="DataLoader\Segment.h" />
+    <ClInclude Include="DataLoader\SegmentDay.h" />
+    <ClInclude Include="DataLoader\SegmentDays.h" />
+    <ClInclude Include="DataLoader\sqlQueries.h" />
+    <ClInclude Include="DataLoader\TMeasuredValue.h" />
+    <ClInclude Include="InputParser\InputParser.h" />
+    <ClInclude Include="PeakDetector\Peak.h" />
+    <ClInclude Include="PeakDetector\PeakDetector.h" />
+    <ClInclude Include="SVGExporter\DataHelper.h" />
+    <ClInclude Include="SVGExporter\simple_svg_1.0.0.hpp" />
+    <ClInclude Include="SVGExporter\SVGExporter.h" />
+    <ClInclude Include="SVGExporter\SVGExporterConstants.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{7DBD9B3C-396D-4698-96F6-BA587684A7FC}</ProjectGuid>
+    <ProjectGuid>{CC539B94-D988-46C6-8635-72E07F9869B5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Main</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <RootNamespace>LiskaPPR</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -76,142 +109,80 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)CompiledDebug\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)CompiledDebug\x64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Compiled\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Compiled\x64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\;$(SolutionDir)sqlLite\SourceFiles\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\;$(SolutionDir)Export\;$(SolutionDir)sqlLite\SourceFiles\;$(SolutionDir)DataLoader\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDIr)sqlLite\x86\sqlite3.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\sqlLite\x86\;$(SolutionDir)CompiledDebug\x86\</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>copy "$(SolutionDir)\sqlLite\x86\sqlite3.dll" "$(SolutionDir)\CompiledDebug\x86\"
-copy "$(TBB_DLL_DIR_X86)tbb_debug.dll" "$(SolutionDir)\CompiledDebug\x86\"
-copy "$(TBB_DLL_DIR_X86)tbbmalloc_debug.dll" "$(SolutionDir)\CompiledDebug\x86\"
-</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\;$(SolutionDir)sqlLite\SourceFiles\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\;$(SolutionDir)Export\;$(SolutionDir)sqlLite\SourceFiles\;$(SolutionDir)DataLoader\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDIr)sqlLite\x64\sqlite3.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\sqlLite\x64\;$(SolutionDir)CompiledDebug\x64\</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>copy "$(SolutionDir)\sqlLite\x64\sqlite3.dll" "$(SolutionDir)\CompiledDebug\x64\"
-copy "$(TBB_DLL_DIR_X64)tbb_debug.dll" "$(SolutionDir)\CompiledDebug\x64\"
-copy "$(TBB_DLL_DIR_X64)tbbmalloc_debug.dll" "$(SolutionDir)\CompiledDebug\x64\"
-</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\;$(SolutionDir)sqlLite\SourceFiles\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\;$(SolutionDir)Export\;$(SolutionDir)sqlLite\SourceFiles\;$(SolutionDir)DataLoader\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDIr)sqlLite\x86\sqlite3.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\sqlLite\x86\;$(SolutionDir)Compiled\x86\</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>copy "$(SolutionDir)\sqlLite\x86\sqlite3.dll" "$(SolutionDir)\Compiled\x86\"
-copy "$(TBB_DLL_DIR_X86)tbb.dll" "$(SolutionDir)\Compiled\x86\"
-copy "$(TBB_DLL_DIR_X86)tbbmalloc.dll" "$(SolutionDir)\Compiled\x86\"
-
-</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)DataLoader\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\;$(SolutionDir)sqlLite\SourceFiles\;$(TBBIncludeDir)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)SVGExporter\;$(SolutionDir)PeakDetector\;$(SolutionDir)InputParser\;$(SolutionDir)Export\;$(SolutionDir)sqlLite\SourceFiles\;$(SolutionDir)DataLoader\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDIr)sqlLite\x64\sqlite3.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\sqlLite\x64\;$(SolutionDir)Compiled\x64\</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>copy "$(SolutionDir)\sqlLite\x64\sqlite3.dll" "$(SolutionDir)\Compiled\x64\"
-copy "$(TBB_DLL_DIR_X64)tbb.dll" "$(SolutionDir)\Compiled\x64\"
-copy "$(TBB_DLL_DIR_X64)tbbmalloc.dll" "$(SolutionDir)\Compiled\x64\"
-
-
-</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\DataLoader\DatabaseConnector.h" />
-    <ClInclude Include="..\DataLoader\DataLoader.h" />
-    <ClInclude Include="..\DataLoader\FromTo.h" />
-    <ClInclude Include="..\DataLoader\Segment.h" />
-    <ClInclude Include="..\DataLoader\SegmentDay.h" />
-    <ClInclude Include="..\DataLoader\SegmentDays.h" />
-    <ClInclude Include="..\DataLoader\sqlQueries.h" />
-    <ClInclude Include="..\DataLoader\TMeasuredValue.h" />
-    <ClInclude Include="..\InputParser\InputParser.h" />
-    <ClInclude Include="..\PeakDetector\Peak.h" />
-    <ClInclude Include="..\PeakDetector\PeakDetector.h" />
-    <ClInclude Include="..\SVGExporter\DataHelper.h" />
-    <ClInclude Include="..\SVGExporter\simple_svg_1.0.0.hpp" />
-    <ClInclude Include="..\SVGExporter\SVGExporter.h" />
-    <ClInclude Include="..\SVGExporter\SVGExporterConstants.h" />
-    <ClInclude Include="Main.h" />
-    <ClInclude Include="PeakDetectorAMP.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\DataLoader\DatabaseConnector.cpp" />
-    <ClCompile Include="..\DataLoader\DataLoader.cpp" />
-    <ClCompile Include="..\DataLoader\FromTo.cpp" />
-    <ClCompile Include="..\DataLoader\Segment.cpp" />
-    <ClCompile Include="..\DataLoader\SegmentDay.cpp" />
-    <ClCompile Include="..\DataLoader\SegmentDays.cpp" />
-    <ClCompile Include="..\DataLoader\TMeasuredValue.cpp" />
-    <ClCompile Include="..\InputParser\InputParser.cpp" />
-    <ClCompile Include="..\PeakDetector\Peak.cpp" />
-    <ClCompile Include="..\PeakDetector\PeakDetector.cpp" />
-    <ClCompile Include="..\SVGExporter\DataHelper.cpp" />
-    <ClCompile Include="..\SVGExporter\SVGExporter.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="PeakDetectorAMP.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

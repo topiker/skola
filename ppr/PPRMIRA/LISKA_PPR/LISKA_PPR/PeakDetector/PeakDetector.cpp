@@ -33,6 +33,8 @@ namespace PeakDetector
 			}
 			(detectedPeaks) = std::make_shared<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(result.begin(), result.end());
 		}
+
+
 	}
 
 	double calculateWindowFitness(std::vector<std::unique_ptr<Common::TMeasuredValue>>* const data, size_t startIndex, size_t endIndex)
@@ -59,7 +61,7 @@ namespace PeakDetector
 		{
 			if (threshold < fitnessValues.at(i))
 			{
-				localPeaks.push_back(std::make_unique<PeakPeakDetector::Peak>(PeakPeakDetector::Peak(i, i + (*windowSize) / 2, fitnessValues.at(i))));
+				localPeaks.push_back(std::make_unique<PeakPeakDetector::Peak>(PeakPeakDetector::Peak(i, i + (*windowSize), fitnessValues.at(i))));
 			}
 		}
 		//Spojim prekryvajici se okna
@@ -95,9 +97,9 @@ namespace PeakDetector
 	{
 		std::vector<double> fitnessValues = std::vector<double>();
 		//prochazime postupne vsechny okenka a urcujeme jejich fitness
-		for (unsigned int i = 0; i + (*windowSize) < (*data).size(); i++)
+		for (unsigned int i = 0; (i + (*windowSize)) < (*data).size(); i++)
 		{
-			fitnessValues.push_back(calculateWindowFitness(data, i, i + (*windowSize)));
+			fitnessValues.push_back(calculateWindowFitness(data, i, (i + (*windowSize))));
 		}
 
 		return fitnessValues;

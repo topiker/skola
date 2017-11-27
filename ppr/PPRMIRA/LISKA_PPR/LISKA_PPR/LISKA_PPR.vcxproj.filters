@@ -15,52 +15,58 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\DatabaseConnector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\DataLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\DataWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\FromTo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\Segment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\SegmentDay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\SegmentDays.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\sqlQueries.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLoader\TMeasuredValue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputParser\InputParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PeakDetector\Peak.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PeakDetector\PeakDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SVGExporter\DataHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SVGExporter\simple_svg_1.0.0.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SVGExporter\SVGExporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SVGExporter\SVGExporterConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DataLoader\DatabaseConnector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DataLoader\DataLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DataLoader\FromTo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DataLoader\Segment.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DataLoader\SegmentDay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DataLoader\SegmentDays.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DataLoader\sqlQueries.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DataLoader\TMeasuredValue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\InputParser\InputParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PeakDetector\Peak.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PeakDetector\PeakDetector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVGExporter\DataHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVGExporter\SVGExporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVGExporter\SVGExporterConstants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVGExporter\simple_svg_1.0.0.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PeakDetectorAMP.h">
@@ -68,43 +74,46 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DataLoader\DatabaseConnector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLoader\DataLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLoader\DataWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLoader\FromTo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLoader\Segment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLoader\SegmentDay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLoader\SegmentDays.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLoader\TMeasuredValue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputParser\InputParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PeakDetector\Peak.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PeakDetector\PeakDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SVGExporter\DataHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SVGExporter\SVGExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DataLoader\DatabaseConnector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DataLoader\DataLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DataLoader\FromTo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DataLoader\Segment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DataLoader\SegmentDay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DataLoader\SegmentDays.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DataLoader\TMeasuredValue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\InputParser\InputParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PeakDetector\Peak.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PeakDetector\PeakDetector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SVGExporter\DataHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SVGExporter\SVGExporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PeakDetectorAMP.cpp">
