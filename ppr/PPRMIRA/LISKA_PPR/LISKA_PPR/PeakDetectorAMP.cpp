@@ -126,11 +126,7 @@ namespace PeakDetectorAMP
 		std::vector<int> peaksEndIndexes = std::vector<int>(indexCounter);
 		std::vector<int> joinedPeaksStartIndexes = std::vector<int>(indexCounter);
 		std::vector<int> joinedPeaksEndIndexes = std::vector<int>(indexCounter);
-
-
 		std::vector<double> peakFintessValues = std::vector<double>(indexCounter);
-		std::vector<double> avg = std::vector<double>(segmentDaysStartIndexes.size());
-
 
 		concurrency::array_view<int, 1> segmentDaysStartIndexesView((int)segmentDaysStartIndexes.size(), segmentDaysStartIndexes.data());
 		concurrency::array_view<int, 1> segmentDaysEndIndexesView((int)segmentDaysEndIndexes.size(), segmentDaysEndIndexes.data());
@@ -141,8 +137,6 @@ namespace PeakDetectorAMP
 		concurrency::array_view<int, 1> joinedPeaksStartIndexesView((int)joinedPeaksStartIndexes.size(), joinedPeaksStartIndexes.data());
 		concurrency::array_view<int, 1> joinedPeaksEndIndexesView((int)joinedPeaksEndIndexes.size(), joinedPeaksEndIndexes.data());
 		concurrency::array_view<double, 1> peakFintessValuesView(indexCounter, peakFintessValues.data());
-
-		concurrency::array_view<double, 1> avgView((avg.size()), avg.data());
 
 
 		tbb::tick_count before = tbb::tick_count::now();
@@ -155,29 +149,25 @@ namespace PeakDetectorAMP
 			calcFitnessValues(istValuesView, dayFrom, dayTo, windowSize, resultView);
 			//V ramci dnu mame spocitanou prumernou hodnotu
 			//Ted musim vytvorit peaky - rovnou je i vyfiltruju
-			avgView[idx] = calcDayAverageFitness(dayFrom, dayTo, resultView);
-			initPeaks(resultView, avgView[idx], windowSize, dayFrom, dayTo, peaksStartIndexesView, peaksEndIndexesView);
+			initPeaks(resultView, calcDayAverageFitness(dayFrom, dayTo, resultView), windowSize, dayFrom, dayTo, peaksStartIndexesView, peaksEndIndexesView);
 			//Spojit je dohromady
 			joinPeaks(dayFrom, dayTo, peaksStartIndexesView, peaksEndIndexesView, joinedPeaksStartIndexesView, joinedPeaksEndIndexesView);
 			////Vypocitat pro peaky ohodnoceni
-			//-------------- Sem je to porad ok ----------------
 			calcFitnesValuesFromTo(istValuesView, joinedPeaksStartIndexesView, joinedPeaksEndIndexesView, dayFrom, dayTo, windowSize, peakFintessValuesView);
 			//Seradit
 			insertionSort(peakFintessValuesView, dayFrom, dayTo);
 		});
-		//TODO: NAMAPOVAT ZPET NA DNY -> Pro export do CSV
 		resultView.synchronize();
-		avgView.synchronize();
 		peaksStartIndexesView.synchronize();
 		peaksEndIndexesView.synchronize();
 		joinedPeaksStartIndexesView.synchronize();
 		joinedPeaksEndIndexesView.synchronize();
 		peakFintessValuesView.synchronize();
+		
 		//Segment
 		//Den
 		//Peaky
 		std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>> segmentSPeaks = std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>();
-
 		int maxDayPeaks = 5;
 		int currentCounter = 0;
 		int currentCountDays = 0;
@@ -188,10 +178,6 @@ namespace PeakDetectorAMP
 		for (int i = 0; i < dayCount.size(); i++)
 		{
 			currentCountDays = dayCount.at(i);
-			if (currentSegmentCounter == 25)
-			{
-				int x = 5;
-			}
 			//Pro kazdy den ziskat peaky
 			for (int j = 0; j < currentCountDays; j++)
 			{
@@ -200,7 +186,6 @@ namespace PeakDetectorAMP
 				currentCounter = 0;
 				currentFrom = segmentDaysStartIndexes.at(processedDayCount);
 				currentTo = segmentDaysEndIndexes.at(processedDayCount);
-
 				for (int k = currentFrom; (k < currentTo) && (joinedPeaksEndIndexes.at(k) != 0) && (currentCounter <= maxDayPeaks); k++)
 				{
 					currentDayPeaks.push_back(std::make_shared<PeakPeakDetector::Peak>(joinedPeaksStartIndexes.at(k) - currentFrom, joinedPeaksEndIndexes.at(k) - currentFrom, peakFintessValues.at(k)));
@@ -220,13 +205,9 @@ namespace PeakDetectorAMP
 		{
 			if (data.get()->at(i).get()->getSegmentDays() != nullptr)
 			{
-				if (data.get()->at(i).get()->getSegmentId() == 67)
-				{
-					int x = 5;
-				}
 				auto currentPeaks = std::make_shared<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(segmentSPeaks.begin() + currentDay, segmentSPeaks.begin() + currentDay + dayCount.at(currenDayCounter));
 				currentDay += dayCount.at(currenDayCounter);
-				MySVG::exportToSvg((*params).getExportPath(), data.get()->at(i).get(), currentPeaks, true);
+				//MySVG::exportToSvg((*params).getExportPath(), data.get()->at(i).get(), currentPeaks, true);
 				currenDayCounter++;
 			}
 		}
@@ -309,6 +290,10 @@ namespace PeakDetectorAMP
 				nonNullValues++;
 			}
 			sum += currentFitness;
+		}
+		if (nonNullValues == 0)
+		{
+			return 0;
 		}
 
 		return (sum / (double(nonNullValues)));

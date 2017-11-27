@@ -8,23 +8,23 @@ namespace MySVG {
 
 	void exportToSvg(std::string path, Common::Segment* const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks, bool inOne)
 	{
-		std::cout << "SEGMENT: " << (*segment).getSegmentId() << std::endl;
-		std::cout << "----------------" << std::endl;
-		for (int i = 0; i < peaks.get()->size(); i++)
-		{
-			std::cout << "DEN: " << i << std::endl;
-			std::cout << "----------------" << std::endl;
-			auto tmpPeaks = peaks.get()->at(i);
-			for (int j = 0; j < tmpPeaks.size(); j++)
-			{
-				std::cout << tmpPeaks.at(j).get()->startIndex << " - " << tmpPeaks.at(j).get()->endIndex << std::endl;
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
+		//std::cout << "SEGMENT: " << (*segment).getSegmentId() << std::endl;
+		//std::cout << "----------------" << std::endl;
+		//for (int i = 0; i < peaks.get()->size(); i++)
+		//{
+		//	std::cout << "DEN: " << i << std::endl;
+		//	std::cout << "----------------" << std::endl;
+		//	auto tmpPeaks = peaks.get()->at(i);
+		//	for (int j = 0; j < tmpPeaks.size(); j++)
+		//	{
+		//		std::cout << tmpPeaks.at(j).get()->startIndex << " - " << tmpPeaks.at(j).get()->endIndex << std::endl;
+		//	}
+		//	std::cout << std::endl;
+		//}
+		//std::cout << std::endl;
+		//std::cout << std::endl;
+		//std::cout << std::endl;
+		//std::cout << std::endl;
 
 		if (inOne)
 		{

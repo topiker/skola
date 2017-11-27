@@ -65,7 +65,7 @@ void runSolution(Parser::InputParser *params)
 	//	runSerial(params);
 	//}
 	//}
-	double xTimes = 1;
+	double xTimes = 1500;
 	double serial = 0;
 	double perDay = 0;
 	double notPerDay = 0;
@@ -81,10 +81,10 @@ void runSolution(Parser::InputParser *params)
 		{
 			std::cout << std::to_string(i) << std::endl;
 		}
-		//notPerDay += runParallel(params, values, false);
-		//serial += runSerial(params,values);
+		notPerDay += runParallel(params, values, false);
+		serial += runSerial(params,values);
 		gpu += PeakDetectorAMP::runOnGraphics(params, values);
-		//perDay += runParallel(params, values, true);
+		perDay += runParallel(params, values, true);
 
 	}
 
@@ -109,7 +109,7 @@ void runComputation(Parser::InputParser *params,std::unique_ptr<Common::Segment>
 		Common::SegmentDays* days = segment.get()->getSegmentDays();
 		std::shared_ptr< std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>> peaks = std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>();
 		PeakDetector::detectPeaks(days, windowSize, peaks, dayParalelism);
-		MySVG::exportToSvg((*params).getExportPath(), segment.get(), peaks, true);
+		//MySVG::exportToSvg((*params).getExportPath(), segment.get(), peaks, true);
 	}
 }
 

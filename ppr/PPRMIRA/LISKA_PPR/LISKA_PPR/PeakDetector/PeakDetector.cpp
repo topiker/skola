@@ -112,7 +112,10 @@ namespace PeakDetector
 		{
 			sum += (*avg).at(i);
 		}
-
+		if ((*avg).size()==0) 
+		{
+			return 0;
+		}
 		return (sum) / ((double)(*avg).size());
 	}
 

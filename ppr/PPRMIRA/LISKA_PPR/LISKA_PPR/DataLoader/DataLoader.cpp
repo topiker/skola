@@ -109,9 +109,9 @@ namespace DataLoader {
 		(data) = std::make_unique<std::vector<std::unique_ptr<Common::Segment>>>();
 		for (size_t i = 0; i < segmentIds.size(); i++)
 		{
-			std::unique_ptr<Common::Segment> current = std::unique_ptr<Common::Segment>();
-			loadDataBySegment(current, &((segmentIds).at(i)));
-			(data.get()->push_back(std::move(current)));
+				std::unique_ptr<Common::Segment> current = std::unique_ptr<Common::Segment>();
+				loadDataBySegment(current, &((segmentIds).at(i)));
+				(data.get()->push_back(std::move(current)));
 		}
 
 		//(data) = std::make_unique<std::vector<std::unique_ptr<Common::Segment>>>();
