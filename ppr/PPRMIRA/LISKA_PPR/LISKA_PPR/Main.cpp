@@ -31,7 +31,6 @@ int main(int argc, char* argv[])
 		parser.printHelp();
 	}
 
-	getchar();
 	return 0;
 }
 
@@ -45,32 +44,50 @@ void runSolution(Parser::InputParser *params)
 	dataLoader.loadData(values);
 	std::vector<std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>> allPeaks = std::vector<std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>>(values.get()->size());
 
-	std::cout << "Zahajuji vypocet" << std::endl;
-	if ((*params).isGpu())
+	double xTimes = 1500;
+	double serial = 0;
+	double perDay = 0;
+	double notPerDay = 0;
+	double gpu = 0;
+
+	for (size_t i = 0; i < xTimes; i++)
 	{
-		runOnGraphics(params, values, allPeaks);
-	}
-	else if ((*params).isParallel())
-	{
-		runParallel(params,values, allPeaks);
-	}
-	else
-	{
-		runSerial(params,values, allPeaks);
+		if ((i % 150) == 0)
+		{
+			std::cout << std::to_string(i) << std::endl;
+		}
+
+		if ((*params).isGpu())
+		{
+			gpu += runOnGraphics(params, values, allPeaks);
+		}
+		else if ((*params).isParallel())
+		{
+			perDay += runParallel(params, values, allPeaks);
+		}
+		else
+		{
+			serial += runSerial(params, values, allPeaks);
+		}
+
+		if ((*params).isDoExport())
+		{
+			printToSvg(params, values, allPeaks);
+		}
+
 	}
 
-	std::cout << "Vypocet hotov" << std::endl;
+	std::cout << "Serial" << std::endl;
+	std::cout << std::to_string((serial / xTimes) * 1000) << std::endl;
+	std::cout << "Paralel per day" << std::endl;
+	std::cout << std::to_string((perDay / xTimes) * 1000) << std::endl;
+	std::cout << "Paralel not per day" << std::endl;
+	std::cout << std::to_string((notPerDay / xTimes) * 1000) << std::endl;
+	std::cout << "GPU" << std::endl;
+	std::cout << std::to_string((gpu / xTimes) * 1000) << std::endl;
 
-	if ((*params).isDoExport())
-	{
-		std::cout << "Zahajuji export do SVG" << std::endl;
-		printToSvg(params, values, allPeaks);
-		std::cout << "Export hotov" << std::endl;
-	}
+	getchar();
 
-	std::cout << "Vypisuji na stdin" << std::endl;
-	printAsCSV(values, allPeaks);
-	std::cout << "Vypis na stdin hotov" << std::endl;
 
 
 

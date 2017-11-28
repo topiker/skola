@@ -94,14 +94,6 @@ namespace DataLoader {
 		return fromTo;
 	}
 
-	//void DataLoader::freeData(std::vector<Common::TMeasuredValue *> *data)
-	//{
-	//	//for (size_t i = 0; i < (*data).size();i++)
-	//	//{
-	//	//	delete((*data).at(i));
-	//	//}
-	//}
-
 	size_t DataLoader::loadData(std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>& data)
 	{
 		std::vector<int> segmentIds;
@@ -113,13 +105,6 @@ namespace DataLoader {
 				loadDataBySegment(current, &((segmentIds).at(i)));
 				(data.get()->push_back(std::move(current)));
 		}
-
-		//(data) = std::make_unique<std::vector<std::unique_ptr<Common::Segment>>>();
-		//tbb::parallel_for(size_t(0), (segmentIds).size(), [&](size_t i) {
-		//	std::unique_ptr<Common::Segment> current = std::unique_ptr<Common::Segment>();
-		//	loadDataBySegment(current, &((segmentIds).at(i)));
-		//	(*data).push_back(current);
-		//});
 		
 		return 0;
 	}
