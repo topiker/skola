@@ -17,6 +17,11 @@
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
 
 \lstset{frame=tb,
 	language=Sql,
@@ -33,6 +38,20 @@
 	breaklines=true,
 	breakatwhitespace=true,
 	tabsize=3
+}
+
+\lstset{language=Java,
+	showspaces=false,
+	showtabs=false,
+	breaklines=true,
+	showstringspaces=false,
+	breakatwhitespace=true,
+	commentstyle=\color{pgreen},
+	keywordstyle=\color{pblue},
+	stringstyle=\color{pred},
+	basicstyle=\ttfamily,
+	moredelim=[il][\textcolor{pgrey}]{$$},
+	moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
 }
 
 
@@ -153,17 +172,384 @@
 	Vzhledem k charakteru zvoleného algoritmu (mnoho podmínek, porovnávání) a obecně nízkému počtu dat, se kterými se provádí matematické operace, je předpokladem, že paralelizace na GPGPU bude spíše zdržující.
 	
 	
-\begin{figure}
-	\centering
-	\includegraphics[width=0.7\linewidth]{flowDiagram}
-	\caption[Flowdiagram programu]{Flowdiagram programu}
-	\label{fig:flowdiagram}
-\end{figure}
-
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth]{flowDiagram}
+		\caption[Flowdiagram programu]{Flowdiagram programu}
+		\label{fig:flowdiagram}
+	\end{figure}
+	\newpage
 	\section{Programátorská dokumentace}
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	V této kapitole bude popsána implementace programu řešícího zadanou úlohu. Popsány budou především důležité části programu. 
+	Program byl naprogramován v jazyce \texttt{C/C++} a byl vyvýjen v prostřední MS Visual Studio 2017. V rámci práce s pamětí byly využity smart pointery, získávaná data jsou reprezentována objekty. Při implementaci jsem využil verzovací systém Git.
+	\subsection{Struktura zdrojových souborů}
+	
+	Zdrojové soubory jsou umístěny v adresáři LISKA\_PPR. Zdrojové soubory jsou pak rozdělené logicky ještě do dalších složek podle funkcionality (Načítání vstupu, dat, hledání kolísání, export). Ve složce sqlLite jsou pak umístěny hlavičkové soubory knihovny SQLite. V této složce jsou také knihovny, které jsou potřebné programu a po překladu jsou nakopírované do patřičných složek.
+	
+	\subsection{Použité knihovny}
+	Pro práci se vstupními daty byla využita \texttt{SQLIte C/C++ Interface}, která umožňuje zadávat SQL dotazy nad jednotlivými tabulkami. Pro paralelizace pak bylo využito knihovny  \texttt{TBB - Thread Building Blocks}, která je implicitně součástí \texttt{Intel Parallel Studio}. Pro paralelizaci na GPGPU bylo využito standardní knihovny AMP.
+	
+	\subsection{Spuštění aplikace}
+	
+	Zahájení aplikace probíhá v metodě \texttt{main()} v souboru \texttt{Main.cpp}. Po spuštění programu jsou vstupní parametry předány k parsování třídě \texttt{InputParser}. Pokud jsou vsechny parametry zadány korektně, je zahájen výpočet podle přepínače ve funkci \texttt{runSolution()}
+	
+	\subsection{Načtění dat}
+	Načítání dat je implementováno v souboru \texttt{DataLoader.cpp}. Třída \texttt{DataLoader} obsahuje funkce a procedury, jak pro načtení dat z databáze, tak i jejich předzpracování, jako je nahrazení \texttt{NULL} hodnot. Pro načtení dat z databáze je zde využíváno funkcí knihovny \texttt{SQLIte C/C++ Interface}. Program očekává strukturu zmíněnou v zadání úlohy. Jedna naměřená jednotka je uložena ve třídě \texttt{TMEasuredValue}, kde se čas uložený v databázi přepočítává na čas, kterému rozumí běžný člověk. Naměřené jednotky konkrétního segmentu a dne pak tvoří data pro objekt \texttt{SegmentDay}. Dny pro konkrétní \texttt{Segment} jsou pak uloženy v objektu \texttt{SegmentDays}. Tímto způsobem jsou tedy data hierarchicky poskládána v objektu \texttt{Segment}. Struktura je popsána na obrázku \ref{fig:uml}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth]{UML}
+		\caption[Hierarchie načtených dat]{Hierarchie načtených dat}
+		\label{fig:uml}
+	\end{figure}
+	
+	\subsection{Hledání výkyvů}
+	Algoritmus je vizualizován na obrázku \ref{fig:flowdiagram}. 
+	
+	Program byl nejprve naimplementován sériově a pak zparalelizován s využitím TBB. Jako poslední příšla na řadu paralelizace s využitím AMP. Vzhledem k tomu, že ve funkcích či metodách označených jako \texttt{restrict (amp)} jsou určitá omezení, jako např. absence pointerů, tříd a šablon, bylo nutné celou implementaci provést dvakrát.
+	
+	Implementace pro procesor je tedy v souboru \texttt{PeakDetector.cpp} a amp implementace je v souboru \texttt{PeakDetectorAMP.cpp}. Parametry funkci zahajuji vypocet jsou ale totozna. Jedna se o velikost okénka, vstupní data a ukazatel na vektor objektů \texttt{Peak}, do kterého se vrací nalezená kolísání, rozdělená po dnech segmentů. Pokud je tedy segment tvořen 3 mi dny, je v kolekci odchylek na stejném indexu, jako je uložen segment, uložena kolekce o velikosti 3, kde je každá kolekce tvořena nalezenými kolísáními.
+	
+	Implementace detekce v \texttt{PeakDetector.cpp} a  \texttt{PeakDetectorAMP.cpp} je pak co se týče výsledků totožná. Liší se použitými strukturami jednotlivých funkcí.
+	
+	\subsubsection{Paralelizace na CPU}
+	
+	Pro paralelizace na úrovni jader procesoru byla použita knihovna \texttt{TBB - Thread Building Block}. 
+	Níže můžeme vidět konstrukci \texttt{tbb::parallel\_for()}, která kód vepsaný uvnitř zparalelizuje. Je nutné zajistit zabránění konkurenčnímu zápisu ve sdílené proměnné, typicky že vlákno přistupuje k indexu v poli jako jedinné.
+	
+	Implementace paralelizace v rámci CPU je realizovaná v rámci segmentů a navíc v rámci jednotlivých dní (pouze experimentálně). 
+	Zde je ukázka paralelizace s využitím TBB.
+	\vspace{0.4cm}
+	\noindent
+	\begin{minipage}{\linewidth}
+	\begin{lstlisting}[label={lst:parallelFor}]
+	tbb::parallel_for(1,128,1,[=](int i){
+		//Paralelni vypocet
+	}
+	\end{lstlisting} 
+	\end{minipage}
+	
+	\subsubsection{Paralelizace na GPGPU}
+	Pro paralelizaci na GPGPU jsem použil knihovnu \texttt{C++ AMP}. 
+	Implementace je je totožná jako u CPU, nicméně před samotným výpočtem je nutné data zkopírovat do paměti grafiky, k čemuž se používá třída \texttt{concurrency::array\_view<>}, která namapuje data do paměti GPGPU. 
+	Po dokončení výpočtu je potřeba zavolat metodu \texttt{synchronize()}, která vypropaguje změnu dat do pole v paměti.
+	Zde je ukázka paralelizace na GPGPU. 
+	
+	\begin{minipage}{\linewidth}
+	\begin{lstlisting}[label={lst:ampPara}]
+	//pole s hodnotami
+	std::vector<int> data;
+	
+	... //naplneni pole data daty
+	
+	//namapovani do pameti gpu
+	concurrency::array_view<int> data_view(data.size(), data.get());
+	
+	//Amp parallel foreach
+	concurrency::parallel_for_each(data_view.extent, [=](concurrency::index<1> idx) restrict(amp)
+	{
+		//vypocet paralelne
+	}
+	//vypropagovani dat mimo GPGPU 
+	data_view.synchronize();
+	\end{lstlisting} 
+	\end{minipage}
+	
+	\subsection{Vykreslení grafu}
+	Vykreslení grafu probíhá, až když jsou všechna kolísání spočítána.
+	Pro vykresleni grafu slouží třída \texttt{SVGExporter}, která podle přepínače vykreslí data do jednoho grafu, nebo data podle dní vykreslí do více grafů tak, že graf začíná v čase 0:00 a končí v čase 23:59. Výstup pak uloží do souboru [segment\_číslo segmentu.svg]. Jednotlivá kolísání jsou pak do stejných grafů zaznamenána taktéž.
+	
+	\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=1.0\linewidth]{ukazkaGrafu}
+	\caption[Ukázka vykresleného grafu]{Ukázka vykresleného grafu}
+	\label{fig:ukazkagrafu}
+	\end{figure}
+	
+	\section{Získané výsledky}
+	\label{chap:zhodnoceni}
+	\par Testování a výpočty jsem prováděl na stolním počítači s procesorem \texttt{Intel Core i5-6500 @ 3,20GHz}, operační pamětí \texttt{RAM 16,0 GB}, s grafickou kartou \texttt{AMD RADEON R9 380 series 4 GB} a na operečním systému \texttt{Windows 10 64-bit}.
+	
+	\section{Doby běhů}
+	Měření jsem provedl pro každou možnost (sériově, paralelně na úrovni segmentu, paralelně na úrovni segmentu a dne, GPGPU na úrovni segmentů) 1000 krát a časy jsem zprůměroval.
+	Výsledné zprůměrované časy můžeme vidět v tabulce \ref{tab:runtime}, časy v tabulce jsou uvedeny v $m s$ (milisekundách).
+	\par Spolu s celkovou dobou jsem měřil i doby běhu paralelizované části na CPU, které jsou potřebné pro výpočet statistik (Amdahlův zákon). Program byl vždy spuštěn s přesměrovaným standardním výstupem do souboru a program negeneroval grafy.
+
+	
+	
+	\begin{table}[h]
+	\centering
+	\catcode`\-=12
+	\def\arraystretch{1.2}
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	\textbf{Sériově} & \textbf{Paralelně segmenty} &  \textbf{Paralelně segmenty a dny} & \textbf{GPGPU}  \\ \hline
+	\hline
+	4,06 $m s$    		  & 1,833 $m s$                  & 1,614 $m s$     		  &        10,82 $m s$                   \\ \hline
+	
+	\end{tabular}
+	\caption{Udává průměrné doby běhů jednotlivých metod s různou paralelizací, časy jsou uvedeny v $m s$ (milisekundách)}
+	\label{tab:runtime}
+	\end{table}
+	
+	
+	\par Už na první pohled je z tabulky \ref{tab:runtime} zřejmé, že metoda Akima spline je nejrychlejší ze všech implementovaných metod, druhou nejrychlejší je Hermitovská interpolace, která je jen mírně pomalejší. Lagrangeova interpolační metoda je zde několikrát pomalejší než Akima spline nebo Hermitovská interpolace.
+	
+	\section{Reálné urychlení}
+	\par  Z naměřených hodnot můžeme určit reálné urychlení $S$ pro jednotlivé metody, které je dáno vztahem \ref{eq:zrychleni}, kde $T_{1}$ je doba běhu sekvenční verze programu (první řádka v tab. \ref{tab:runtime}), $T_{p}$ je doba běhu paralelní verze programu (zbylé řádky tab. \ref{tab:runtime}).
+	\begin{equation} 
+	S=\frac{T_{1}}{T_{p}}
+	\label{eq:zrychleni}
+	\end{equation}
+	
+	\par Dosazením hodnot z tabulky \ref{tab:runtime} dostaneme jednotlivé hodnoty reálného urychlení, které jsou uvedeny v tabulce \ref{tab:zrychleni}. Pokud je hodnota větší než jedna došlo k urychlení výpočtu pokud menší pak došlo ke zpomalení.
+	
+	\begin{table}[h]
+	\centering
+	\catcode`\-=12
+	\def\arraystretch{1.2}
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	\textbf{Způsob}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\hline
+	Sekvenčně s GPGPU      & $0,359201$                 & $0,291446$               &         -                            \\ \hline
+	Paralelně         		  & $1,936560$                  & $1,957180$                      & $2,42461252$       \\ \hline
+	Paralelně s GPGPU        & $0,722520$                 & $0,622403$                    &            -              \\ \hline
+	\end{tabular}
+	\caption{Udává reálné urychlení jednotlivých verzí paralelizace oproti sekvenčnímu výpočtu}
+	\label{tab:zrychleni}
+	\end{table}
+	
+	\par Z tabulky urychlení \ref{tab:zrychleni} můžeme vidět, že urychlení jsme dosáhli pouze při paralelizaci na úrovni CPU. Při jakékoliv verzi paralelizace na GPGPU došlo ke zpomalení. Tímto se potvrdila hypotéza, že pro poskytnutá data (jsou příliš malá) se paralelizace na GPGPU ještě nevyplatí, protože režie je příliš vysoká a výpočet zpomalí místo aby ho urychlila. Se vzrůstající velikostí dat by, ale paralelizace na GPGPU měla být účinější a postupně přejít do urychlení.
+	\par Lagrangeova interpolace byla paralelizována pouze na CPU, proto u ní chybí některé hodnoty v tabulce. Vidíme, že rychlost výpočtu na 4 procesorech se u všech metod při paralelizaci na CPU přibližně zdvojnásobila (u Lagrangeovy interpolace cca 2,4 krát). U dalších výpočtů budu uvažovat, že $P$ je počet procesorů roven 4.
+	
+	\section{Amdahlův zákon}
+	Amdahlův zákon \cite{lit:amdahl}, \cite{lit:amdahlHomel}, \cite{lit:amdahlKout} tvrdí, že nelze dosáhnout tzv. perfektního urychlení, protože vždy bude nějaká část výpočtu provedena sekvenčně a lze s ním tak vyjádřit teoretické maximální zrychlení při přidávání dalších procesorů. Perfektní urychlení je takové, kdy poměr zrychlení je přesně roven počtu procesorů.
+	\par Dobu běhu na jednom procesoru (sekvenčního výpočtu) $T_{1}$ si rozdělíme na dvě části podle \ref{eq:sekvencniSys}, kde $t_{s}$ označuje čas výpočtu na části kódu, která je neparalelizovatelná a $ t_{p}$ čas výpočtu na kódu, který je paralelizovatelný, ale vykonaný sekvenčně. 
+	
+	\begin{equation} 
+	T_{1} = t_{s} + t_{p}   
+	\label{eq:sekvencniSys}
+	\end{equation}
+	
+	V ideálním případě pak bude při výpočtu na $P$ procesorech čas výpočtu dán vztahem \ref{eq:paralelCas}.
+	\begin{equation} 
+	T_{p} = t_{s} + \frac{t_{p}}{P}   
+	\label{eq:paralelCas}
+	\end{equation}
+	
+	Po dosazení vyjádřených $T_{1}$ a $T_{p}$ do vztahu \ref{eq:zrychleni} dostaneme Amdahlův zákon \ref{eq:amdahl1}. Pokud si pomocí $f$ označíme poměr času stráveného výpočtem sekvenčnčí části ku celkovému času dostaneme vzorec \ref{eq:amdahlfce}.
+	
+	\begin{equation} 
+	S=\frac{T_{1}}{T_{p}} = \frac{t_{s} + t_{p} }{t_{s} + \frac{t_{p}}{P}}
+	\label{eq:amdahl1}
+	\end{equation}
+	
+	
+	\begin{equation} 
+	f = \frac{t_{s}}{t_{s} + t_{p}}
+	\label{eq:amdahlfce}
+	\end{equation}
+	
+	Dosazením a vyjádřením $f$ do \ref{eq:zrychleni} získáme známější tvar Amdahlova zákona viz \ref{eq:amdahl2}.
+	
+	\begin{equation} 
+	S=\frac{1}{f + \frac{1-f}{P}} \leq  \frac{1}{f}
+	\label{eq:amdahl2}
+	\end{equation}
+	
+	Pro výpočet $f$ a $S$ potřebujeme jednotlivé doby $t_{p}$ a $t_{s}$ , které jsou uvedeny v tabulce \ref{tab:dobyBeh2}. Dobu $t_{s}$ získáme odečtením celkové doby běhu z tabulky \ref{tab:runtime} od odpovídajících dob $t_{p}$.
+	
+	
+	\begin{table}[h]
+	\centering
+	\catcode`\-=12
+	\def\arraystretch{1.2}
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	\textbf{Doba}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\hline
+	$T_{1}$    		  & 10 043 $m s$                  & 12 360 $m s$     		  &        73 639  $m s$                     \\ \hline
+	$t_{p}$                  & 8 733 $m s$                  & 11 037 $m s$               &        72 006 $m s$                         \\ \hline
+	$t_{s}$           		  & 1 310 $m s$                  & 1 323 $m s$                       & 1 633   $m s$          \\ \hline
+	\end{tabular}
+	\caption{Udává jednotlivé doby běhu sekvenčně vykonaného programu}
+	\label{tab:dobyBeh2}
+	\end{table}
+	
+	Dosazením získaných hodnot do vzorců \ref{eq:amdahlfce} a \ref{eq:amdahl2} (popř. \ref{eq:amdahl1}) získáme požadované statistické údaje $f$ a $S$, které můžeme vidět v tab. \ref{tab:amdahlFinal}.
+	
+	\begin{table}[h]
+	\centering
+	\catcode`\-=12
+	\def\arraystretch{1.2}
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	\textbf{}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\hline
+	$f$    		  & $0,130443$                  &  $0,107027$     		  &       $0,022178$                     \\ \hline
+	$S$                  &  $2,874949$                  &   $3,027816$               &      $3,750471$                         \\ \hline
+	\end{tabular}
+	\caption{Udává vypočítané hodnoty ukazatelů $f$ a $S$ pro Amdahlův zákon}
+	\label{tab:amdahlFinal}
+	\end{table}
+	
+	\section{Gustafsonův zákon}
+	Rozdíl Gustafsonova zákona oproti Amdahlovu zákonu je v tom, že Amdahlův zákon předpoklád, že se mění pouze počet procesorů a velikost úlohy je konstantní. Kdežto zde bude za konstantní považována doba běhu. Dobu běhu na $P$ procesorech označíme jako $T_{p}$ danou vztahem \ref{eq:dobaBehuGusta}, kterou rozdělíme na dobu běhu paralelní části  $t_{p}^{*}$ a sekvenční části  $t_{s}^{*}$
+	
+	\begin{equation} 
+	T_{p} = t_{s}^{*} + t_{p}^{*} 
+	\label{eq:dobaBehuGusta}
+	\end{equation}
+	
+	Doba běhu na jednom procesoru bude dána vzorcem \ref{eq:dobaBehuSekGust}.
+	
+	\begin{equation} 
+	T_{1} = t_{s}^{*} + P \cdot t_{p}^{*} 
+	\label{eq:dobaBehuSekGust}
+	\end{equation}
+	
+	Dosazením do vzorce \ref{eq:zrychleni} pro zrychlení dostanem \ref{eq:sgusta}
+	
+	
+	\begin{equation} 
+	S=\frac{T_{1}}{T_{p}} = \frac{t_{s}^{*} + P \cdot t_{p}^{*} }{t_{s}^{*} + t_{p}^{*}}
+	\label{eq:sgusta}
+	\end{equation}
+	Opět můžeme vyjádřit $\alpha$ jako poměr času stráveného výpočtem sekvenčnčí části ku celkovému času, ale na paralelním počítači a  dostaneme vzorec \ref{eq:amdahlfce2}.
+	
+	\begin{equation} 
+	\alpha = \frac{t_{s}^{*}}{t_{s}^{*} + t_{p}^{*}}
+	\label{eq:amdahlfce2}
+	\end{equation}
+	
+	Zrychlení pak také můžeme zapsat jako \ref{eq:zrychleniGust22}
+	
+	\begin{equation} 
+	S = P - \alpha(P-1)
+	\label{eq:zrychleniGust22}
+	\end{equation}
+	
+	Jednotlivé doby $t_{s}^{*}$ a $t_{p}^{*}$ jsou vidět v tabulce \ref{tab:doby3}
+	
+	\begin{table}[h]
+	\centering
+	\catcode`\-=12
+	\def\arraystretch{1.2}
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	\textbf{Doba}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\hline
+	$T_{p}$    		  & 5 186 $m s$                  & 6 315 $m s$     		  &        30 372  $m s$                     \\ \hline
+	$t_{p}^{*}$                  & 3 825 $m s$                  & 5 001 $m s$               &       28 812 $m s$                         \\ \hline
+	$t_{s}^{*}$           		  & 1 361 $m s$                  & 1 315 $m s$                       & 1 560   $m s$          \\ \hline
+	\end{tabular}
+	\caption{Udává jednotlivé doby běhu paraleně vykonaného programu}
+	\label{tab:doby3}
+	\end{table}
+	
+	Dosazením do vzorce \ref{eq:amdahlfce2} a \ref{eq:zrychleniGust22} získáme požadované ukazatele $\alpha$ a $S$, které jsou vypočteny v tabulce \ref{tab:sfgustik}
+	
+	
+	\begin{table}[h]
+	\centering
+	\catcode`\-=12
+	\def\arraystretch{1.2}
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	\textbf{}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\hline
+	$\alpha$    		  & $0,262363$                  &  $0,208170 $     		  &       $ 0,051361$                     \\ \hline
+	$S$                  &  $3,212910 $                  &   $3,375489$               &      $ 3,845917$                         \\ \hline
+	\end{tabular}
+	\caption{Udává vypočítané hodnoty ukazatelů $\alpha$ a $S$ pro Gustafsonův zákon}
+	\label{tab:sfgustik}
+	\end{table}
+	
+	
+	\section{Karp-Flattova metrika}
+	Karp-Flatovu metriku $e$ můžeme spočíst podle vzorce \ref{eq:karpFlat}, kde $P$ je počet procesorů a $\psi$ je urychlení na $P$ procesorech
+	
+	\begin{equation} 
+	e={\frac  {{\frac  {1}{\psi }}-{\frac  {1}{P}}}{1-{\frac  {1}{P}}}}
+	\label{eq:karpFlat}
+	\end{equation}
+	
+	Pro výpočet $\psi$ podle \ref{eq:psi} potřebujeme znát $T(p)$, což je čas výpočtu na $P$ procesorech, který určíme ze vztahu  \ref{eq:tppsi}, kde $T_{s}$ je doba běhu sekvenční části kódu a  $T_{p}$ je doba běhu paralelizovatelné části sekvenčně. Obdobně určíme $T(1)$ podle \ref{eq:tjednapsi}.
+	
+	
+	\begin{equation} 
+	\psi = \frac{T(1)}{T(p)}
+	\label{eq:psi}
+	\end{equation}
+	
+	\begin{equation} 
+	T(p) = T_{s} + \frac{T_{p}}{P}
+	\label{eq:tppsi}
+	\end{equation}
+	
+	\begin{equation} 
+	T(1) = T_{s} + T_{p}
+	\label{eq:tjednapsi}
+	\end{equation}
+	
+	Výsledné vypočítané hodnoty lze vidět v tabulce \ref{tab:karpik}, při výpočtu byly použity naměřené hodnoty z \ref{tab:dobyBeh2}
+	
+	\begin{table}[h]
+	\centering
+	\catcode`\-=12
+	\def\arraystretch{1.2}
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	\textbf{}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\hline
+	$\psi$    		  & $2,874948$                  &  $3,027816 $     		  &       $ 3,750471$                     \\ \hline
+	$e$                  &  $0,130443$                  &   $0,107027$               &      $0,022177$                         \\ \hline
+	\end{tabular}
+	\caption{Udává vypočítané hodnoty ukazatelů $\psi$ a $e$ pro Karp-Flattovu metriku}
+	\label{tab:karpik}
+	\end{table}
+	
+	
+	\section{Zhodnocení výsledků}
+	\subsection{Zhodnocení metody detekce}
+	
+	\section{Uživatelská příručka}
+	Pro spuštění aplikace je potřeba mít v PC, na které aplikace poběží, dynamické knihovny pro \texttt{TBB - Thread Building Blocks } a \texttt{SQLLite}. SqlLite je přibalené v rámci odevzdané práce.
+	\subsection{Překlad aplikace}
+	Aplikace se překládá za využítí vývojového prostředí \texttt{MS Visual Studio 2017}, ve kterém je možné přiložený projekt otevřít. Při překladu bude vývojové prostředí vyžadovat nastavení cest ke knihovnám \texttt{TBB} a \texttt{SQLite}.
+	\subsection{Spuštění aplikace}
+	Přeložený spustitelný soubor se jmenuje \texttt{LISKA\_PPR.exe}. Aplikaci je možné spustit s využitím vývojového prostředí či z příkazové řádky příkazem \texttt{LISKA\_PPR.exe [PARAMETRY]}. Jednotlivé parametry programu budou popsány v následující podsekci.
+	
+	Program vypisuje standartní výstup. Data jsou ve formátu CSV a to ve formátu:\newline \texttt{Id segmentu;index dne;hodina zacatku kolisani:minuta zacatku kolisani;\newline hodina konce kolisani:minuta konce kolisani}
+	\subsubsection{Parametry programu}
+	
+	Program vyžaduje dva povinné parametry. Prvním je cesta a název souboru s daty. Druhým parametrem je metoda paralelizace, která má být použita. 
+	
+	\vspace{0.4cm}
+	\noindent
+	\begin{minipage}{\linewidth}
+	\begin{lstlisting}
+	
+	Parametry:
+	-db [cesta k databazi]
+	-method [identifikator par. metody: 1 - seriove, 2 - paralelne na urovni semgnetu, 3 - paralelne na zaklade dnu, 4 - akcelerator]
+	-exportPath [kam se ma exportovat svg]
+	-window [velikost detekcniho okna]
+	-graphPerDay [identifikator zvoleneho grafu: 0 - Segment v jednom grafu, 1 - Co den, to graf]
+	
+	Ukazka:
+	LISKA_PPR.exe -db "direcnet.sqlite" -method 2 -window 24 -graphPerDay 0 -exportPath "/Export"
+	\end{lstlisting} 
+	\end{minipage}
 	
 	\section{Závěr} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	Zadání semestrální práce bylo splněno.
 	
+	Vytvořil jsem program pro detekci kolísání glukózy v naměřených datech.
+	Při vypracování úlohy jsem se naučil pracovat se smart pointery, které pro mě byly novinkou a do budoucna je budu určitě využívat. Dále jsem se naučil, jak implementovat paralelizaci s využitím knihovny \texttt{TBB} a jak provádět výpočet na akceleráru s využitím \texttt{C++ AMP}.
 	
+	Program by šel rozšířit o další metody detekce kolísání. Zajímavými se mi zdály genetické algoritmy, či nějakým způsobem pracovat s integrály.
+	
+	Semestrální práci hodnotím jako velmi náročnou z časového pohledu. Přesto s odstupem času jako velmi přínosnou. 
 \end{document}

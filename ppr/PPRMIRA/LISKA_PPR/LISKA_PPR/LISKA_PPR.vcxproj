@@ -106,10 +106,11 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>Full</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\sqlLite\SourceFiles\;$(SolutionDir)$(ProjectName)\SVGExporter\;$(SolutionDir)$(ProjectName)\PeakDetector\;$(SolutionDir)$(ProjectName)\InputParser\;$(SolutionDir)$(ProjectName)\DataLoader\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,9 +143,8 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <Optimization>Full</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\sqlLite\SourceFiles\;$(SolutionDir)$(ProjectName)\SVGExporter\;$(SolutionDir)$(ProjectName)\PeakDetector\;$(SolutionDir)$(ProjectName)\InputParser\;$(SolutionDir)$(ProjectName)\DataLoader\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

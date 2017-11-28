@@ -141,7 +141,7 @@ namespace MySVG {
 			auto currentData = (current);
 			for (size_t j = 0; j < currentData.size(); j++)
 			{
-				auto currentPeak = currentData.at(j);
+				auto currentPeak = std::make_shared<PeakPeakDetector::Peak>(*(currentData.at(j).get()));
 				currentPeak.get()->startIndex = currentPeak.get()->startIndex + xOffset;
 				currentPeak.get()->endIndex = currentPeak.get()->endIndex + xOffset;
 				peaksData.push_back(currentPeak);

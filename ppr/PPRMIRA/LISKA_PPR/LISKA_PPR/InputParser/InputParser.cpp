@@ -124,8 +124,12 @@ namespace Parser {
 					break;
 				}
 			}
+			if (windowSizeInput == false)
+			{
+				this->windowSize = 24;
+			}
 
-		if (paralelismInput && dbPathInput && windowSizeInput)
+		if (paralelismInput && dbPathInput)
 		{
 			this->paramsOk = true;
 		}

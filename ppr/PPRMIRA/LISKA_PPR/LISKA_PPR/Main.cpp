@@ -24,38 +24,36 @@ int main(int argc, char* argv[])
 	if (parser.areParamstOk())
 	{
 		parser.printInfo();
-		runSolution(&parser);
+		for (int i = 0; i < 1; i++)
+		{
+			runSolution(&parser);
+		}
 	}
 	else
 	{
 		parser.printHelp();
 	}
-
+	getchar();
 	return 0;
 }
 
 
 void runSolution(Parser::InputParser *params)
 {
-
 	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
 	std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>> values = std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>();
 
 	dataLoader.loadData(values);
 	std::vector<std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>> allPeaks = std::vector<std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>>(values.get()->size());
 
-	double xTimes = 1500;
+	double xTimes = 1;
 	double serial = 0;
 	double perDay = 0;
-	double notPerDay = 0;
 	double gpu = 0;
+	tbb::tick_count before = tbb::tick_count::now();
 
 	for (size_t i = 0; i < xTimes; i++)
 	{
-		if ((i % 150) == 0)
-		{
-			std::cout << std::to_string(i) << std::endl;
-		}
 
 		if ((*params).isGpu())
 		{
@@ -72,58 +70,18 @@ void runSolution(Parser::InputParser *params)
 
 		if ((*params).isDoExport())
 		{
-			printToSvg(params, values, allPeaks);
+			//printToSvg(params, values, allPeaks);
 		}
 
+		//printAsCSV(values, allPeaks);
 	}
 
-	std::cout << "Serial" << std::endl;
-	std::cout << std::to_string((serial / xTimes) * 1000) << std::endl;
-	std::cout << "Paralel per day" << std::endl;
-	std::cout << std::to_string((perDay / xTimes) * 1000) << std::endl;
-	std::cout << "Paralel not per day" << std::endl;
-	std::cout << std::to_string((notPerDay / xTimes) * 1000) << std::endl;
-	std::cout << "GPU" << std::endl;
-	std::cout << std::to_string((gpu / xTimes) * 1000) << std::endl;
+	tbb::tick_count after = tbb::tick_count::now();
 
-	getchar();
+	double together = serial + gpu + perDay;
 
-
-
-
-
-	/*double xTimes = 1500;
-	double serial = 0;
-	double perDay = 0;
-	double notPerDay = 0;
-	double gpu = 0;
-
-
-
-	for (size_t i = 0; i < xTimes; i++)
-	{
-		if ((i % 150) == 0)
-		{
-			std::cout << std::to_string(i) << std::endl;
-		}
-		notPerDay += runParallel(params, values, false);
-		serial += runSerial(params,values);
-		gpu += PeakDetectorAMP::runOnGraphics(params, values);
-		perDay += runParallel(params, values, true);
-
-	}
-
-	std::cout << "Serial" << std::endl;
-	std::cout << std::to_string((serial / xTimes) * 1000) << std::endl;
-	std::cout << "Paralel per day" << std::endl;
-	std::cout << std::to_string((perDay/ xTimes)*1000) << std::endl;
-	std::cout << "Paralel not per day" << std::endl;
-	std::cout << std::to_string((notPerDay/ xTimes) * 1000) << std::endl;
-	std::cout << "GPU" << std::endl;
-	std::cout << std::to_string((gpu / xTimes) * 1000) << std::endl;
-
-	getchar();
-	int x = 5;*/
+	std::cout << "Doba pouze vypoctu:" << (together*1000)/ xTimes << std::endl;
+	std::cout << "Doba celkem bez nacteni dat:" << ((after - before).seconds()*1000)/xTimes << std::endl;
 
 }
 
@@ -218,7 +176,7 @@ double printAsCSV(const std::unique_ptr<std::vector<std::unique_ptr<Common::Segm
 					endMinutes = endData->minutes;
 					std::cout << segmentId << ";" << std::to_string(j + 1) << "," << startHours << ":" << startMinutes << ";" << endHours << ":" << endMinutes << std::endl;
 				}
-				currentDayCount += currentSegment->getSegmentDays()->getDays()->at(j).get()->getData()->size();
+				currentDayCount += 0;// currentSegment->getSegmentDays()->getDays()->at(j).get()->getData()->size();
 			}
 		}
 	}
