@@ -1,12 +1,14 @@
 #include "SVGExporter.h"
 #include "SVGExporterConstants.h"
 #include "DataHelper.h"
+#include <direct.h>
 
 namespace MySVG {
 
+	namespace fs = std::experimental::filesystem;
 
 
-	void exportToSvg(std::string path, Common::Segment* const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks, bool inOne)
+	void exportToSvg(std::string path, Common::Segment* const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks, bool graphPerDay)
 	{
 		//std::cout << "SEGMENT: " << (*segment).getSegmentId() << std::endl;
 		//std::cout << "----------------" << std::endl;
@@ -25,14 +27,14 @@ namespace MySVG {
 		//std::cout << std::endl;
 		//std::cout << std::endl;
 		//std::cout << std::endl;
-
-		if (inOne)
+		checkOrCreatedirectory(path);
+		if (graphPerDay)
 		{
-			MySVG::allInOneGraph(path, segment, peaks);
+			MySVG::oneToOneGraph(path, segment, peaks);
 		}
 		else
 		{
-			MySVG::oneToOneGraph(path, segment, peaks);
+			MySVG::allInOneGraph(path, segment, peaks);
 		}
 	}
 
@@ -331,11 +333,20 @@ namespace MySVG {
 	std::string getFileName(int * segmentId, std::string path)
 	{
 		std::string exportFileName(path);
-		std::string name("my_svg");
+		std::string name("segment_");
 		std::string extension(".svg");
 		std::string segmentName = std::to_string(*segmentId);
 		name = exportFileName + name + segmentName + extension;
 		return name;
 	}
+
+
+	void checkOrCreatedirectory(std::string path)
+	{
+		if (_mkdir(path.c_str())) {
+			//already exists 
+		}
+	}
+
 
 }

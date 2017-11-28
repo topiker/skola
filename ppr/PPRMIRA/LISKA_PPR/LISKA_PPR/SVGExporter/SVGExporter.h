@@ -6,7 +6,7 @@
 
 namespace MySVG {
 
-		void exportToSvg(std::string path, Common::Segment*const segment,const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks, bool inOne);
+		void exportToSvg(std::string path, Common::Segment*const segment,const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks, bool graphPerDay);
 		void allInOneGraph(std::string path, Common::Segment*const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks);
 		void oneToOneGraph(std::string path, Common::Segment*const segment, const std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>& peaks);
 
@@ -29,5 +29,7 @@ namespace MySVG {
 
 
 		std::string getFileName(int * segmentId, std::string path);
+
+		void checkOrCreatedirectory(std::string path);
 
 }

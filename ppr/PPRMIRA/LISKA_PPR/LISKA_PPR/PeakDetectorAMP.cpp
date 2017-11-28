@@ -201,14 +201,18 @@ namespace PeakDetectorAMP
 		tbb::tick_count after = tbb::tick_count::now();
 		int currentDay = 0;
 		int currenDayCounter = 0;
-		for (int i = 0; i < data.get()->size(); i++)
+
+		if (params->isDoExport())
 		{
-			if (data.get()->at(i).get()->getSegmentDays() != nullptr)
+			for (int i = 0; i < data.get()->size(); i++)
 			{
-				auto currentPeaks = std::make_shared<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(segmentSPeaks.begin() + currentDay, segmentSPeaks.begin() + currentDay + dayCount.at(currenDayCounter));
-				currentDay += dayCount.at(currenDayCounter);
-				//MySVG::exportToSvg((*params).getExportPath(), data.get()->at(i).get(), currentPeaks, true);
-				currenDayCounter++;
+				if (data.get()->at(i).get()->getSegmentDays() != nullptr)
+				{
+					auto currentPeaks = std::make_shared<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(segmentSPeaks.begin() + currentDay, segmentSPeaks.begin() + currentDay + dayCount.at(currenDayCounter));
+					currentDay += dayCount.at(currenDayCounter);
+					MySVG::exportToSvg((*params).getExportPath(), data.get()->at(i).get(), currentPeaks, (*params).isGraphPerDay());
+					currenDayCounter++;
+				}
 			}
 		}
 		return (after - before).seconds();

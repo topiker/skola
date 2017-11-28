@@ -9,9 +9,10 @@ namespace Parser
 	enum ARGUMENTSENUM
 	{
 		DB,
-		PARALELISM,
-		WINDOWSIZE,
-		OUTPUT,
+		METHOD,
+		WINDOW,
+		EXPORTPATH,
+		GRAPHPERDAY,
 		NOTMATCHED,
 	};
 
@@ -26,12 +27,21 @@ namespace Parser
 		char * getExportPath();
 		bool isGpu();
 		bool isParallel();
+		bool isParalelismPerDay();
+		bool isDoExport();
+		bool isGraphPerDay();
 		int getWindowSize();
+
+		void printInfo();
+		void printHelp();
 
 	private:
 		bool useGPU;
+		bool doExport;
 		bool parallel;
+		bool graphPerDay;
 		int windowSize;
+		bool paralelismPerDay;
 		char * dbPath;
 		char * exportPath;
 		void setParams(int * paramsCount, char** params);

@@ -23,11 +23,12 @@ int main(int argc, char* argv[])
 
 	if (parser.areParamstOk())
 	{
+		parser.printInfo();
 		runSolution(&parser);
 	}
 	else
 	{
-		printHelp();
+		parser.printHelp();
 	}
 
 	getchar();
@@ -35,44 +36,31 @@ int main(int argc, char* argv[])
 }
 
 
-void printHelp()
-{
-	//TODO: Print help
-	std::cout << "Program slouzi k detekci vyznamnych odchylek ve vstupnich datech." << std::endl;
-	std::cout << std::endl;
-	std::cout << "-db [cesta k databazi]" << std::endl;
-	std::cout << "-useGpu [0 - ne, 1 ano]" << std::endl;
-	std::cout << "-outputDir [cesta k adresari pro export]" << std::endl;
-	std::cout << std::endl;
-
-}
-
 void runSolution(Parser::InputParser *params)
 {
-	//if ((*params).isGpu())
-	//{
-	//	runOnGraphics(params, &segmentIds);
-	//}
-	//else if ((*params).isParallel())
-	//{
-	//	runParallel(params, &segmentIds,true);
-	//}
-	//else
-	//{
-	//int y = 5;
-	//for (int i = 0; i < 10; i++)
-	//{
-	//	runSerial(params);
-	//}
-	//}
-	double xTimes = 1500;
+
+	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
+	std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>> values = std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>();
+	dataLoader.loadData(values);
+
+	if ((*params).isGpu())
+	{
+		PeakDetectorAMP::runOnGraphics(params, values);
+	}
+	else if ((*params).isParallel())
+	{
+		runParallel(params,values,params->isParalelismPerDay());
+	}
+	else
+	{
+		runSerial(params,values);
+	}
+	/*double xTimes = 1500;
 	double serial = 0;
 	double perDay = 0;
 	double notPerDay = 0;
 	double gpu = 0;
-	DataLoader::DataLoader dataLoader = DataLoader::DataLoader((*params).getDbPath());
-	std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>> values = std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>();
-	dataLoader.loadData(values);
+
 
 
 	for (size_t i = 0; i < xTimes; i++)
@@ -98,7 +86,7 @@ void runSolution(Parser::InputParser *params)
 	std::cout << std::to_string((gpu / xTimes) * 1000) << std::endl;
 
 	getchar();
-	int x = 5;
+	int x = 5;*/
 
 }
 
@@ -109,7 +97,10 @@ void runComputation(Parser::InputParser *params,std::unique_ptr<Common::Segment>
 		Common::SegmentDays* days = segment.get()->getSegmentDays();
 		std::shared_ptr< std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>> peaks = std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>();
 		PeakDetector::detectPeaks(days, windowSize, peaks, dayParalelism);
-		MySVG::exportToSvg((*params).getExportPath(), segment.get(), peaks, false);
+		if ((*params).isDoExport())
+		{
+			MySVG::exportToSvg((*params).getExportPath(), segment.get(), peaks, (*params).isGraphPerDay());
+		}
 	}
 }
 
