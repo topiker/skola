@@ -208,7 +208,7 @@ namespace Parser {
 		std::cout << "Adresar pro export: " << exportText << std::endl;
 		if (this->doExport)
 		{
-			std::cout << "Grafy: " << (this->graphPerDay ? " Segment po dnech" : "Segment v jednom grafu");
+			std::cout << "Grafy: " << (this->graphPerDay ? " Segment po dnech" : "Segment v jednom grafu") << std::endl;
 		}
 
 

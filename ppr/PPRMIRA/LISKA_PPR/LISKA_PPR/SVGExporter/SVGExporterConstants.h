@@ -13,11 +13,13 @@ namespace MySVG {
 	const double axisHeight = 50;
 	//mezera mezi koncem grafu a hranou canvasu
 	const double chartMargin = 10;
+	//Velikost pisma
 	const double fontSize = 12;
-
+	//Odsazeni legendy
 	const double legendItemMargin = 15;
-
+	// Posun textu, pouziva se pro posunuti casu
 	const unsigned int textShiftLeft = 15;
+	// Posun textu dolu, pouziva se pro posunuti casu
 	const unsigned int textShiftDown = 25;
 
 

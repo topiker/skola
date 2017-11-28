@@ -59,7 +59,6 @@ namespace MySVG {
 		for (size_t i = 0; i < (*days).size(); i++)
 		{
 			double yOffset = height * ((*days).size() - (i + 1));
-			auto values = (*days).at(i).get()->getData();
 			auto peaksCurrent = (peaks).get()->at(i);
 
 			double maxMmolGridValue = ((double)(int)maxMmolValue) + 1;
@@ -74,10 +73,8 @@ namespace MySVG {
 
 			//Vypocet hodnoty na pixel
 			double pixelPerMmol = chartHeight / maxMmolGridValue;
-			//Vypocet sirky sloupce, tak aby se nam vesly do obrazku
-			double columnWidth = (chartWidth) / (graphData).size();
 			MySVG::printXAxis(&doc, &pixelPerMmol, &maxMmolGridValue, &yOffset);
-			MySVG::printYAxisDay(&doc, &graphData, &yOffset);
+			MySVG::printYAxisDay(&doc,&yOffset);
 			MySVG::printDataDay(&doc, &graphData, &pixelPerMmol, &yOffset);
 			MySVG::printLegend(&doc, &yOffset);
 			MySVG::printPeaksDay(&doc, &graphData, &peaksCurrent, &pixelPerMmol, &yOffset);
@@ -210,7 +207,7 @@ namespace MySVG {
 
 	void printPeaks(svg::Document *doc, std::vector<Common::TMeasuredValue*>*const values, std::vector<std::shared_ptr<PeakPeakDetector::Peak>> *peaks, const double * columnWidth, const double * pixelPerMmol, double *yOffset)
 	{
-		for (int i = 0; i < (*peaks).size(); i++)
+		for (size_t i = 0; i < (*peaks).size(); i++)
 		{
 			svg::Polyline peakLineBackground(svg::Stroke(4, svg::Color::Red));
 			svg::Polyline peakLine(svg::Stroke(2, svg::Color::White));
@@ -232,7 +229,7 @@ namespace MySVG {
 		unsigned int minutesPerDay = 1440;
 		double minuteWidth = chartWidth / (double)minutesPerDay;
 		double currentMinutesFromStart = 0;
-		for (int i = 0; i < (*peaks).size(); i++)
+		for (size_t i = 0; i < (*peaks).size(); i++)
 		{
 			svg::Polyline peakLineBackground(svg::Stroke(4, svg::Color::Red));
 			svg::Polyline peakLine(svg::Stroke(2, svg::Color::White));
@@ -255,7 +252,6 @@ namespace MySVG {
 
 		//pocet minut za den
 		unsigned int minutesPerDay = 1440;
-		unsigned int dataMinutes = (int)(((*values).at((*values).size() - 1)->measureDate - (*values).at(0)->measureDate)* minutesPerDay);
 		double minuteWidth = chartWidth / (double)minutesPerDay;
 		//Vypocet poctu minut na jeden dilek - 24 hodin
 
@@ -316,7 +312,7 @@ namespace MySVG {
 
 	}
 
-	void printYAxisDay(svg::Document *doc, std::vector<Common::TMeasuredValue*>* const values, double *yOffset)
+	void printYAxisDay(svg::Document *doc, double *yOffset)
 	{
 		double hourWidth = chartWidth/24;
 		for (int i = 1; i < 24; i++)

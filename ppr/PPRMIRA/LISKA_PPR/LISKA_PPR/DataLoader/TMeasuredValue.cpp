@@ -12,7 +12,6 @@ namespace Common
 
 	TMeasuredValue::~TMeasuredValue() 
 	{
-		int x = 5;
 	}
 
 	void TMeasuredValue::setTimeFromMeasureDate(double *measureDateToCalc)

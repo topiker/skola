@@ -30,7 +30,7 @@ namespace PeakDetectorAMP
 
 	}
 
-	void calcFitnesValuesFromTo(concurrency::array_view<const double, 1> data, concurrency::array_view<int, 1> peakStartIndexes, concurrency::array_view<int, 1> peakEndIndexes, int from, int to, int windowSize, concurrency::array_view<double, 1> fitness) restrict(amp)
+	void calcFitnesValuesFromTo(concurrency::array_view<const double, 1> data, concurrency::array_view<int, 1> peakStartIndexes, concurrency::array_view<int, 1> peakEndIndexes, int from, int to, concurrency::array_view<double, 1> fitness) restrict(amp)
 	{
 		int currentFrom = 0;
 		int currentTo = 0;
@@ -62,15 +62,6 @@ namespace PeakDetectorAMP
 	}
 
 
-
-	//void detectPeaks(concurrency::array_view<const double, 1> data, int from, int to, int windowSize, concurrency::array_view<double, 1> peakValues) restrict(amp)
-	//{
-	//	for (int i = from; i < to; i++)
-	//	{
-	//		peakValues[i] = data[i] * data[i];
-	//	}
-	//}
-
 	void insertionSort(concurrency::array_view<double, 1> fitness, int from, int to) restrict(amp) {
 
 		for (int i = from; i < to; i++) {
@@ -86,8 +77,9 @@ namespace PeakDetectorAMP
 
 	}
 
-	double runOnGraphics(Parser::InputParser *params, const std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>& data)
+	double runOnGraphics(Parser::InputParser *params, const std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>& data, std::vector<std::shared_ptr<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>> &allPeaks)
 	{
+		tbb::tick_count before = tbb::tick_count::now();
 
 		int windowSize = params->getWindowSize();
 		//Prevest data na data pro vypocet
@@ -139,7 +131,6 @@ namespace PeakDetectorAMP
 		concurrency::array_view<double, 1> peakFintessValuesView(indexCounter, peakFintessValues.data());
 
 
-		tbb::tick_count before = tbb::tick_count::now();
 
 		Concurrency::parallel_for_each(segmentDaysStartIndexesView.extent, [=](concurrency::index<1> idx) restrict(amp)
 		{
@@ -153,7 +144,7 @@ namespace PeakDetectorAMP
 			//Spojit je dohromady
 			joinPeaks(dayFrom, dayTo, peaksStartIndexesView, peaksEndIndexesView, joinedPeaksStartIndexesView, joinedPeaksEndIndexesView);
 			////Vypocitat pro peaky ohodnoceni
-			calcFitnesValuesFromTo(istValuesView, joinedPeaksStartIndexesView, joinedPeaksEndIndexesView, dayFrom, dayTo, windowSize, peakFintessValuesView);
+			calcFitnesValuesFromTo(istValuesView, joinedPeaksStartIndexesView, joinedPeaksEndIndexesView, dayFrom, dayTo, peakFintessValuesView);
 			//Seradit
 			insertionSort(peakFintessValuesView, dayFrom, dayTo);
 		});
@@ -170,12 +161,12 @@ namespace PeakDetectorAMP
 		std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>> segmentSPeaks = std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>();
 		int maxDayPeaks = 5;
 		int currentCounter = 0;
-		int currentCountDays = 0;
+		size_t currentCountDays = 0;
 		int processedDayCount = 0;
 		int currentFrom = 0;
 		int currentTo = 0;
 		int currentSegmentCounter = 0;
-		for (int i = 0; i < dayCount.size(); i++)
+		for (size_t i = 0; i < dayCount.size(); i++)
 		{
 			currentCountDays = dayCount.at(i);
 			//Pro kazdy den ziskat peaky
@@ -198,23 +189,20 @@ namespace PeakDetectorAMP
 
 		}
 
-		tbb::tick_count after = tbb::tick_count::now();
 		int currentDay = 0;
 		int currenDayCounter = 0;
-
-		if (params->isDoExport())
+		for (size_t i = 0; i < data.get()->size(); i++)
 		{
-			for (int i = 0; i < data.get()->size(); i++)
+			if (data.get()->at(i).get()->getSegmentDays() != nullptr)
 			{
-				if (data.get()->at(i).get()->getSegmentDays() != nullptr)
-				{
-					auto currentPeaks = std::make_shared<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(segmentSPeaks.begin() + currentDay, segmentSPeaks.begin() + currentDay + dayCount.at(currenDayCounter));
-					currentDay += dayCount.at(currenDayCounter);
-					MySVG::exportToSvg((*params).getExportPath(), data.get()->at(i).get(), currentPeaks, (*params).isGraphPerDay());
-					currenDayCounter++;
-				}
+				auto currentPeaks = std::make_shared<std::vector<std::vector<std::shared_ptr<PeakPeakDetector::Peak>>>>(segmentSPeaks.begin() + currentDay, segmentSPeaks.begin() + currentDay + dayCount.at(currenDayCounter));
+				allPeaks[i] = currentPeaks;
+				currentDay += dayCount.at(currenDayCounter);
+				currenDayCounter++;
 			}
 		}
+		tbb::tick_count after = tbb::tick_count::now();
+
 		return (after - before).seconds();
 
 	}

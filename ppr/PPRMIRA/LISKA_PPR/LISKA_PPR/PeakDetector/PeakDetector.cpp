@@ -83,7 +83,7 @@ namespace PeakDetector
 
 		//Vyber n nejlepsich
 		std::map<double, std::shared_ptr<PeakPeakDetector::Peak>>::reverse_iterator rit;
-		int counter = 0;
+		size_t counter = 0;
 		(*peaks) = std::vector<std::shared_ptr<PeakPeakDetector::Peak>>();
 
 		for (rit = joinedOrderedPeaks.rbegin(); rit != joinedOrderedPeaks.rend() && (counter<nBest); ++rit)

@@ -8,7 +8,14 @@
 const char *segmentsQuery = "SELECT id FROM timesegment ORDER BY id ASC;";
 const char *measuredvalueQuery = "SELECT (julianday(measuredat)) AS 'measuredat',id, segmentid, ist FROM measuredvalue WHERE segmentId=%i ORDER BY measuredat;";
 
-
+/// <summary>
+/// Callback pro ziskani id segmentu
+/// </summary>
+/// <param name="data"></param>
+/// <param name="argc"></param>
+/// <param name="argv"></param>
+/// <param name="azColName"></param>
+/// <returns></returns>
 static int segmentsQueryCallback(void *data, int argc, char **argv, char **azColName)
 {
 	std::vector<int> *segments = (std::vector<int>*)data;
@@ -31,6 +38,14 @@ static int segmentsQueryCallback(void *data, int argc, char **argv, char **azCol
 	return 0;
 }
 
+/// <summary>
+/// Callback pro ziskani dat segmentu
+/// </summary>
+/// <param name="data"></param>
+/// <param name="argc"></param>
+/// <param name="argv"></param>
+/// <param name="azColName"></param>
+/// <returns></returns>
 static int dataQueryCallback(void *data, int argc, char **argv, char **azColName)
 {
 	std::vector<std::unique_ptr<Common::TMeasuredValue>> *values = (std::vector<std::unique_ptr<Common::TMeasuredValue>> *)data;

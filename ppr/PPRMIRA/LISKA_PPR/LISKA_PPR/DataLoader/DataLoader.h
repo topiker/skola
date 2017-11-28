@@ -29,6 +29,11 @@ namespace DataLoader {
 		/// <param name="data"></param>
 		/// <returns>Pocet nactenych dat</returns>
 		size_t loadData(std::unique_ptr<std::vector<std::unique_ptr<Common::Segment>>>& data);
+		/// <summary>
+		/// Rozdeli data po dnech
+		/// </summary>
+		/// <param name="segmentDays"></param>
+		/// <param name="data"></param>
 		void splitIntoDays(std::unique_ptr<Common::SegmentDays>& segmentDays,const std::unique_ptr<std::vector<std::unique_ptr<Common::TMeasuredValue>>>& data);
 		//void freeData(std::vector<Common::TMeasuredValue *> *data);
 		~DataLoader();
@@ -43,7 +48,16 @@ namespace DataLoader {
 		/// <param name="data"></param>
 		/// <returns>Rozsahy indexu jednotlivych dnu v datech</returns>
 		std::vector<FromTo> getDaysIndexes(const std::unique_ptr<std::vector<std::unique_ptr<Common::TMeasuredValue>>>& data);
+		/// <summary>
+		/// Ve vstupnich datech nahradi null ist hodnoty nejlbizsi sousedni
+		/// </summary>
+		/// <param name="data"></param>
 		void smoothNullValues(std::unique_ptr<std::vector<std::unique_ptr<Common::TMeasuredValue>>>& data);
+		/// <summary>
+		/// Nacte data pro konkretni segment
+		/// </summary>
+		/// <param name="result"></param>
+		/// <param name="segmentId">id pozadovaneho segmentu</param>
 		void loadDataBySegment(std::unique_ptr<Common::Segment>& result, int * segmentId);
 	};
 

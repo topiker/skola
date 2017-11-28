@@ -27,6 +27,9 @@ namespace Common
 		/// </summary>
 		std::vector<std::unique_ptr<TMeasuredValue>>* getData();
 	private:
+		/// <summary>
+		/// Data dne
+		/// </summary>
 		std::unique_ptr<std::vector<std::unique_ptr<TMeasuredValue>>> data;
 	};
 }

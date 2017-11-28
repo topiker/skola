@@ -15,16 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DataLoader\DatabaseConnector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DataLoader\DataLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DataLoader\DataWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DataLoader\FromTo.h">
@@ -78,9 +72,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DataLoader\DataLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DataLoader\DataWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DataLoader\FromTo.cpp">
