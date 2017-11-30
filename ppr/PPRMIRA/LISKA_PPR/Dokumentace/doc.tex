@@ -273,8 +273,7 @@
 	\section{Doby běhů}
 	Měření jsem provedl pro každou možnost (sériově, paralelně na úrovni segmentu, paralelně na úrovni segmentu a dne, GPGPU na úrovni segmentů) 1000 krát a časy jsem zprůměroval.
 	Výsledné zprůměrované časy můžeme vidět v tabulce \ref{tab:runtime}, časy v tabulce jsou uvedeny v $m s$ (milisekundách).
-	\par Spolu s celkovou dobou jsem měřil i doby běhu paralelizované části na CPU, které jsou potřebné pro výpočet statistik (Amdahlův zákon). Program byl vždy spuštěn s přesměrovaným standardním výstupem do souboru a program negeneroval grafy.
-
+	\par Spolu s celkovou dobou jsem měřil i doby běhu paralelizované části na CPU, které jsou potřebné pro výpočet statistik (Amdahlův zákon). Program byl spuštěn s velikostí okénka 24, bez exportu grafů, a s výpisem do souboru.
 	
 	
 	\begin{table}[h]
@@ -285,24 +284,25 @@
 	\hline
 	\textbf{Sériově} & \textbf{Paralelně segmenty} &  \textbf{Paralelně segmenty a dny} & \textbf{GPGPU}  \\ \hline
 	\hline
-	4,06 $m s$    		  & 1,833 $m s$                  & 1,614 $m s$     		  &        10,82 $m s$                   \\ \hline
+	131,21 $m s$    		  & 127,59 $m s$                  & 128,071 $m s$     		  &        202,15 $m s$                   \\ \hline
 	
 	\end{tabular}
-	\caption{Udává průměrné doby běhů jednotlivých metod s různou paralelizací, časy jsou uvedeny v $m s$ (milisekundách)}
+	\caption{Udává průměrné doby běhů, časy jsou uvedeny v $m s$ (milisekundách)}
 	\label{tab:runtime}
 	\end{table}
 	
 	
-	\par Už na první pohled je z tabulky \ref{tab:runtime} zřejmé, že metoda Akima spline je nejrychlejší ze všech implementovaných metod, druhou nejrychlejší je Hermitovská interpolace, která je jen mírně pomalejší. Lagrangeova interpolační metoda je zde několikrát pomalejší než Akima spline nebo Hermitovská interpolace.
+	Na datech můžeme pozorovat, že výpočet na akcelerátoru je zdaleka nejpomalejší. Nejlepšího výsledku dosahuje paralalelizace na úrovni segmentů. Paralelizace na úrovni segmentů a dnů nedopadla o moc hůře. 
 	
 	\section{Reálné urychlení}
-	\par  Z naměřených hodnot můžeme určit reálné urychlení $S$ pro jednotlivé metody, které je dáno vztahem \ref{eq:zrychleni}, kde $T_{1}$ je doba běhu sekvenční verze programu (první řádka v tab. \ref{tab:runtime}), $T_{p}$ je doba běhu paralelní verze programu (zbylé řádky tab. \ref{tab:runtime}).
+	Reálně urychlení se spočítá podle vztahu \ref{eq:zrychleni}, kde $T_{1}$ je doba běhu sekvenční 
+	\par  Z naměřených hodnot můžeme určit reálné urychlení $S$ pro jednotlivé implementace, které je dáno vztahem \ref{eq:zrychleni}, kde $T_{1}$ je doba běhu sekvenční verze programu a $T_{p}$ je doba běhu paralelizovaného kódu
 	\begin{equation} 
 	S=\frac{T_{1}}{T_{p}}
 	\label{eq:zrychleni}
 	\end{equation}
 	
-	\par Dosazením hodnot z tabulky \ref{tab:runtime} dostaneme jednotlivé hodnoty reálného urychlení, které jsou uvedeny v tabulce \ref{tab:zrychleni}. Pokud je hodnota větší než jedna došlo k urychlení výpočtu pokud menší pak došlo ke zpomalení.
+	\par Pokud je hodnota větší než jedna došlo k urychlení výpočtu pokud menší pak došlo ke zpomalení.
 	
 	\begin{table}[h]
 	\centering
@@ -310,22 +310,19 @@
 	\def\arraystretch{1.2}
 	\begin{tabular}{|c|c|c|c|}
 	\hline
-	\textbf{Způsob}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\textbf{Paralelně segmenty} &  \textbf{Paralelně segmenty a dny} & \textbf{GPGPU}  \\ \hline
 	\hline
-	Sekvenčně s GPGPU      & $0,359201$                 & $0,291446$               &         -                            \\ \hline
-	Paralelně         		  & $1,936560$                  & $1,957180$                      & $2,42461252$       \\ \hline
-	Paralelně s GPGPU        & $0,722520$                 & $0,622403$                    &            -              \\ \hline
+	1,03                  & 1,02     		  &        0,65                 \\ \hline
+	
 	\end{tabular}
 	\caption{Udává reálné urychlení jednotlivých verzí paralelizace oproti sekvenčnímu výpočtu}
 	\label{tab:zrychleni}
 	\end{table}
 	
-	\par Z tabulky urychlení \ref{tab:zrychleni} můžeme vidět, že urychlení jsme dosáhli pouze při paralelizaci na úrovni CPU. Při jakékoliv verzi paralelizace na GPGPU došlo ke zpomalení. Tímto se potvrdila hypotéza, že pro poskytnutá data (jsou příliš malá) se paralelizace na GPGPU ještě nevyplatí, protože režie je příliš vysoká a výpočet zpomalí místo aby ho urychlila. Se vzrůstající velikostí dat by, ale paralelizace na GPGPU měla být účinější a postupně přejít do urychlení.
-	\par Lagrangeova interpolace byla paralelizována pouze na CPU, proto u ní chybí některé hodnoty v tabulce. Vidíme, že rychlost výpočtu na 4 procesorech se u všech metod při paralelizaci na CPU přibližně zdvojnásobila (u Lagrangeovy interpolace cca 2,4 krát). U dalších výpočtů budu uvažovat, že $P$ je počet procesorů roven 4.
+	\par Z tabulky urychlení \ref{tab:zrychleni} můžeme vidět, že urychlení bylo dosaženo v případech paralelizace na úrovni segmentů a na úrovni segmentů a dnů na CPU. Při výpočtu na GPGPU došlo k výraznému zpomalení. Tímto se potvrdila hypotéza, že výpočet na GPGPU není pro tuto úlohu vhodný (málo dat, velká režie, nevhodný algoritmus pro GPU) U dalších výpočtů budu uvažovat, že $P$ je počet procesorů roven 4.
 	
 	\section{Amdahlův zákon}
-	Amdahlův zákon \cite{lit:amdahl}, \cite{lit:amdahlHomel}, \cite{lit:amdahlKout} tvrdí, že nelze dosáhnout tzv. perfektního urychlení, protože vždy bude nějaká část výpočtu provedena sekvenčně a lze s ním tak vyjádřit teoretické maximální zrychlení při přidávání dalších procesorů. Perfektní urychlení je takové, kdy poměr zrychlení je přesně roven počtu procesorů.
-	\par Dobu běhu na jednom procesoru (sekvenčního výpočtu) $T_{1}$ si rozdělíme na dvě části podle \ref{eq:sekvencniSys}, kde $t_{s}$ označuje čas výpočtu na části kódu, která je neparalelizovatelná a $ t_{p}$ čas výpočtu na kódu, který je paralelizovatelný, ale vykonaný sekvenčně. 
+	\par Dobu běhu na jednom procesoru (sekvenčního výpočtu) $T_{1}$ si rozdělíme na dvě části podle \ref{eq:sekvencniSys}, kde $t_{s}$ označuje čas výpočtu na části kódu, kterou nelze paralelizovat a $ t_{p}$ čas výpočtu na kódu, který je paralelizovatelný, ale vykonaný sekvenčně. 
 	
 	\begin{equation} 
 	T_{1} = t_{s} + t_{p}   
@@ -338,7 +335,7 @@
 	\label{eq:paralelCas}
 	\end{equation}
 	
-	Po dosazení vyjádřených $T_{1}$ a $T_{p}$ do vztahu \ref{eq:zrychleni} dostaneme Amdahlův zákon \ref{eq:amdahl1}. Pokud si pomocí $f$ označíme poměr času stráveného výpočtem sekvenčnčí části ku celkovému času dostaneme vzorec \ref{eq:amdahlfce}.
+	Po dosazení vyjádřených $T_{1}$ a $T_{p}$ do vztahu \ref{eq:zrychleni} dostaneme Amdahlův zákon \ref{eq:amdahl1}. Pokud si pomocí $f$ označíme poměr času stráveného výpočtem sekvenčí části ku celkovému času dostaneme vzorec \ref{eq:amdahlfce}.
 	
 	\begin{equation} 
 	S=\frac{T_{1}}{T_{p}} = \frac{t_{s} + t_{p} }{t_{s} + \frac{t_{p}}{P}}
@@ -351,7 +348,7 @@
 	\label{eq:amdahlfce}
 	\end{equation}
 	
-	Dosazením a vyjádřením $f$ do \ref{eq:zrychleni} získáme známější tvar Amdahlova zákona viz \ref{eq:amdahl2}.
+	Dosazením a vyjádřením $f$ do \ref{eq:zrychleni} získáme známější tvar Amdahlova zákona.
 	
 	\begin{equation} 
 	S=\frac{1}{f + \frac{1-f}{P}} \leq  \frac{1}{f}
@@ -367,13 +364,13 @@
 	\def\arraystretch{1.2}
 	\begin{tabular}{|c|c|c|c|}
 	\hline
-	\textbf{Doba}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\textbf{Doba}   & \textbf{Sériově} \\ \hline
 	\hline
-	$T_{1}$    		  & 10 043 $m s$                  & 12 360 $m s$     		  &        73 639  $m s$                     \\ \hline
-	$t_{p}$                  & 8 733 $m s$                  & 11 037 $m s$               &        72 006 $m s$                         \\ \hline
-	$t_{s}$           		  & 1 310 $m s$                  & 1 323 $m s$                       & 1 633   $m s$          \\ \hline
+	$T_{1}$    		  & 131,213 $m s$ \\ \hline
+	$t_{p}$                  & 2,81 $m s$  \\ \hline
+	$t_{s}$           		  & 128,403 $m s$ \\ \hline
 	\end{tabular}
-	\caption{Udává jednotlivé doby běhu sekvenčně vykonaného programu}
+	\caption{Doby běhu programu sekvenčně}
 	\label{tab:dobyBeh2}
 	\end{table}
 	
@@ -385,17 +382,17 @@
 	\def\arraystretch{1.2}
 	\begin{tabular}{|c|c|c|c|}
 	\hline
-	\textbf{}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\textbf{}   & \textbf{Sériově} \\ \hline
 	\hline
-	$f$    		  & $0,130443$                  &  $0,107027$     		  &       $0,022178$                     \\ \hline
-	$S$                  &  $2,874949$                  &   $3,027816$               &      $3,750471$                         \\ \hline
+	$f$    		  & $0,979$\\ \hline
+	$S$                  &  $1,016$\\ \hline
 	\end{tabular}
 	\caption{Udává vypočítané hodnoty ukazatelů $f$ a $S$ pro Amdahlův zákon}
 	\label{tab:amdahlFinal}
 	\end{table}
 	
 	\section{Gustafsonův zákon}
-	Rozdíl Gustafsonova zákona oproti Amdahlovu zákonu je v tom, že Amdahlův zákon předpoklád, že se mění pouze počet procesorů a velikost úlohy je konstantní. Kdežto zde bude za konstantní považována doba běhu. Dobu běhu na $P$ procesorech označíme jako $T_{p}$ danou vztahem \ref{eq:dobaBehuGusta}, kterou rozdělíme na dobu běhu paralelní části  $t_{p}^{*}$ a sekvenční části  $t_{s}^{*}$
+	Dobu běhu na $P$ procesorech označíme jako $T_{p}$ danou vztahem \ref{eq:dobaBehuGusta}, kterou rozdělíme na dobu běhu paralelní části  $t_{p}^{*}$ a sekvenční části  $t_{s}^{*}$
 	
 	\begin{equation} 
 	T_{p} = t_{s}^{*} + t_{p}^{*} 
@@ -438,11 +435,11 @@
 	\def\arraystretch{1.2}
 	\begin{tabular}{|c|c|c|c|}
 	\hline
-	\textbf{Doba}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\textbf{Doba}   & \textbf{TBB segment} & \textbf{TBB segment a den} &  \textbf{Akcelerator} \\ \hline
 	\hline
-	$T_{p}$    		  & 5 186 $m s$                  & 6 315 $m s$     		  &        30 372  $m s$                     \\ \hline
-	$t_{p}^{*}$                  & 3 825 $m s$                  & 5 001 $m s$               &       28 812 $m s$                         \\ \hline
-	$t_{s}^{*}$           		  & 1 361 $m s$                  & 1 315 $m s$                       & 1 560   $m s$          \\ \hline
+	$T_{p}$    		  & 127,59 $m s$                  & 128,071 $m s$     		  &        202  $m s$                     \\ \hline
+	$t_{p}^{*}$                  & 1,16 $m s$                  & 1,26 $m s$               &       61,721 $m s$                         \\ \hline
+	$t_{s}^{*}$           		  & 126,43 $m s$                  & 126,81 $m s$                       & 140,279   $m s$          \\ \hline
 	\end{tabular}
 	\caption{Udává jednotlivé doby běhu paraleně vykonaného programu}
 	\label{tab:doby3}
@@ -457,10 +454,10 @@
 	\def\arraystretch{1.2}
 	\begin{tabular}{|c|c|c|c|}
 	\hline
-	\textbf{}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\textbf{}   & \textbf{TBB segment} & \textbf{TBB segment a den} &  \textbf{Akcelerator} \\ \hline
 	\hline
-	$\alpha$    		  & $0,262363$                  &  $0,208170 $     		  &       $ 0,051361$                     \\ \hline
-	$S$                  &  $3,212910 $                  &   $3,375489$               &      $ 3,845917$                         \\ \hline
+	$\alpha$    		  & $0,990$                  &  $0,989 $     		  &       $ 0,0766$                     \\ \hline
+	$S$                  &  $1,027 $                  &   $1,033$               &      $ 1,702$                         \\ \hline
 	\end{tabular}
 	\caption{Udává vypočítané hodnoty ukazatelů $\alpha$ a $S$ pro Gustafsonův zákon}
 	\label{tab:sfgustik}
@@ -468,14 +465,14 @@
 	
 	
 	\section{Karp-Flattova metrika}
-	Karp-Flatovu metriku $e$ můžeme spočíst podle vzorce \ref{eq:karpFlat}, kde $P$ je počet procesorů a $\psi$ je urychlení na $P$ procesorech
+	Karp-Flatovu metriku $e$ je definovaná vzorcem \ref{eq:karpFlat}, kde $P$ je počet procesorů a $\psi$ je urychlení na $P$ procesorech
 	
 	\begin{equation} 
 	e={\frac  {{\frac  {1}{\psi }}-{\frac  {1}{P}}}{1-{\frac  {1}{P}}}}
 	\label{eq:karpFlat}
 	\end{equation}
 	
-	Pro výpočet $\psi$ podle \ref{eq:psi} potřebujeme znát $T(p)$, což je čas výpočtu na $P$ procesorech, který určíme ze vztahu  \ref{eq:tppsi}, kde $T_{s}$ je doba běhu sekvenční části kódu a  $T_{p}$ je doba běhu paralelizovatelné části sekvenčně. Obdobně určíme $T(1)$ podle \ref{eq:tjednapsi}.
+	Pro výpočet $\psi$ podle \ref{eq:psi} potřebujeme znát $T(p)$, který určíme ze vztahu  \ref{eq:tppsi}, kde $T_{s}$ je doba běhu sekvenční části kódu a  $T_{p}$ je doba běhu paralelizovatelné části sekvenčně. Dále je potřeba určit $T(1)$ podle \ref{eq:tjednapsi}.
 	
 	
 	\begin{equation} 
@@ -493,7 +490,7 @@
 	\label{eq:tjednapsi}
 	\end{equation}
 	
-	Výsledné vypočítané hodnoty lze vidět v tabulce \ref{tab:karpik}, při výpočtu byly použity naměřené hodnoty z \ref{tab:dobyBeh2}
+	Vypočítané hodnoty lze vidět v tabulce \ref{tab:karpik}, při výpočtu byly použity naměřené hodnoty z \ref{tab:dobyBeh2}
 	
 	\begin{table}[h]
 	\centering
@@ -501,19 +498,16 @@
 	\def\arraystretch{1.2}
 	\begin{tabular}{|c|c|c|c|}
 	\hline
-	\textbf{}   & \textbf{Akima spline} & \textbf{Hermitovská int.} &  \textbf{Lagrangeova int.} \\ \hline
+	\textbf{}   & \textbf{Sériově} \\ \hline
 	\hline
-	$\psi$    		  & $2,874948$                  &  $3,027816 $     		  &       $ 3,750471$                     \\ \hline
-	$e$                  &  $0,130443$                  &   $0,107027$               &      $0,022177$                         \\ \hline
+	$\psi$    		  & $1,0269$\\ \hline
+	$e$                  &  $0,723$\\ \hline
 	\end{tabular}
 	\caption{Udává vypočítané hodnoty ukazatelů $\psi$ a $e$ pro Karp-Flattovu metriku}
 	\label{tab:karpik}
 	\end{table}
 	
-	
-	\section{Zhodnocení výsledků}
-	\subsection{Zhodnocení metody detekce}
-	
+
 	\section{Uživatelská příručka}
 	Pro spuštění aplikace je potřeba mít v PC, na které aplikace poběží, dynamické knihovny pro \texttt{TBB - Thread Building Blocks } a \texttt{SQLLite}. SqlLite je přibalené v rámci odevzdané práce.
 	\subsection{Překlad aplikace}
@@ -549,7 +543,10 @@
 	Vytvořil jsem program pro detekci kolísání glukózy v naměřených datech.
 	Při vypracování úlohy jsem se naučil pracovat se smart pointery, které pro mě byly novinkou a do budoucna je budu určitě využívat. Dále jsem se naučil, jak implementovat paralelizaci s využitím knihovny \texttt{TBB} a jak provádět výpočet na akceleráru s využitím \texttt{C++ AMP}.
 	
+	Zvolená metoda pro detekci se na zkoumaných datech jeví jako dostačující. Jejími nedostatky je ovšem to, že nedokáže poznat, zda se data ve zkoumaném okně pouze vlní, nebo se významně mění.Tento problém by šel odstranit vyhlazením dat. Na to mi už ale nezbyl čas.
+	
 	Program by šel rozšířit o další metody detekce kolísání. Zajímavými se mi zdály genetické algoritmy, či nějakým způsobem pracovat s integrály.
 	
-	Semestrální práci hodnotím jako velmi náročnou z časového pohledu. Přesto s odstupem času jako velmi přínosnou. 
+	
+	 
 \end{document}
