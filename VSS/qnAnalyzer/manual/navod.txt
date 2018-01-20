@@ -1,0 +1,122 @@
+	Maly navod na pouziti programu QNAnalyzer
+	-----------------------------------------
+
+Autor: Lukas Valenta (luka.valenta@seznam.cz)
+
+Jedna se ciste o muj vytvor umoznujici odsimulovat a teoreticky vypocitat
+libovolnou sit front zadanou ve specialnim formatu textoveho souboru. Slouzi
+hlavne k overeni funkcnosti semestralek a dale pak k hledani chyb a duvodu,
+proc se treba nejaka cast simulace rozchazi s teoretickymi vypocty.
+
+Vstupni soubor:
+---------------
+
+Jedna se o textovy soubor, ve kterem je sit defakto ASCII-ARTEM (:-)) zadana.
+Soubor nesmi obsahovat tabulatory a dalsi podivne znaky, ktere by mohly obrazek
+nejak zdeformovat (tabulator typicky nevime, jak je sirokej). Proto pro oddeleni
+pouzivat zasadne mezery!
+
+ Priklad vstupniho souboru a popis elementu:
+====================================================
+
+  S1-X>---O1---O2----X>-p1----E1                                                     
+      |               v
+      |               |
+      |               |
+      --------M1------|
+
+ S1:EXP(1)                                                                           
+ O1:EXP(0.33333)                                                                           
+ O2:EXP(0.33333)
+ p1:0.5                                                                           
+ LinkCount:20000
+
+====================================================                                                                               
+                                                                                
+Znaky '-' a '|' jsou spoje v siti
+Mista oznacena:
+  S<cislo>     - startovni mista (zde se objevuji pozadavky)
+  O<cislo>     - servery - zpracovani pozadavku
+  E<cislo>     - vystupni mista
+  X            - krizovatky, kde dochazi k vetveni/spojovani
+    pokud je v okoli tohoto znaku znak '>','^','<','v', tak v prislusnem
+    smeru se predpoklada vystup teto krizovatky (oznacuje to jakoby sipky).
+    Pote nekde o kousek dal v tomto smeru musi byt v ceste pokracujiciho
+    spoje zapsano nejake "p1", "p25", obecne "p<cislo>", ktere udava pravdepodobnost,
+    ze se tudy pozadavek z krizovatky vyda.
+    
+    Vystupu muze byt tedy max 3 v tomto ASCII podani, proto, pokud potrebujete
+    slozitejsi deleni, je potreba udelat vic krizovatek za sebou a POZOR - prislusne
+    prepocitat pravdepodobnosti! Chci-li delit na 4 casti s ppstmi 0.25, musim
+    z prvni krizovatky vyvest 3 vyvody s ppstmi 0.25, 0.25 a 0.5. V te vetvi 0.5
+    bude pak dalsi krizovatka delici se na dva vystupy, oba s ppsti 0.5! (protoze
+    0.5*0.5 je 0.25, coz chci).
+  
+  +            - oznacuje krizeni dvou spoju, aniz by se nejak ovlivnovaly
+  M<cislo>     - merici misto - ve vystupu po simulaci a v teorii bude pak
+                 uvedena staistika pruchodu timto mistem a dalsi veci
+                 Tohle misto muzete tedy vlozit kamkoliv do nejakeho spoje
+  
+  p<cislo>     - pravdepodobnosti vetveni
+
+Druhou casti zdrojaku je definice parametru - urceni parametru mist zadanych
+ v "obrazku". Kamkoliv do zdrojaku, opet s respektovanim zakazu tabulatoru atd.
+ zapiste:
+ 
+ S<cislo>:<EXP/GAUSS/UNIFORM/CONST>(parametr rozdeleni1, parametr 2...)
+  - ppstni rozdeleni generatoru pozadavku
+
+ Obdobne pro "O" - servery a jejich dobu obsluhy
+ 
+ p<cislo>:<pravdepodobnost>
+  - pravdepodobnost nektere ze zadanych vetvi
+  
+ Specialni hodnota udava pocet pozadavku, ktere prohnat simulaci, nez se vypisou
+ vysledky:
+ "LinkCount:<cislo>"
+ 
+ napriklad:
+ 
+ S1:EXP(0.3333) - lambda
+ O2:GAUSS(0.5,0.1) - stredni hodnota, rozptyl
+ S2:UNIFORM(1,2) - od 1 do 2
+ O3:CONST(5) - konstantni generator generuje porad 5
+ p25:0.25
+ LinkCount:20000
+
+Ukazku dalsich komplexnejsich siti viz. adresar "examples".
+
+Obecne plati - mezi vsechny elementy se pokuste narvat alespon kousek mezer
+ci spoju, davejte treba krizovatky, krizeni atd. co nejdal od sebe, aby mezi
+nimi byly nejake spoje.
+
+
+	Co to dela?
+	===========
+
+Program projde tenhle zvlastni "zdrojak" a vyrobi si interni reprezentaci tehle
+site. Pote spusti simulaci pro zadany pocet pozadavku a v kazdem dulezitem miste
+(+ v mistech mereni: 'M') si pamatuje vsechny mozne statistiky.
+
+Zaroven, pokud jsou vsechny doby v siti exponencialni, umi tuhle sit spocitat i 
+teoreticky a vysledky pak ukazuje pekne pod sebou u kazde veliciny, co to jde.
+
+Defaultne ukazuje histogram jen u celkove hodnoty Tq, ale pokud se do
+logging.properties prida radka "EnableAllHistograms=1", tak ukazuje histogramy
+u vsech sledovanych statistik.
+
+
+	Zaver
+	=====
+
+Uznavam, neni to zadna nejak vychytana vec, ale myslim, ze muze hodne pomoci
+(nejen me) pri ladeni a hledani chyb siti front a proto tenhle program davam
+studentum VSP k dispozici. Zdrojove kody si ovsem nechavam ja, protoze byste
+meli rovnou hotovou analyzu a i vetsinu implementace. Staci, ze uvidite nazvy
+trid a metod skrz introspekci:-)
+
+POZOR!!! Jde skutecne jen o takovy lehce nedodelany program, ktery se muze hodit,
+ale take muze obsahovat plno chyb. Autor se tedy vzdava veskere odpovednosti
+za skody zpusobene jeho softwarem stejne tak, jak to delaji ty nejvetsi svetove
+softwarove firmy:-)   
+

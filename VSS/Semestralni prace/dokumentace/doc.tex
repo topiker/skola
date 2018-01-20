@@ -1,0 +1,205 @@
+\documentclass{article}
+\usepackage[czech]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{textgreek}
+\usepackage{xargs} 
+\usepackage{xcolor}
+\usepackage{pdfpages}
+\usepackage{cite}
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\newcommandx{\xtodo}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Sql,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+
+
+\begin{document}
+
+
+%---------------------------------------------------------------------------------------------------------------------------------------------------------------%
+
+
+\begin{titlepage}	
+	\begin{center}
+		\includegraphics[width=5cm]{logo.jpg}\\[3.5cm]
+		{\Huge KIV/VSS}\\[0.5cm]
+		{\Large Semestrální práce}\\[0.5cm]
+		{\large  Miroslav Liška – A17N0081P}\\[0.5cm]
+		{\large  topiker@students.zcu.cz}\\[0.5cm]
+		{\large   9.12.1992}\\[0.5cm]
+		\vfill
+
+		{\large \today}
+
+	\end{center}
+\end{titlepage}
+
+
+
+\section{Zadání} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setcounter{page}{1}
+Cílem semestrální práce je vytvoření analytického výkonnostního nebo spolehlivostního modelu zadaného systému a jeho řešení. Dále vytvoření simulačního modelu pro tentýž problém a závěřem obě řešení porovnat.
+
+\section{Analýza}
+
+\section{Analytické řešení}
+
+$$
+\Lambda_1 = \lambda + (1 - P_{8}) \cdot (\Lambda_{7} + \Lambda_{8}) + (1 - P_{9}) \cdot \Lambda_{9}
+$$
+$$
+\Lambda_{2} = P_1 \cdot \Lambda_{1} 
+$$
+$$
+\Lambda_{3} = P_2 \cdot \Lambda_{1} 
+$$
+$$
+\Lambda_{4} = P_3 \cdot \Lambda_{1} 
+$$
+$$
+\Lambda_{5} = P_4 \cdot \Lambda_{1} 
+$$
+$$
+\Lambda_{6} = P_5 \cdot \Lambda_{1} 
+$$
+$$
+\Lambda_{7} = \Lambda_{2} + \Lambda_{3} + \Lambda_{4}  + \Lambda_{5} + \Lambda_{6} 
+$$
+$$
+\Lambda_{8} = P_6 \cdot \Lambda_{7} 
+$$
+$$
+\Lambda_{9} = P_7 \cdot \Lambda_{7} 
+$$
+$$
+\Lambda_{10} = P_8 \cdot (\Lambda_{8} + \Lambda_{9}) 
+$$
+$$
+\Lambda_{E1} = P_9 \cdot \Lambda_{10}
+$$
+
+
+\section{Řešení}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Na vstupu do uzlu se sčítají frekvence na příchozích hranách. 
+Zároveň musí platit, že to, co do uzlu přiteče, musí také odtéci. 
+Tento předpoklad platí, pokud je systém ve stacionárním režimu.
+
+Ze zadání vyplývá, že se vstupní proud rozdělí na dva podle zadaných pravděpodobností. 
+Rovnice pro výpočet střední frekvence jednotlivých uzlů vypadají následovně:
+$$
+\Lambda_1 = \lambda T_{S_1} = 4 \cdot 0,8 = 3,2     
+$$
+$$
+\Lambda_2 = \lambda T_{S_2} = 8 \cdot 0,2 = 0,125 
+$$
+
+Nyní když známe střední frekvence jednotlivých uzlů, určíme jejich zatížení.
+
+$$
+\rho_1 = \Lambda_1\lambda T_{S_1} = 3,2 \cdot 0,25 = 0,8     
+$$
+$$
+\rho_2 = \Lambda_2\lambda T_{S_2} = 0,8 \cdot 0,125 = 0,1
+$$
+
+Zatížení jednotlivých uzlů je menší než jedna, můžeme tedy o systému prohlásit, že je ve stacionárním režimu.
+
+Nyní určíme střední počet požadavků pro jednotlivé uzly. K tomu potřebujeme znát zatížení uzlu a počet kanálů obsluhy:
+
+$$
+L_{q_1} = \frac{m\rho_{1}}{1-\rho_{1}^m} = \frac{1\cdot0,8}{1-0,8^1} = 4
+$$
+$$
+L_{q_2} = \frac{m\rho_{2}}{1-\rho_{2}^m} = \frac{1\cdot0,1}{1-0,1^1} = 0,111
+$$
+
+$$
+L_{q} = L_{q_1} + L_{q_2} = 4 + 0,111
+$$
+
+Počet kanálů obsluhy je v tomto případě vždy 1.
+
+Pro výpočet střední doby obsluhy v uzlu potřebujeme znát střední doby kanálů obsluhy a zatížení systému:
+$$
+T_{q_1} =\frac{T_{s_1}}{1 - \rho_{1}^m} = \frac{0,25}{1-0,8} = 1,25
+T_{q_2} =\frac{T_{s_2}}{1 - \rho_{2}^m} = \frac{0,125}{1-0,1} = 0.138
+$$
+
+Pro výpočet střední doby obsluhy systému celkově se použije vzorec:
+
+$$
+T_{q} =\frac{1}{\Lambda_0}L_q = =\frac{1}{\Lambda_0} = \frac{4,111}{4} = 1,02777
+T_{q_2} =\frac{T_{s_2}}{1 - \rho_{2}^m} = \frac{0,125}{1-0,1} = 0.138
+$$
+
+Pro určení, kolik procent z dlouhého časového intervalu sledování sítě bude fronta 2 prázdná, nahlédneme na frontu 2 jako na markovský model typu M/1/1.
+Fronta je prázdná ve stavu 0, kdy nepřišel žádný požadavek, nebo byl z fronty vybrán poslední požadavek. 
+Odpovědí na dotaz je tedy ustálená pravděpodobnost toho, že jsme ve stavu 0.
+Pro výpočet této pravděpodobnosti jsem využil nástroje MARKOV2. Model jsem definoval tímto scriptem:\\
+\\
+\newline
+\texttt
+{
+module example [200];\\
+\#define size 200\\
+\#define lamda 0.8\\
+\#define mi 8\\
+\newline
+for(i ;0; size-2)\{\\
+	{[}i{]}->{[i+1]};\\
+\}\\
+\newline
+for(i ;0; size-2)\{\\
+	{[}i+1{]}->mi {[i]};\\
+\}\\
+}
+
+a výsledek získal MMSQL dotazem:\newline
+\newline
+\texttt
+{
+load "example" as buf\newline
+select p{[0]}*100 \newline
+as Prazdno from buf\newline
+}
+\newline
+Výsledkem pak je:
+\texttt
+\newline
+\texttt{
+Prazdno \newline
+90
+}
+
+Fronta 2 bude tedy 90\% času prázdná.
+
+\section{Závěr} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+V rámci úkoly byly vypočítány střední frekvence jednotlivých uzlů, jejich zatížení, střední délka fronty a střední doba obsluhy. Následně bylo vypočítáno, kolik procent časového intervalu sledování bude druhá fronta prázdná. Společně s úkolem je navíc odevzdán soubor s daty pro program QNAlyzer pro případnou kontrolu.
+\end{document}

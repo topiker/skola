@@ -52,8 +52,8 @@ void runSolution(Parser::InputParser *params)
 	double gpu = 0;
 	tbb::tick_count before = tbb::tick_count::now();
 
-	for (size_t i = 0; i < xTimes; i++)
-	{
+	//for (size_t i = 0; i < xTimes; i++)
+	//{
 
 		if ((*params).isGpu())
 		{
@@ -74,7 +74,7 @@ void runSolution(Parser::InputParser *params)
 		}
 
 		printAsCSV(values, allPeaks);
-	}
+	//}
 
 	tbb::tick_count after = tbb::tick_count::now();
 
@@ -155,6 +155,8 @@ double printAsCSV(const std::unique_ptr<std::vector<std::unique_ptr<Common::Segm
 	int endHours = 0;
 	int endMinutes = 0;
 	int segmentId = 0;
+	std::string resultToPrint = "";
+	std::string line = "";
 	for (unsigned int i = 0; i < (data).get()->size(); i++)
 	{
 		auto currentSegment = data.get()->at(i).get();
@@ -163,23 +165,26 @@ double printAsCSV(const std::unique_ptr<std::vector<std::unique_ptr<Common::Segm
 		{
 			auto detectedPeaks = allPeaks.at(i);
 			size_t currentDayCount = 0;
+
 			for (unsigned int j = 0; j < currentSegment->getSegmentDays()->getDaysSize(); j++)
 			{
-				
 				for each (auto dayPeak in detectedPeaks.get()->at(j))
 				{
+					line = "";
 					auto startData = currentSegment->getSegmentDays()->getDays()->at(j).get()->getData()->at(dayPeak.get()->startIndex - currentDayCount).get();
 					auto endData = currentSegment->getSegmentDays()->getDays()->at(j).get()->getData()->at(dayPeak.get()->endIndex - currentDayCount).get();
 					startHours = startData->hour;
 					startMinutes = startData->minutes;
 					endHours = endData->hour;
 					endMinutes = endData->minutes;
-					std::cout << segmentId << ";" << std::to_string(j + 1) << "," << startHours << ":" << startMinutes << ";" << endHours << ":" << endMinutes << std::endl;
+					line = segmentId + ";" + std::to_string(j + 1) + "," + std::to_string(startHours) + ":" + std::to_string(startMinutes) + ";" + std::to_string(endHours) + ":" + std::to_string(endMinutes);
+					resultToPrint += line += '\n';
 				}
 				currentDayCount += 0;// currentSegment->getSegmentDays()->getDays()->at(j).get()->getData()->size();
 			}
 		}
 	}
+	std::cout << resultToPrint;
 	tbb::tick_count after = tbb::tick_count::now();
 	return (after - before).seconds();
 }
