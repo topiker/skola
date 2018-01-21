@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="menza:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/menza_jar</output-path>
+    <root id="archive" name="menza.jar">
+      <element id="module-output" name="menza" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/JARs/JSim-0.6.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

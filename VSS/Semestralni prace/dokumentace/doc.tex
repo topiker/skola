@@ -402,16 +402,91 @@ Z výsledků je vidět, že je teoretická hodnota blízská hodnotě ze simulac
 \subsection{Implementace}
 Místem spuštění celého programu je třída Main. 
 Ta přečtě vstup od uživatele a spustí podle toho simulaci s patřičnými parametry.
-Dále je implementace rozdělená do několika balíků
+Dále je implementace rozdělená do několika balíků. 
+Nyní bude rámcově popsáno, jakou funkcionalitu jednotlivé balíky obsahují a vyzdvihnuty klíčové části implementace.
+Přiložený kód je pak sám o sobě podrobně okomentován.
 
 \subsubsection{Request}
 V tomto balíku jsou třídy, reprezentující požadavek, který běží systémem (\texttt{Request}). 
-\subsection{Výsledky}
+Požadavky v sobě uchovávají informaci, kdy byly do simulace přidány. 
+Tento údaj pak slouží k určení délky setrvání požadavku v systému.
+
+\subsubsection{Connector}
+Tento balík zajištuje propojení výstupních front jedné výkonné jednotky (generátor požadavků, server atd.) do vstupní fronty jiné výkonné jednotky a tedy předávání požadavků mezi nimi.
+Zároveň jsou zde zahrnuty konstrukce pro rozhodnutí se, do které z možných jednotek bude požadavek předám (pravděpodobnostní rozhodování).
+
+\subsubsection{OperationUnit}
+V tomto balíku jsou umístěny všechny typy výkonných jednotek:
+
+\begin{itemize}  
+\item \texttt{GeneratorServer} - generuje nové požadavky do systému.
+\item \texttt{WaveServer} - generuje nové požadavky do systému. Navíc umí vygenerovat několik požadavků naráz a vytvořit tak nárazovou zátěž.
+\item \texttt{ProcessServer} - zpracovává požadavky z fronty a předává je dál
+\item \texttt{EndingServer} - jedná se o koncový uzel systému, zde se požadavky ruší a evidují se patřičné statistiky
+\item \texttt{IServer} - rodičovská třída všem předchozím
+\end{itemize}
+
+Zpracování požadavků je simulováno metodou \texttt{hold}. Pokud nemá výkonná jednotka ve frontě žádné požadavky, je uspána.
+Pokud přijde požadavek, je nutné ji znovu probudit. O to se stará výše zmíněný balík \texttt{Connector}
+
+\subsubsection{NumberGenerator}
+
+V tomto balíku je zajištěno generování náhodných čísel, ať s Gaussovým rozdělením nebo exponenciálně. 
+Generátory implementují rozhraní \texttt{ILambdaGenerator}, které je pak předáno výkonným jednotkám z balíku \texttt{OperationUnit}
+
+\subsubsection{Network}
+Posledním balíkem je balík \texttt{Network}. 
+V něm se vytváří instance simulace, výkonných jednotek a jejich vzájemném propojení a generátory náhodných čísel. 
+Následně je odstartována simulace spuštěním činnosti generátoru požadavků.
+
+\subsection{Výsledky simulace}
+
+Výsledky získané simulací můžeme vidět v tabulce níže.
+Pro generování požadavků byl použit exponenciální generátor.
+Hodnoty jsou zprůměrované z 5 měření a získané po běhu 10 000 požadavků.
+
+\begin{table}[ht!]
+	\centering
+	\begin{tabular}{|l|l|l|l|l|}
+		\hline
+		Název    & $\Lambda$ & $\rho$  & $L_q$   & $T_q$   \\ \hline
+		Server 1 & 13.10  & 0.66 & 1.86 & 0.14 \\ \hline
+		Server 2 & 1.98   & 0.16 & 0.19 & 0.09 \\ \hline
+		Server 3 & 3.25   & 0.29 & 0.41 & 0.12 \\ \hline
+		Server 4 & 2.41   & 0.18 & 0.22 & 0.09 \\ \hline
+		Server 5 & 2.43   & 0.20 & 0.25 & 0.10 \\ \hline
+		Server 6 & 3.01   & 0.21 & 0.27 & 0.08 \\ \hline
+		Server 7 & 7.33   & 0.66 & 2.04 & 0.27 \\ \hline
+		Server 8 & 5.76   & 0.47 & 0.89 & 0.15 \\ \hline
+		Server 9 & 12.53  & 0.70 & 2.30 & 0.18 \\ \hline
+	\end{tabular}
+	\caption {Výsledky získané simulací}
+\end{table}
+
 
 \section{Porovnání výsledků}
 
+Můžeme pozorovat, že nasimulované výsledky nejsou rovny výsledkům z analytického řešení, nicméně se k sobě velmi blíží. 
+Bylo tedy ověřeno, že ne vždycky musíme řešit výpočty analyticky. 
+Někdy jsou výpočty dokonce tak složité, že je vhodné je získat simulací.
+
 \section{Uživatelská příručka}
 
+Program se spouští z příkazové řádky příkazem \texttt{run.bat [EXP|GAUSS]}. 
+V případě, že nejsou zadány vstupní parametry, je program spuštěn nejprve s exponenciálním generátorem náhodných čísel a následně s Gaussovským generátorem s koeficienty variace 0.05, 0.2  a 0.7
+
+
 \section{Závěr} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-V rámci úkoly byly vypočítány střední frekvence jednotlivých uzlů, jejich zatížení, střední délka fronty a střední doba obsluhy. Následně bylo vypočítáno, kolik procent časového intervalu sledování bude druhá fronta prázdná. Společně s úkolem je navíc odevzdán soubor s daty pro program QNAlyzer pro případnou kontrolu.
+
+V rámci semestrální práce byl navržena otevřená síť front podle reálného prostředí. 
+Následně byly naměřeny některé stěžejní hodnoty. 
+Zbylé hodnoty byly odhadnuty. Následně byly analyticky pro tuto síť vypočítány statistiky. 
+
+Tato síť pak byla nasimulována počítačovou simulací. 
+Z této simulace byly následně získány statistiky.
+Statistiky ze simulováného a analitického řešení byly porovnány a potvrdilo se, že je možné analitické řešení alternovat řešením simulačním a naopak, neboť si hodnoty byly velmi blízské.
+
+Semestrální práci hodnotím velmi pozitivně, neboť jsem si utřídil znalosti získané ze semestru a mám pocit, že jsem probírané problematice porozuměl. Náročnost práce byla optimální.
+
+  
 \end{document}

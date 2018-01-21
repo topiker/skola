@@ -1,0 +1,1 @@
+java -jar menza.jar -D java.util.logging.config.file=logging.properties -flag1
