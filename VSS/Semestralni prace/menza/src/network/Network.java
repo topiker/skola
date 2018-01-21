@@ -4,38 +4,85 @@ import connector.Connector;
 import connector.ConnectorData;
 import connector.Range;
 import cz.zcu.fav.kiv.jsim.*;
+import numberGenerator.GeneratorType;
 import numberGenerator.exp.ExpGenerator;
 import numberGenerator.ILambdaGenerator;
-import operationunit.GeneratorServer;
-import operationunit.IServer;
-import operationunit.ProcessServer;
+import numberGenerator.gauss.GaussianGenerator;
+import operationunit.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by liska on 20.01.2018.
+ * Trida slouzi pro uchovani informaci o simulovanem systemu jako:
+ *  pouzite servery
+ *  pouzite generatory
+ *  atd..
+ *
+ *  Zaroven obsahuje vygenerovani systemu simulujici menzu
  */
 public class Network
 {
+    /**
+     * Ciselnik schemat site (Menza nebo neco jineho)
+     */
     private NetworkSchema schema;
 
+    /***
+     * Seznam generatoru pozadavku v siti
+     */
     private List<IServer> generators;
 
+    /***
+     * Seznam serveru v siti
+     */
     private List<IServer> servers;
 
+    /***
+     * Seznam spojeni mezi servery ci generatory
+     */
     private List<Connector> connectors;
 
-    public Network(NetworkSchema schema)
+    /***
+     * Koeficient variace pro Gaussovo rozdeleni
+     */
+    private double coeficintOfVariance;
+
+    /***
+     * Pocet pozadavku k vygenerovani
+     */
+    private int requestsToGenerate;
+
+    /**
+     * Ciselnik typu generovani nahodnych cisel (EXP | GAUSS)
+     */
+    private GeneratorType gType;
+
+    /***
+     *
+     * @param schema Schema site, ktere se ma vygenerovat
+     * @param type typ generatoru nahodnych cisel
+     * @param coeficintOfVariance koeficient variace pro Gaussovo rozdeleni
+     * @param requestsToGenerate pocet pozadavku, ktere maji projit system predtim, nez ho ukoncime
+     */
+    public Network(NetworkSchema schema, GeneratorType type, double coeficintOfVariance, int requestsToGenerate)
     {
         this.schema = schema;
         this.generators = new ArrayList<>();
         this.connectors = new ArrayList<>();
         this.servers = new ArrayList<>();
+        this.coeficintOfVariance = coeficintOfVariance;
+        this.requestsToGenerate = requestsToGenerate;
+        this.gType = type;
+
         this.prepareNetwork();
 
     }
 
+    /***
+     * Pripravi sit podle ciselniku
+     */
     private void prepareNetwork()
     {
         switch (this.schema)
@@ -45,21 +92,42 @@ public class Network
                 this.prepareMenzaNetwork();
                 break;
             default:
-                prepareExampleNetwork();
                 break;
         }
     }
 
-    private void prepareExampleNetwork()
-    {
-        JSimSimulation simSimulation = null;
 
+    /***
+     * Vrati generator nahodnych cisel podle ciselniku predanym v konstruktoru. Generatoru nastavi stredni hodnotu (mean)
+     * @param mean
+     * @return
+     */
+    private ILambdaGenerator getGenerator(double mean)
+    {
+        ILambdaGenerator result = null;
+        switch (this.gType)
+        {
+            case GAUSS:
+                result = new GaussianGenerator(mean, coeficintOfVariance,0);
+                break;
+            case EXP:
+                result = new ExpGenerator(mean);
+                break;
+            default:
+                result = new ExpGenerator(mean);
+                break;
+
+        }
+        return result;
     }
 
+    /**
+     * Vytvori sit reprezentujici svet v menze. Tato sit byla resena v ramci semestralni prace.
+     */
     private void prepareMenzaNetwork()
     {
 
-        JSimSimulation simSimulation = null;
+        MySimulation simSimulation = null;
         double probabilityOfReturn = 0.04;
 
         double cashier1 = 0.55;
@@ -73,21 +141,21 @@ public class Network
 
         try
         {
-            simSimulation = new JSimSimulation("Queueing Networks Simulation");
-            ILambdaGenerator gsEnd = new ExpGenerator(1500);
-            ILambdaGenerator gg1 = new ExpGenerator(12);
-            ILambdaGenerator gs1 = new ExpGenerator(20);
-            ILambdaGenerator gs2 = new ExpGenerator(12);
-            ILambdaGenerator gs3 = new ExpGenerator(11);
-            ILambdaGenerator gs4 = new ExpGenerator(13);
-            ILambdaGenerator gs5 = new ExpGenerator(12);
-            ILambdaGenerator gs6 = new ExpGenerator(14);
-            ILambdaGenerator gs7 = new ExpGenerator(11);
-            ILambdaGenerator gs8 = new ExpGenerator(12);
-            ILambdaGenerator gs9 = new ExpGenerator(18);
+            simSimulation = new MySimulation("Menza");
+            ILambdaGenerator gsEnd = getGenerator(1500);
+            ILambdaGenerator gg1 = getGenerator(12);
+            ILambdaGenerator gs1 = getGenerator(20);
+            ILambdaGenerator gs2 = getGenerator(12);
+            ILambdaGenerator gs3 = getGenerator(11);
+            ILambdaGenerator gs4 = getGenerator(13);
+            ILambdaGenerator gs5 = getGenerator(12);
+            ILambdaGenerator gs6 = getGenerator(14);
+            ILambdaGenerator gs7 = getGenerator(11);
+            ILambdaGenerator gs8 = getGenerator(12);
+            ILambdaGenerator gs9 = getGenerator(18);
 
 
-            IServer sEnd = new ProcessServer("Koncovy server",simSimulation,gsEnd, new JSimHead("Fronta koncovy",simSimulation),null);
+            IServer sEnd = new EndingServer("Koncovy server",simSimulation,gsEnd, new JSimHead("Fronta koncovy",simSimulation),null,requestsToGenerate);
             Connector fromS9 = new Connector(simSimulation);
             fromS9.addNewPossibleOperUnit(new ConnectorData(new Range(0,1 - probabilityOfReturn),sEnd));
             IServer s9 = new ProcessServer("Server 9",simSimulation,gs9, new JSimHead("Fronta 9",simSimulation),fromS9);
@@ -143,7 +211,7 @@ public class Network
             //Stravnik se generuje
             Connector fromG1 = new Connector(simSimulation);
             fromG1.addNewPossibleOperUnit(new ConnectorData(new Range(0,1),s1));
-            IServer g1 = new GeneratorServer("Generator 1",simSimulation,gg1,null,fromG1);
+            IServer g1 = new GeneratorServer("Generator vlny 1",simSimulation,gg1,null,fromG1);
 
             servers.add(s1);
             servers.add(s2);
@@ -154,69 +222,35 @@ public class Network
             servers.add(s7);
             servers.add(s8);
             servers.add(s9);
-            servers.add(sEnd);
 
             generators.add(g1);
 
-//            Connector fromS2 = new Connector(simSimulation);
-//            Connector fromS3 = new Connector(simSimulation);
-//            fromS2.addNewPossibleOperUnit(new ConnectorData(new Range(0,1),s4));
-//            fromS3.addNewPossibleOperUnit(new ConnectorData(new Range(0,1),s4));
-//            IServer s2 = new ProcessServer("Server 2",simSimulation,generator, new JSimHead("Fronta 2",simSimulation),fromS3);
-//            IServer s3 = new ProcessServer("Server 3",simSimulation,generator, new JSimHead("Fronta 3",simSimulation),fromS3);
-//
-//            Connector fromS1 = new Connector(simSimulation);
-//            fromS1.addNewPossibleOperUnit(new ConnectorData(new Range(0,0.5),s2));
-//            fromS1.addNewPossibleOperUnit(new ConnectorData(new Range(0.5,1),s3));
-//            IServer s1 = new ProcessServer("Server 1",simSimulation,generator, new JSimHead("Fronta 1",simSimulation),fromS1);
-//
-//            Connector fromG1 = new Connector(simSimulation);
-//            fromG1.addNewPossibleOperUnit(new ConnectorData(new Range(0,1),s1));
-//            IServer g1 = new GeneratorServer("Generator 1",simSimulation,generator, new JSimHead("Fronta 1",simSimulation),fromG1);
-//
-//            servers.add(s1);
-//            servers.add(s2);
-//            servers.add(s3);
-//            servers.add(s4);
-//
-//            generators.add(g1);
-//
-//            connectors.add(fromG1);
-//            connectors.add(fromS1);
-//            connectors.add(fromS2);
-//            connectors.add(fromS3);
 
-            for (IServer generatorToRun: generators
-                 )
+            for (IServer generatorToRun: generators)
             {
                 generatorToRun.activate(0.0);
             }
 
-//            ILambdaGenerator generator = new ExpGenerator(15);
-//            Connector fromG1 = new Connector(simSimulation);
-//            IServer server1 = new ProcessServer("Server 1",simSimulation,generator,new JSimHead("Fronta server 1",simSimulation),null);
-//            fromG1.addNewPossibleOperUnit(new ConnectorData(new Range(0,1),server1));
-//
-//            this.servers.add(server1);
-//            this.generators.add(new GeneratorServer("Generator prichozich",simSimulation,generator,new JSimHead("Fronta prichozich",simSimulation),fromG1));
-//
-//            simSimulation.message("Activating the generators...");
-//
-//            for (IServer generatorToRun: generators
-//                 )
-//            {
-//                generatorToRun.activate(0.0);
-//            }
-
             simSimulation.message("Running the simulation, please wait.");
-            while ((simSimulation.getCurrentTime() < 2000) && (simSimulation.step() == true))
-                ;
-
-            //Todo: vypisy
-            for (IServer currServer: servers
-                 ) {
-                simSimulation.message(currServer.getName() +  "Lw = " + currServer.getQueue().getLw() + ", Tw = " + currServer.getQueue().getTw() + ", Tw all = " + currServer.getQueue().getTwForAllLinks());
+            int stepCounter = 0;
+            while ((simSimulation.step() == true))
+            {
+                stepCounter++;
             }
+
+            double LqTotal = 0;
+            double TqTotal = simSimulation.getTotalTimeOfProcessesInSystem() / simSimulation.getTotalExitedProcesses();
+
+            for (IServer currServer: servers) {
+                simSimulation.message(currServer.getStatsAsString());
+                LqTotal += currServer.getLq();
+
+            }
+            simSimulation.message("Cela sit:");
+            simSimulation.message("----------------------------------");
+            simSimulation.message("Lq = " + LqTotal);
+            simSimulation.message("Tq = " + TqTotal);
+
         }
         catch (JSimException e) {
             e.printStackTrace();

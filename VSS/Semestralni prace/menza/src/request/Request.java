@@ -9,7 +9,7 @@ import cz.zcu.fav.kiv.jsim.JSimTooManyProcessesException;
  */
 public class Request extends IRequest
 {
-    public Request(double time) throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException, JSimTooManyProcessesException {
-        super(time);
+    public Request(double time, boolean runImmediately) throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException, JSimTooManyProcessesException {
+        super(time,runImmediately);
     }
 }

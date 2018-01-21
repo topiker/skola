@@ -12,15 +12,32 @@ import java.util.List;
 
 /**
  * Created by liska on 20.01.2018.
+ * Trida zajistuje prevedeni z jednoho serveru na druhy.
+ * Trida dostane seznam serveru, do kterych muze pozadavek predat a jejich pravdepodobnosti.
+ * Nasledne vybere
+ *
  */
 public class Connector implements IConnector{
 
+    /**
+     * Seznam moznych serveru k predani pozadavku
+     */
     private List<ConnectorData> possibleNextQueues;
 
+    /**
+     * Soucet celkove pravdepodobnosti moznych serveru. Slouzi pro kontrolu, ze jsme nepresahli 100%
+     */
     private double totalProbability;
 
+    /**
+     * Instance simulace, ve ktere se spojeni provadi
+     */
     private JSimSimulation simulation;
 
+    /**
+     *
+     * @param sim Instance simulace, ve ktere se spojeni provadi
+     */
     public Connector(JSimSimulation sim)
     {
         this.possibleNextQueues = new ArrayList<>();

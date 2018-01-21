@@ -62,6 +62,8 @@ public class GaussianGenerator implements GaussianDistributor, RandomNumberGener
      */
     private double z1;
 
+    private double coeficientOfVariance;
+
     private int notIn = 0;
     /**
      *
@@ -72,7 +74,25 @@ public class GaussianGenerator implements GaussianDistributor, RandomNumberGener
     public GaussianGenerator(GaussianParameters parameters, int numbersToGenerate, int histogramColumns)
     {
         this.parameters = parameters;
+        this.coeficientOfVariance = 0;
+
         this.numbersToGenerate = numbersToGenerate;
+        this.realParameters = new GaussianParameters(parameters.getMean(),parameters.getOdchylka(),0);
+        this.histogramColumns = histogramColumns;
+
+        predictedMinValue = parameters.getMean() - this.parameters.getOdchylka()*3;
+        predictedMaxValue = parameters.getMean() + this.parameters.getOdchylka()*3;
+        rangeForOneColumn = (predictedMaxValue - predictedMinValue)/(histogramColumns-1);
+        initHistogram();
+        generateNumbersToHistogram();
+    }
+
+    public GaussianGenerator(double mean, double coeficientOfVariance, int histogramColumns)
+    {
+        this.coeficientOfVariance = coeficientOfVariance;
+
+        this.parameters = new GaussianParameters(mean, mean*coeficientOfVariance,0);
+        this.numbersToGenerate = 0;
         this.realParameters = new GaussianParameters(parameters.getMean(),parameters.getOdchylka(),0);
         this.histogramColumns = histogramColumns;
 
@@ -194,10 +214,17 @@ public class GaussianGenerator implements GaussianDistributor, RandomNumberGener
             }
             newRandom = generateNumber();
         }
-        addNewRandomToHistogram(newRandom);
+//        addNewRandomToHistogram(newRandom);
         return newRandom;
 
 
+    }
+
+    @Override
+    public double generateHoldTime()
+    {
+        double number = generateNumber();
+        return (((double)1)/number);
     }
 
 }
