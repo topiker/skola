@@ -38,10 +38,10 @@ public abstract class IServer extends JSimProcess implements IServerMethods {
                 }
                 else
                 {
-                    //Simulace obsluhy
-                    hold(lGenerator.generateNumber());
                     //Posleme pozadavek do dalsi obsluhy
                     connector.redirectRequestToPossibleOperUnit(this,currentRequestToProcess);
+                    //Simulace obsluhy
+                    hold(lGenerator.generateNumber());
                 }
             }
         }

@@ -7,6 +7,7 @@ import network.NetworkSchema;
  */
 public class Main
 {
+    public static int requestCounter = 0;
     public static void main(String[] args)
     {
         Network network = new Network(NetworkSchema.MENZA);

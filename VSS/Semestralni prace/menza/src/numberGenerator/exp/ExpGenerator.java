@@ -1,4 +1,7 @@
-package numberGenerator;
+package numberGenerator.exp;
+
+import cz.zcu.fav.kiv.jsim.JSimSystem;
+import numberGenerator.ILambdaGenerator;
 
 /**
  * Created by liska on 20.01.2018.
@@ -15,6 +18,6 @@ public class ExpGenerator implements ILambdaGenerator
     @Override
     public double generateNumber()
     {
-        return lambda;
+        return JSimSystem.negExp(lambda);
     }
 }
