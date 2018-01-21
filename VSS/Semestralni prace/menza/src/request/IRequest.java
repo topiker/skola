@@ -18,4 +18,9 @@ public abstract class IRequest extends JSimLink
     {
         return timeOfCreation;
     } // getCreationTime
+
+    @Override
+    public Object getData() {
+        return this;
+    }
 }

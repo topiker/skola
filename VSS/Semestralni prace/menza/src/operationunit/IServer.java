@@ -1,5 +1,6 @@
 package operationunit;
 
+import connector.Connector;
 import cz.zcu.fav.kiv.jsim.*;
 import numberGenerator.ILambdaGenerator;
 import request.IRequest;
@@ -10,10 +11,14 @@ import request.IRequest;
 public abstract class IServer extends JSimProcess implements IServerMethods {
 
     private ILambdaGenerator lGenerator;
+    protected final JSimHead queue;
+    protected final Connector connector;
 
-    public IServer(String s, JSimSimulation jSimSimulation, ILambdaGenerator lGenerator) throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException, JSimTooManyProcessesException {
+    public IServer(String s, JSimSimulation jSimSimulation, ILambdaGenerator lGenerator, JSimHead queue, Connector connector) throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException, JSimTooManyProcessesException {
         super(s, jSimSimulation);
         this.lGenerator = lGenerator;
+        this.queue = queue;
+        this.connector = connector;
     }
 
     @Override
@@ -36,7 +41,7 @@ public abstract class IServer extends JSimProcess implements IServerMethods {
                     //Simulace obsluhy
                     hold(lGenerator.generateNumber());
                     //Posleme pozadavek do dalsi obsluhy
-
+                    connector.redirectRequestToPossibleOperUnit(this,currentRequestToProcess);
                 }
             }
         }
@@ -50,6 +55,11 @@ public abstract class IServer extends JSimProcess implements IServerMethods {
     @Override
     public IRequest getRequestToProcess() {
         return null;
+    }
+
+    public JSimHead getQueue()
+    {
+        return this.queue;
     }
 
 }

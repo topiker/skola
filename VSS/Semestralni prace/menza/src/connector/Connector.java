@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by liska on 20.01.2018.
  */
-public abstract class Connector implements IConnector{
+public class Connector implements IConnector{
 
     private List<ConnectorData> possibleNextQueues;
 
@@ -31,7 +31,7 @@ public abstract class Connector implements IConnector{
     @Override
     public boolean addNewPossibleOperUnit(ConnectorData toAdd) {
         double probabilitySize = toAdd.getProbabilityRange().to - toAdd.getProbabilityRange().from;
-        if((this.totalProbability + probabilitySize)<1)
+        if((this.totalProbability + probabilitySize)<=1)
         {
             this.totalProbability += probabilitySize;
             this.possibleNextQueues.add(toAdd);
@@ -59,7 +59,10 @@ public abstract class Connector implements IConnector{
                     if(currentProbabilityRange.from <= randomProbability && currentProbabilityRange.to > randomProbability)
                     {
                         //Touto frontou se vydam
-                        request.out();
+                        if(request.getQueue()!=null)
+                        {
+                            request.out();
+                        }
                         IServer server = cData.getServer();
                         JSimHead nextQueue = server.getQueue();
                         request.into(nextQueue);
